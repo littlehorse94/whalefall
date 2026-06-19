@@ -1,48 +1,82 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import ParticleField from './ParticleField';
 
 export default function HeroSection() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const [scrollUnlocked, setScrollUnlocked] = useState(false);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    video.pause();
-    video.currentTime = 0;
+    let rafId = 0;
+    let scrollTriggered = false;
+    let stInstance: { kill: () => void } | null = null;
 
-    let gsap: typeof import('gsap').gsap | null = null;
-    let ScrollTrigger: (typeof import('gsap/ScrollTrigger'))['ScrollTrigger'] | null = null;
-    let cleanup: (() => void) | null = null;
+    // Phase 1 — loop the first 1 second of video until user scrolls
+    const LOOP_END = 1.0; // loop 0 → 1s
+    const SCRUB_END = 8.0; // pin releases at 8s
 
+    const loopFrame = () => {
+      if (scrollTriggered) return;
+      if (video.currentTime >= LOOP_END || video.paused) {
+        video.currentTime = 0;
+      }
+      rafId = requestAnimationFrame(loopFrame);
+    };
+
+    const startLoop = () => {
+      video.currentTime = 0;
+      video.play().catch(() => {});
+      rafId = requestAnimationFrame(loopFrame);
+    };
+
+    // Wait for metadata so duration is known
+    const onMeta = () => startLoop();
+    if (video.readyState >= 1) {
+      startLoop();
+    } else {
+      video.addEventListener('loadedmetadata', onMeta, { once: true });
+    }
+
+    // Phase 2 — GSAP ScrollTrigger: pin hero, scrub 0 → SCRUB_END
     (async () => {
       const { gsap: g } = await import('gsap');
       const { ScrollTrigger: ST } = await import('gsap/ScrollTrigger');
       g.registerPlugin(ST);
-      gsap = g;
-      ScrollTrigger = ST;
 
-      const trigger = ST.create({
+      stInstance = ST.create({
         trigger: '#hero-section',
         start: 'top top',
-        end: 'bottom top',
-        scrub: 0.5,
-        onUpdate: (self) => {
-          if (video.duration && isFinite(video.duration)) {
-            video.currentTime = self.progress * video.duration;
-          }
+        // 700vh of scroll = the "7 seconds" of pinned experience
+        end: '+=700%',
+        pin: true,
+        scrub: 0.2,
+        onEnter: () => {
+          // Hand off control to scroll
+          scrollTriggered = true;
+          cancelAnimationFrame(rafId);
+          video.pause();
+          video.currentTime = 0;
         },
+        onUpdate: (self) => {
+          if (!isFinite(video.duration)) return;
+          // Map 0–1 scroll progress to 0–SCRUB_END seconds
+          video.currentTime = Math.min(self.progress * SCRUB_END, SCRUB_END);
+          if (self.progress >= 0.99) setScrollUnlocked(true);
+        },
+        onLeave: () => setScrollUnlocked(true),
       });
-
-      cleanup = () => trigger.kill();
     })();
 
     return () => {
-      cleanup?.();
+      cancelAnimationFrame(rafId);
+      stInstance?.kill();
+      video.pause();
     };
   }, []);
 
@@ -55,120 +89,156 @@ export default function HeroSection() {
     <section
       id="hero-section"
       ref={sectionRef}
-      className="relative h-[200vh]"
+      className="relative"
     >
-      {/* Sticky container */}
+      {/* Sticky viewport container */}
       <div className="sticky top-0 h-screen w-full overflow-hidden">
-        {/* Video Background */}
+
+        {/* ─── Video ─── */}
         <video
           ref={videoRef}
           className="absolute inset-0 w-full h-full object-cover"
+          style={{
+            // GPU acceleration + perceived sharpness boost
+            transform: 'scale(1.02) translateZ(0)',
+            willChange: 'transform',
+            imageRendering: 'auto',
+            filter: 'contrast(1.08) saturate(1.12) brightness(1.04)',
+            backfaceVisibility: 'hidden',
+          }}
           src="/hero.mp4"
           muted
           playsInline
           preload="auto"
         />
 
-        {/* Overlay gradients */}
+        {/* ─── Subtle vignette / atmosphere ─── */}
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 pointer-events-none"
           style={{
-            background: 'linear-gradient(180deg, rgba(5,8,16,0.3) 0%, rgba(5,8,16,0.1) 40%, rgba(5,8,16,0.7) 100%)',
+            background:
+              'linear-gradient(180deg, rgba(5,8,16,0.25) 0%, rgba(5,8,16,0.05) 35%, rgba(5,8,16,0.55) 100%)',
+            zIndex: 1,
           }}
         />
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 pointer-events-none"
           style={{
-            background: 'radial-gradient(ellipse at center, transparent 40%, rgba(5,8,16,0.6) 100%)',
+            background:
+              'radial-gradient(ellipse at center, transparent 45%, rgba(5,8,16,0.55) 100%)',
+            zIndex: 1,
           }}
         />
 
-        {/* Whale silhouette */}
+        {/* ─── 鲸落 BIG BACKGROUND GLYPH (sits above video, below other text) ─── */}
+        {/* Positioned centre-frame so the whale jumps up through / behind it */}
         <div
-          className="whale-swim-anim absolute"
-          style={{ top: '25%', left: 0, right: 0 }}
+          className="absolute inset-0 flex items-center justify-center pointer-events-none"
+          style={{ zIndex: 2 }}
         >
-          <svg
-            viewBox="0 0 300 100"
-            className="w-64 h-auto opacity-10"
-            fill="rgba(77,217,232,0.5)"
+          <span
+            style={{
+              fontFamily: 'Cinzel Decorative, cursive',
+              fontSize: 'clamp(140px, 28vw, 380px)',
+              fontWeight: 900,
+              lineHeight: 1,
+              // Semi-transparent so the video shows through slightly
+              color: 'rgba(232,244,248,0.08)',
+              // Glowing outline
+              WebkitTextStroke: '1.5px rgba(77,217,232,0.45)',
+              textShadow: '0 0 80px rgba(77,217,232,0.25), 0 0 200px rgba(77,217,232,0.1)',
+              letterSpacing: '-0.02em',
+              userSelect: 'none',
+              // Nudge it slightly upward so the whale jump crosses it naturally
+              transform: 'translateY(-5%)',
+            }}
           >
-            <path d="M20,50 C40,30 80,40 120,35 C160,30 200,45 240,40 C260,37 275,45 280,50 C275,55 260,60 240,58 C200,53 160,68 120,65 C80,62 40,70 20,50 Z" />
-            <path d="M20,50 C10,48 5,42 8,38 C12,34 18,40 20,50 Z" />
-            <circle cx="270" cy="47" r="3" fill="rgba(77,217,232,0.8)" />
-          </svg>
+            鲸落
+          </span>
         </div>
 
-        {/* Particles */}
-        <ParticleField count={50} />
+        {/* ─── Particles ─── */}
+        <div style={{ zIndex: 3, position: 'absolute', inset: 0 }}>
+          <ParticleField count={50} />
+        </div>
 
-        {/* Hero Content */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
+        {/* ─── Hero Content ─── */}
+        <div
+          className="absolute inset-0 flex flex-col items-center justify-end pb-24 text-center px-6"
+          style={{ zIndex: 4 }}
+        >
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.2, delay: 0.3, ease: 'easeOut' }}
-            className="flex flex-col items-center gap-6 max-w-4xl"
+            transition={{ duration: 1.4, delay: 0.5, ease: 'easeOut' }}
+            className="flex flex-col items-center gap-5 max-w-3xl"
           >
-            {/* Decorative line */}
-            <div className="flex items-center gap-4 w-full justify-center">
-              <div className="h-px w-24 bg-gradient-to-r from-transparent to-[#4dd9e8]" />
+            {/* Where Winds Meet label */}
+            <div className="flex items-center gap-4 justify-center">
+              <div className="h-px w-20 bg-gradient-to-r from-transparent to-[#4dd9e8]" />
               <span
                 className="text-xs tracking-[0.4em] text-[#4dd9e8] uppercase"
                 style={{ fontFamily: 'Cinzel, serif' }}
               >
                 Where Winds Meet
               </span>
-              <div className="h-px w-24 bg-gradient-to-l from-transparent to-[#4dd9e8]" />
+              <div className="h-px w-20 bg-gradient-to-l from-transparent to-[#4dd9e8]" />
             </div>
 
-            {/* Main Title */}
+            {/* Title */}
             <h1
-              className="text-6xl md:text-8xl font-black leading-tight glow-pearl"
+              className="leading-tight"
               style={{ fontFamily: 'Cinzel Decorative, cursive' }}
             >
-              <span className="shimmer-text">鲸落</span>
-              <br />
-              <span className="text-4xl md:text-5xl text-[#e8f4f8]">Whalefall Guild</span>
+              <span
+                className="block shimmer-text glow-pearl"
+                style={{ fontSize: 'clamp(48px, 9vw, 110px)', fontWeight: 900 }}
+              >
+                鲸落
+              </span>
+              <span
+                className="block text-[#e8f4f8]"
+                style={{ fontSize: 'clamp(22px, 4vw, 48px)', fontWeight: 700, marginTop: '-0.15em' }}
+              >
+                Whalefall Guild
+              </span>
             </h1>
 
             {/* Subtitle */}
             <p
-              className="text-lg md:text-xl text-[#4dd9e8] tracking-widest uppercase"
-              style={{ fontFamily: 'Cinzel, serif', letterSpacing: '0.3em' }}
+              className="text-[#4dd9e8] tracking-widest uppercase"
+              style={{ fontFamily: 'Cinzel, serif', fontSize: 'clamp(11px, 1.4vw, 18px)', letterSpacing: '0.28em' }}
             >
               Top 60 SEA Guild in Where Winds Meet
             </p>
 
-            {/* Divider */}
+            {/* Decorative dots */}
             <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-[#c9a84c] opacity-60" />
-              <div className="w-16 h-px bg-gradient-to-r from-[#4dd9e8] to-[#c9a84c]" />
-              <div className="w-2 h-2 rounded-full bg-[#4dd9e8] opacity-60" />
-              <div className="w-16 h-px bg-gradient-to-r from-[#c9a84c] to-[#4dd9e8]" />
-              <div className="w-2 h-2 rounded-full bg-[#c9a84c] opacity-60" />
+              <div className="w-1.5 h-1.5 rounded-full bg-[#c9a84c] opacity-70" />
+              <div className="w-14 h-px bg-gradient-to-r from-[#4dd9e8] to-[#c9a84c]" />
+              <div className="w-1.5 h-1.5 rounded-full bg-[#4dd9e8] opacity-70" />
+              <div className="w-14 h-px bg-gradient-to-r from-[#c9a84c] to-[#4dd9e8]" />
+              <div className="w-1.5 h-1.5 rounded-full bg-[#c9a84c] opacity-70" />
             </div>
 
             {/* Quote */}
             <p
-              className="text-xl md:text-2xl italic text-[rgba(232,244,248,0.75)] max-w-lg"
-              style={{ fontFamily: 'Cinzel, serif', textShadow: '0 2px 20px rgba(0,0,0,0.8)' }}
+              className="italic text-[rgba(232,244,248,0.75)] max-w-md"
+              style={{
+                fontFamily: 'Cinzel, serif',
+                fontSize: 'clamp(14px, 1.6vw, 20px)',
+                textShadow: '0 2px 20px rgba(0,0,0,0.9)',
+              }}
             >
               &ldquo;Some battles fade. Some memories become legends.&rdquo;
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-wrap justify-center gap-4 mt-4">
-              <button
-                onClick={() => scrollTo('#chronicle')}
-                className="cta-button"
-              >
+            <div className="flex flex-wrap justify-center gap-4 mt-2">
+              <button onClick={() => scrollTo('#chronicle')} className="cta-button">
                 Enter the Abyss
               </button>
-              <button
-                onClick={() => scrollTo('#gallery')}
-                className="cta-button cta-button-gold"
-              >
+              <button onClick={() => scrollTo('#gallery')} className="cta-button cta-button-gold">
                 Guild Gallery
               </button>
               <button
@@ -182,12 +252,13 @@ export default function HeroSection() {
           </motion.div>
         </div>
 
-        {/* Scroll indicator */}
+        {/* ─── Scroll indicator (hidden once unlocked) ─── */}
         <motion.div
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 2 }}
+          animate={{ opacity: scrollUnlocked ? 0 : 1 }}
+          transition={{ delay: 1.8 }}
           className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+          style={{ zIndex: 5 }}
         >
           <span
             className="text-xs text-[#4dd9e8] tracking-[0.3em] uppercase"
