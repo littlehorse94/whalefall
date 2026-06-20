@@ -4,13 +4,14 @@ import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import ParticleField from './ParticleField';
 
-// 100 px of scroll = 1 second of video
-const PX_PER_SECOND = 100;
+// Total scroll distance to play through the entire part1 video
+// 2.5 × viewport height — adjust up/down to taste
+const SCROLL_VH = 2.5;
 
 export default function HeroSection() {
-  const wrapperRef  = useRef<HTMLDivElement>(null);
-  const preRef      = useRef<HTMLVideoElement>(null);
-  const part1Ref    = useRef<HTMLVideoElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const preRef     = useRef<HTMLVideoElement>(null);
+  const part1Ref   = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const wrapper = wrapperRef.current;
@@ -18,59 +19,37 @@ export default function HeroSection() {
     const part1   = part1Ref.current;
     if (!wrapper || !pre || !part1) return;
 
-    // ── Pre-video: loop continuously ────────────────────────────────────────
+    // ── Size the wrapper based on viewport, not video duration ─────────────
+    const scrollDist = window.innerHeight * SCROLL_VH;
+    wrapper.style.height = `${window.innerHeight + scrollDist}px`;
+
+    // Pre-video: start looping immediately
     pre.play().catch(() => {});
 
-    // ── Wrapper sizing: set once part1 duration is known ────────────────────
-    let wrapperTop = 0;
-
-    const applyHeight = () => {
-      if (!part1.duration || !isFinite(part1.duration)) return;
-      const scrollDist = part1.duration * PX_PER_SECOND;
-      wrapper.style.height = `${window.innerHeight + scrollDist}px`;
-      // Cache absolute top after layout settles
-      requestAnimationFrame(() => {
-        wrapperTop = wrapper.getBoundingClientRect().top + window.scrollY;
-      });
-    };
-
-    if (part1.readyState >= 1) applyHeight();
-    else part1.addEventListener('loadedmetadata', applyHeight, { once: true });
-
-    // ── Scroll handler ───────────────────────────────────────────────────────
+    // ── Scroll handler ──────────────────────────────────────────────────────
+    // Hero is always at the top of the page so wrapperTop = 0.
+    // progress = scrollY / scrollDist (0 → 1 over the scroll range)
     const handleScroll = () => {
       const scrollY   = window.scrollY;
-      const relY      = scrollY - wrapperTop;
-      const scrollable = wrapper.offsetHeight - window.innerHeight;
+      const progress  = Math.max(0, Math.min(1, scrollY / scrollDist));
 
-      // Crossfade: pre-video ↔ part1
-      // Below threshold → show pre; above → show part1
-      const threshold = 5;
-      const atTop = scrollY <= threshold;
+      // ── Crossfade: pre ↔ part1 ─────────────────────────────────────────
+      // Fade completes over first 5% of scroll distance
+      const fadeProgress = Math.min(1, scrollY / (scrollDist * 0.05));
+      pre.style.opacity   = String(1 - fadeProgress);
+      part1.style.opacity = String(fadeProgress);
 
-      pre.style.opacity   = atTop ? '1' : '0';
-      part1.style.opacity = atTop ? '0' : '1';
-
-      if (atTop) {
-        // Ensure pre-video is looping
-        if (pre.paused) pre.play().catch(() => {});
-        return;
-      }
-
-      // Scrub part1 — bidirectional
-      if (part1.duration && isFinite(part1.duration) && scrollable > 0) {
-        const progress = Math.max(0, Math.min(1, relY / scrollable));
+      // ── Scrub part1 ─────────────────────────────────────────────────────
+      if (part1.duration && isFinite(part1.duration)) {
         part1.currentTime = progress * part1.duration;
       }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
+    // Run once to sync on mount (in case page was already scrolled)
+    handleScroll();
 
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      pre.pause();
-      part1.pause();
-    };
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const scrollTo = (href: string) => {
@@ -79,7 +58,11 @@ export default function HeroSection() {
   };
 
   return (
-    <div ref={wrapperRef} id="hero-section" style={{ height: '300vh' }}>
+    <div
+      ref={wrapperRef}
+      id="hero-section"
+      style={{ height: `${100 + SCROLL_VH * 100}vh` }}
+    >
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
 
         {/* ── Pre-video: loops ───────────────────────────────────────── */}
@@ -89,7 +72,7 @@ export default function HeroSection() {
           style={{
             zIndex: 1,
             opacity: 1,
-            transition: 'opacity 0.8s ease',
+            transition: 'opacity 0.3s ease',
             transform: 'scale(1.02) translateZ(0)',
             willChange: 'opacity, transform',
             filter: 'contrast(1.06) saturate(1.1) brightness(1.03)',
@@ -108,7 +91,7 @@ export default function HeroSection() {
           style={{
             zIndex: 2,
             opacity: 0,
-            transition: 'opacity 0.8s ease',
+            transition: 'opacity 0.3s ease',
             transform: 'scale(1.02) translateZ(0)',
             willChange: 'opacity, transform',
             filter: 'contrast(1.06) saturate(1.1) brightness(1.03)',
@@ -136,7 +119,7 @@ export default function HeroSection() {
           }}
         />
 
-        {/* ── 鲸落 large ghost glyph (behind content, above video) ──── */}
+        {/* ── 鲸落 ghost glyph ───────────────────────────────────────── */}
         <div
           className="absolute inset-0 flex items-center justify-center pointer-events-none"
           style={{ zIndex: 4 }}
