@@ -3,8 +3,8 @@
 import { useEffect, useRef } from 'react';
 
 const VIDEOS = [
-  '/src/whalefall-hero-pre.mp4',
-  '/src/wf-hero-part1.mp4',
+  '/src/wf-hero-pre.mp4',
+  '/src/wf-hero.mp4',
 ];
 
 export default function VideoBackground() {
