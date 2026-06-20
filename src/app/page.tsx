@@ -124,19 +124,19 @@ export default function Home() {
   }, []);
 
   return (
-    <main style={{ fontFamily: "'Inter', sans-serif", background: '#010101', color: '#fff', overflowX: 'hidden' }}>
+    <main style={{ fontFamily: "'Inter', sans-serif", background: 'transparent', color: '#fff', overflowX: 'hidden' }}>
 
       {/* Looping video background */}
       <VideoBackground />
 
-      {/* ── Particles canvas ──────────────────────────────────────────────── */}
+      {/* ── Particles canvas (z-index above video) ──────────────────────────── */}
       <ParticlesCanvas />
 
       {/* ── Fixed cards (appear during trigger zone) ──────────────────────── */}
       <div
         ref={fixedCardsRef}
         style={{
-          position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 4,
+          position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 5,
           padding: '2rem 2.5rem', opacity: 0, pointerEvents: 'none',
           transition: 'opacity 0.3s ease',
         }}
@@ -411,7 +411,7 @@ function ParticlesCanvas() {
   return (
     <canvas
       ref={ref}
-      style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 3 }}
+      style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 4 }}
     />
   );
 }

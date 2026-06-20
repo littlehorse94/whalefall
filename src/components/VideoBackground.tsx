@@ -32,10 +32,8 @@ export default function VideoBackground() {
       style={{
         position: 'fixed',
         inset: 0,
-        zIndex: -10,
+        zIndex: 0,          // positive so it isn't buried under body background
         background: '#010101',
-        top: '-20%',
-        bottom: '-20%',
       }}
     >
       <video
