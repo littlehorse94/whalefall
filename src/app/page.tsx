@@ -2,6 +2,7 @@
 
 import Navigation from '@/components/Navigation';
 import HeroSection from '@/components/HeroSection';
+import ScrollVideoSection from '@/components/ScrollVideoSection';
 import StatsSection from '@/components/StatsSection';
 import ChronicleSection from '@/components/ChronicleSection';
 import GallerySection from '@/components/GallerySection';
@@ -11,80 +12,60 @@ import PhotoContest from '@/components/PhotoContest';
 import Guestbook from '@/components/Guestbook';
 import WhaleSanctuary from '@/components/WhaleSanctuary';
 import AudioToggle from '@/components/AudioToggle';
-import OceanBackground from '@/components/OceanBackground';
+
+const Divider = ({ color = '#4dd9e8' }: { color?: string }) => (
+  <div className="relative h-px mx-auto max-w-4xl my-2">
+    <div
+      className="absolute inset-0 opacity-30"
+      style={{ background: `linear-gradient(to right, transparent, ${color}, transparent)` }}
+    />
+  </div>
+);
 
 export default function Home() {
   return (
-    <main className="relative min-h-screen">
-      {/* Fixed ocean background */}
-      <OceanBackground />
+    <main className="relative min-h-screen bg-black">
 
-      {/* Navigation */}
       <Navigation />
 
-      {/* Content layers */}
-      <div className="relative z-10">
-        <HeroSection />
+      {/* ── Part 1: pre-video loops → scrub on scroll ─────────────────────── */}
+      <HeroSection />
 
-        {/* Stats */}
+      {/* ── Part 2: scroll-synced background video ────────────────────────── */}
+      <ScrollVideoSection src="/src/wf-hero-part2.mp4" id="part2" />
+
+      {/* ── Part 3: scroll-synced background video ────────────────────────── */}
+      <ScrollVideoSection src="/src/wf-hero-part3.mp4" id="part3" />
+
+      {/* ── Page content after cinematic intro ────────────────────────────── */}
+      <div className="relative z-10">
+
         <StatsSection />
 
-        {/* Divider */}
-        <div className="relative h-px mx-auto max-w-4xl">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#4dd9e8] to-transparent opacity-30" />
-        </div>
-
-        {/* Chronicle */}
+        <Divider />
         <ChronicleSection />
 
-        {/* Divider */}
-        <div className="relative h-px mx-auto max-w-4xl">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#4dd9e8] to-transparent opacity-30" />
-        </div>
-
-        {/* Gallery */}
+        <Divider />
         <GallerySection />
 
-        {/* Divider */}
-        <div className="relative h-px mx-auto max-w-4xl">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#c9a84c] to-transparent opacity-30" />
-        </div>
-
-        {/* Hall of Legends */}
+        <Divider color="#c9a84c" />
         <HallOfLegends />
 
-        {/* Divider */}
-        <div className="relative h-px mx-auto max-w-4xl">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#4dd9e8] to-transparent opacity-30" />
-        </div>
-
-        {/* Montage Library */}
+        <Divider />
         <MontageLibrary />
 
-        {/* Divider */}
-        <div className="relative h-px mx-auto max-w-4xl">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#c9a84c] to-transparent opacity-30" />
-        </div>
-
-        {/* Photo Contest */}
+        <Divider color="#c9a84c" />
         <PhotoContest />
 
-        {/* Divider */}
-        <div className="relative h-px mx-auto max-w-4xl">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#4dd9e8] to-transparent opacity-30" />
-        </div>
-
-        {/* Guestbook */}
+        <Divider />
         <Guestbook />
 
-        {/* Whale Sanctuary */}
         <WhaleSanctuary />
 
-        {/* Footer */}
         <footer
           className="relative z-10 py-12 px-6 text-center"
           style={{
-            background: 'rgba(1,2,4,0.9)',
+            background: 'rgba(1,2,4,0.95)',
             borderTop: '1px solid rgba(77,217,232,0.1)',
           }}
         >
@@ -102,31 +83,20 @@ export default function Home() {
               TOP 60 SEA GUILD · WHERE WINDS MEET · EST. 2022
             </p>
             <div className="flex justify-center gap-6 mb-8">
-              <a
-                href="https://discord.gg/whalefall"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-[rgba(232,244,248,0.4)] hover:text-[#4dd9e8] transition-colors"
-                style={{ fontFamily: 'Cinzel, serif', letterSpacing: '0.1em' }}
-              >
-                Discord
-              </a>
-              <span className="text-[rgba(77,217,232,0.2)]">·</span>
-              <a
-                href="#gallery"
-                className="text-xs text-[rgba(232,244,248,0.4)] hover:text-[#4dd9e8] transition-colors"
-                style={{ fontFamily: 'Cinzel, serif', letterSpacing: '0.1em' }}
-              >
-                Gallery
-              </a>
-              <span className="text-[rgba(77,217,232,0.2)]">·</span>
-              <a
-                href="#chronicle"
-                className="text-xs text-[rgba(232,244,248,0.4)] hover:text-[#4dd9e8] transition-colors"
-                style={{ fontFamily: 'Cinzel, serif', letterSpacing: '0.1em' }}
-              >
-                Chronicle
-              </a>
+              {['Discord', 'Gallery', 'Chronicle'].map((label, i) => (
+                <span key={label} className="flex items-center gap-6">
+                  {i > 0 && <span className="text-[rgba(77,217,232,0.2)]">·</span>}
+                  <a
+                    href={label === 'Discord' ? 'https://discord.gg/whalefall' : `#${label.toLowerCase()}`}
+                    target={label === 'Discord' ? '_blank' : undefined}
+                    rel={label === 'Discord' ? 'noopener noreferrer' : undefined}
+                    className="text-xs text-[rgba(232,244,248,0.4)] hover:text-[#4dd9e8] transition-colors"
+                    style={{ fontFamily: 'Cinzel, serif', letterSpacing: '0.1em' }}
+                  >
+                    {label}
+                  </a>
+                </span>
+              ))}
             </div>
             <div className="h-px bg-gradient-to-r from-transparent via-[rgba(77,217,232,0.2)] to-transparent mb-6" />
             <p
@@ -139,7 +109,6 @@ export default function Home() {
         </footer>
       </div>
 
-      {/* Fixed Audio Toggle */}
       <AudioToggle />
     </main>
   );
