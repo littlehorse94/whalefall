@@ -4,9 +4,8 @@ import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import ParticleField from './ParticleField';
 
-// Total scroll distance to play through the entire part1 video
-// 2.5 × viewport height — adjust up/down to taste
-const SCROLL_VH = 2.5;
+// 1 viewport height of scroll = full part1 video. Lower = snappier.
+const SCROLL_VH = 1;
 
 export default function HeroSection() {
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -19,37 +18,52 @@ export default function HeroSection() {
     const part1   = part1Ref.current;
     if (!wrapper || !pre || !part1) return;
 
-    // ── Size the wrapper based on viewport, not video duration ─────────────
     const scrollDist = window.innerHeight * SCROLL_VH;
     wrapper.style.height = `${window.innerHeight + scrollDist}px`;
 
-    // Pre-video: start looping immediately
     pre.play().catch(() => {});
 
-    // ── Scroll handler ──────────────────────────────────────────────────────
-    // Hero is always at the top of the page so wrapperTop = 0.
-    // progress = scrollY / scrollDist (0 → 1 over the scroll range)
-    const handleScroll = () => {
-      const scrollY   = window.scrollY;
-      const progress  = Math.max(0, Math.min(1, scrollY / scrollDist));
+    // Track target time in a ref — updated on scroll, applied on rAF
+    let targetTime = 0;
+    let rafId = 0;
 
-      // ── Crossfade: pre ↔ part1 ─────────────────────────────────────────
-      // Fade completes over first 5% of scroll distance
-      const fadeProgress = Math.min(1, scrollY / (scrollDist * 0.05));
-      pre.style.opacity   = String(1 - fadeProgress);
-      part1.style.opacity = String(fadeProgress);
-
-      // ── Scrub part1 ─────────────────────────────────────────────────────
+    const tick = () => {
       if (part1.duration && isFinite(part1.duration)) {
-        part1.currentTime = progress * part1.duration;
+        const diff = targetTime - part1.currentTime;
+        if (Math.abs(diff) > 0.016) {
+          // fastSeek is much cheaper than setting currentTime directly
+          if (typeof (part1 as HTMLVideoElement & { fastSeek?: (t: number) => void }).fastSeek === 'function') {
+            (part1 as HTMLVideoElement & { fastSeek: (t: number) => void }).fastSeek(targetTime);
+          } else {
+            part1.currentTime = targetTime;
+          }
+        }
+      }
+      rafId = requestAnimationFrame(tick);
+    };
+    rafId = requestAnimationFrame(tick);
+
+    const handleScroll = () => {
+      const scrollY  = window.scrollY;
+      const progress = Math.max(0, Math.min(1, scrollY / scrollDist));
+
+      // Crossfade — completes in first 8% of scroll
+      const fade = Math.min(1, scrollY / (scrollDist * 0.08));
+      pre.style.opacity   = String(1 - fade);
+      part1.style.opacity = String(fade);
+
+      if (part1.duration && isFinite(part1.duration)) {
+        targetTime = progress * part1.duration;
       }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    // Run once to sync on mount (in case page was already scrolled)
     handleScroll();
 
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      cancelAnimationFrame(rafId);
+    };
   }, []);
 
   const scrollTo = (href: string) => {
@@ -61,7 +75,7 @@ export default function HeroSection() {
     <div
       ref={wrapperRef}
       id="hero-section"
-      style={{ height: `${100 + SCROLL_VH * 100}vh` }}
+      style={{ height: `${(1 + SCROLL_VH) * 100}vh` }}
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
 
