@@ -2,7 +2,7 @@
 
 import Navigation from '@/components/Navigation';
 import HeroSection from '@/components/HeroSection';
-import ScrollVideoSection from '@/components/ScrollVideoSection';
+import OceanBackground from '@/components/OceanBackground';
 import StatsSection from '@/components/StatsSection';
 import ChronicleSection from '@/components/ChronicleSection';
 import GallerySection from '@/components/GallerySection';
@@ -26,18 +26,15 @@ export default function Home() {
   return (
     <main className="relative min-h-screen bg-black">
 
+      {/* Fixed ocean background for content sections */}
+      <OceanBackground />
+
       <Navigation />
 
-      {/* ── Part 1: pre-video loops → scrub on scroll ─────────────────────── */}
+      {/* ── Hero: pre-video loops → part1 scrubs on scroll ────────────────── */}
       <HeroSection />
 
-      {/* ── Part 2: scroll-synced background video ────────────────────────── */}
-      <ScrollVideoSection src="/src/wf-hero-part2.mp4" id="part2" />
-
-      {/* ── Part 3: scroll-synced background video ────────────────────────── */}
-      <ScrollVideoSection src="/src/wf-hero-part3.mp4" id="part3" />
-
-      {/* ── Page content after cinematic intro ────────────────────────────── */}
+      {/* ── Page content with ocean background ────────────────────────────── */}
       <div className="relative z-10">
 
         <StatsSection />
