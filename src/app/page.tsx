@@ -35,15 +35,27 @@ function ChevronDown() {
 const FIXED_CARDS = [
   {
     title: 'Guild Chronicle',
-    body: 'A living timeline of our victories, milestones, and turning points since 2022 — every battle that shaped who we are.',
+    body: 'A living timeline of our victories, milestones, and turning points since 2022.',
   },
   {
     title: 'Memory Gallery',
-    body: 'Screenshots and moments from PvP, PvE, guild events, and beyond. Every memory uploaded, preserved in the deep.',
+    body: 'Screenshots and moments from PvP, PvE, guild events, and beyond — preserved in the deep.',
   },
   {
     title: 'Hall of Legends',
-    body: 'Honouring the members who carried the soul of Whalefall. Profiles, achievements, and the stories behind the names.',
+    body: 'Honouring the members who carried the soul of Whalefall through every battle.',
+  },
+  {
+    title: 'Montage Library',
+    body: 'Relive the battles, the laughs, and the legends through our cinematic video archive.',
+  },
+  {
+    title: 'Photo Contest',
+    body: 'Vote for the best screenshot of the month. Every frame a story worth remembering.',
+  },
+  {
+    title: 'Guestbook',
+    body: 'Leave your mark. Share a memory, a thank-you, or words for the guild in the deep.',
   },
 ];
 
@@ -145,7 +157,7 @@ export default function Home() {
           ref={cardsGridRef}
           style={{
             maxWidth: '72rem', margin: '0 auto',
-            display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem',
+            display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.25rem 2rem',
           }}
         >
           {FIXED_CARDS.map((c) => (
@@ -166,7 +178,7 @@ export default function Home() {
         padding: '1.25rem 2.5rem',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-          <span style={{ fontWeight: 700, fontSize: '1.25rem', color: '#fff', letterSpacing: '-0.025em', fontFamily: "'Cinzel Decorative', cursive" }}>
+          <span style={{ fontWeight: 400, fontSize: '1.4rem', color: '#fff', fontFamily: "'Long Cang', cursive" }}>
             鲸落
           </span>
           <div className="hidden md:flex" style={{ alignItems: 'center', gap: '1.5rem', display: 'flex' }}>
@@ -246,19 +258,19 @@ export default function Home() {
         </section>
 
         {/* Spacer 1 */}
-        <div style={{ height: '150vh' }} />
+        <div style={{ height: '30vh' }} />
 
         {/* ── Cards trigger zone ─────────────────────────────────────────────── */}
-        <div ref={cardsTriggerRef} style={{ height: '200vh' }} />
+        <div ref={cardsTriggerRef} style={{ height: '120vh' }} />
 
         {/* Spacer 2 */}
-        <div style={{ height: '100vh' }} />
+        <div style={{ height: '20vh' }} />
 
         {/* ── Section 3 — 鲸落 reveal ───────────────────────────────────────── */}
         <section style={{
-          position: 'relative', minHeight: '100vh', display: 'flex',
+          position: 'relative', minHeight: '60vh', display: 'flex',
           alignItems: 'flex-end', justifyContent: 'center',
-          padding: '0 2.5rem 8rem',
+          padding: '0 2.5rem 5rem',
         }}>
           <div
             ref={s3InnerRef}
@@ -276,7 +288,9 @@ export default function Home() {
               className="shimmer-text"
               style={{ fontSize: 'clamp(2.5rem, 8vw, 6rem)', fontWeight: 900, fontFamily: "'Cinzel Decorative', cursive" }}
             >
-              鲸落 · Whalefall
+              <span style={{ fontFamily: "'Long Cang', cursive" }}>鲸落</span>
+              {' · '}
+              <span>Whalefall</span>
             </h2>
             <p style={{ color: '#9ca3af', fontSize: '1rem', marginTop: '1rem', fontFamily: "'Cinzel', serif", letterSpacing: '0.1em' }}>
               "Some battles fade. Some memories become legends."
@@ -307,7 +321,8 @@ export default function Home() {
           }}>
             <div style={{ maxWidth: '56rem', margin: '0 auto' }}>
               <div className="shimmer-text" style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '0.5rem', fontFamily: "'Cinzel Decorative', cursive" }}>
-                鲸落 | Whalefall
+                <span style={{ fontFamily: "'Long Cang', cursive" }}>鲸落</span>
+                {' | Whalefall'}
               </div>
               <p style={{ fontSize: '0.75rem', color: 'rgba(232,244,248,0.35)', marginBottom: '1.5rem', letterSpacing: '0.2em', fontFamily: "'Cinzel', serif" }}>
                 TOP 60 SEA GUILD · WHERE WINDS MEET · EST. 2022

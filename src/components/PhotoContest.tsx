@@ -69,7 +69,7 @@ export default function PhotoContest() {
         >
           June 2025
         </p>
-        <h2 className="section-title text-3xl md:text-5xl text-[#e8f4f8] glow-gold">
+        <h2 className="text-3xl md:text-5xl text-[#e8f4f8] glow-gold" style={{ fontFamily: "'Long Cang', cursive" }}>
           鲸落摄影大赛
         </h2>
         <p

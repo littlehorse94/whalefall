@@ -207,7 +207,7 @@ export default function WhaleSanctuary() {
 
           <div
             className="text-2xl sm:text-4xl md:text-6xl mb-8 glow-cyan"
-            style={{ fontFamily: 'Cinzel Decorative, cursive', color: '#4dd9e8' }}
+            style={{ fontFamily: "'Long Cang', cursive", color: '#4dd9e8' }}
           >
             鲸落，万物生
           </div>

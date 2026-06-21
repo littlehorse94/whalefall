@@ -4,21 +4,33 @@ import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 
 export default function AudioToggle() {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioRef     = useRef<HTMLAudioElement | null>(null);
+  const userMutedRef = useRef(false);
   const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
     const audio = new Audio('/src/whalefall-drift.mp3');
     audio.loop   = true;
-    audio.volume = 1.0;
+    audio.volume = 0.8;
     audioRef.current = audio;
 
-    // Attempt autoplay on mount — succeeds if page already had interaction
+    const unlockPlay = () => {
+      if (userMutedRef.current) return;
+      audio.play().then(() => setPlaying(true)).catch(() => {});
+    };
+
+    // Try immediate autoplay; if blocked, play on first user interaction
     audio.play().then(() => setPlaying(true)).catch(() => {
-      // Browser blocked autoplay; user must click the button first
+      document.addEventListener('click',      unlockPlay, { once: true });
+      document.addEventListener('touchstart', unlockPlay, { once: true });
     });
 
-    return () => { audio.pause(); audio.src = ''; };
+    return () => {
+      audio.pause();
+      audio.src = '';
+      document.removeEventListener('click',      unlockPlay);
+      document.removeEventListener('touchstart', unlockPlay);
+    };
   }, []);
 
   const toggle = () => {
@@ -27,8 +39,10 @@ export default function AudioToggle() {
     if (playing) {
       audio.pause();
       setPlaying(false);
+      userMutedRef.current = true;
     } else {
       audio.play().then(() => setPlaying(true)).catch(() => {});
+      userMutedRef.current = false;
     }
   };
 
