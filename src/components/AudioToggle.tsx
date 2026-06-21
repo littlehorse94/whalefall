@@ -1,96 +1,61 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 
 export default function AudioToggle() {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.3);
-  const audioRef = useRef<HTMLAudioElement>(null);
-
-  // Create an oscillator-based ambient sound using Web Audio API
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const nodesRef = useRef<{ gainNode: GainNode; osc1: OscillatorNode; osc2: OscillatorNode; osc3: OscillatorNode } | null>(null);
-
-  const createAmbientSound = () => {
-    const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-    const gainNode = ctx.createGain();
-    gainNode.gain.value = 0;
-    gainNode.connect(ctx.destination);
-
-    // Low ocean rumble
-    const osc1 = ctx.createOscillator();
-    osc1.type = 'sine';
-    osc1.frequency.value = 55;
-    const gain1 = ctx.createGain();
-    gain1.gain.value = 0.15;
-    osc1.connect(gain1);
-    gain1.connect(gainNode);
-    osc1.start();
-
-    // Mid whale song
-    const osc2 = ctx.createOscillator();
-    osc2.type = 'sine';
-    osc2.frequency.value = 180;
-    const gain2 = ctx.createGain();
-    gain2.gain.value = 0.05;
-    osc2.connect(gain2);
-    gain2.connect(gainNode);
-    osc2.start();
-
-    // High shimmer
-    const osc3 = ctx.createOscillator();
-    osc3.type = 'sine';
-    osc3.frequency.value = 440;
-    const gain3 = ctx.createGain();
-    gain3.gain.value = 0.02;
-    osc3.connect(gain3);
-    gain3.connect(gainNode);
-    osc3.start();
-
-    // Slow frequency modulation for osc2
-    let t = 0;
-    const interval = setInterval(() => {
-      t += 0.01;
-      osc2.frequency.value = 180 + Math.sin(t) * 40;
-      osc3.frequency.value = 440 + Math.cos(t * 0.7) * 100;
-    }, 50);
-
-    audioCtxRef.current = ctx;
-    nodesRef.current = { gainNode, osc1, osc2, osc3 };
-
-    return { gainNode, interval };
-  };
-
-  const handleToggle = () => {
-    if (!playing) {
-      if (!audioCtxRef.current) {
-        const { gainNode } = createAmbientSound();
-        gainNode.gain.setTargetAtTime(volume, audioCtxRef.current!.currentTime, 1);
-      } else {
-        audioCtxRef.current.resume();
-        nodesRef.current?.gainNode.gain.setTargetAtTime(volume, audioCtxRef.current.currentTime, 1);
-      }
-      setPlaying(true);
-    } else {
-      nodesRef.current?.gainNode.gain.setTargetAtTime(0, audioCtxRef.current!.currentTime, 0.5);
-      setTimeout(() => audioCtxRef.current?.suspend(), 1000);
-      setPlaying(false);
-    }
-  };
 
   useEffect(() => {
-    return () => {
-      audioCtxRef.current?.close();
+    const audio = new Audio('/src/whalefall-drift.mp3');
+    audio.loop   = true;
+    audio.volume = 0.3;
+    audioRef.current = audio;
+
+    // Try to autoplay; browsers may block it until first interaction
+    const tryPlay = () => {
+      audio.play().then(() => setPlaying(true)).catch(() => {});
     };
+
+    // Attempt immediately — succeeds on most browsers after page interaction
+    tryPlay();
+
+    // Fallback: play on first user interaction if blocked
+    const onInteract = () => {
+      if (!playing) tryPlay();
+      window.removeEventListener('click', onInteract);
+      window.removeEventListener('scroll', onInteract);
+    };
+    window.addEventListener('click',  onInteract, { once: true });
+    window.addEventListener('scroll', onInteract, { once: true, passive: true });
+
+    return () => {
+      audio.pause();
+      audio.src = '';
+      window.removeEventListener('click',  onInteract);
+      window.removeEventListener('scroll', onInteract);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const toggle = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (playing) {
+      audio.pause();
+      setPlaying(false);
+    } else {
+      audio.play().then(() => setPlaying(true)).catch(() => {});
+    }
+  };
 
   return (
     <motion.button
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 2 }}
-      onClick={handleToggle}
+      onClick={toggle}
       className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-full"
       style={{
         background: playing ? 'rgba(77,217,232,0.15)' : 'rgba(5,8,16,0.8)',
@@ -103,7 +68,6 @@ export default function AudioToggle() {
         transition: 'all 0.3s ease',
       }}
     >
-      {/* Sound waves animation */}
       <div className="relative flex items-center justify-center w-5 h-5">
         {playing ? (
           <div className="flex items-center gap-0.5">
@@ -113,10 +77,8 @@ export default function AudioToggle() {
                 className="w-0.5 rounded-full bg-[#4dd9e8]"
                 style={{
                   height: `${6 + i * 3}px`,
-                  animation: `pulse-glow ${0.5 + i * 0.15}s ease-in-out infinite alternate`,
+                  animation: `pulse-bars ${0.5 + i * 0.15}s ease-in-out infinite alternate`,
                   animationDelay: `${i * 0.1}s`,
-                  background: '#4dd9e8',
-                  opacity: 0.9,
                 }}
               />
             ))}
@@ -127,15 +89,7 @@ export default function AudioToggle() {
           </svg>
         )}
       </div>
-      <span
-        className="text-xs whitespace-nowrap"
-        style={{
-          fontFamily: 'Cinzel, serif',
-          letterSpacing: '0.05em',
-          color: playing ? '#4dd9e8' : 'rgba(232,244,248,0.7)',
-          fontSize: '0.7rem',
-        }}
-      >
+      <span style={{ fontFamily: 'Cinzel, serif', letterSpacing: '0.05em', color: playing ? '#4dd9e8' : 'rgba(232,244,248,0.7)', fontSize: '0.7rem' }}>
         {playing ? 'Ocean Song ♪' : 'Song of the Deep'}
       </span>
     </motion.button>

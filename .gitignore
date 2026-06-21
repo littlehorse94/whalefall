@@ -142,6 +142,8 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
 
-# Large video files - serve locally or via CDN
+# Large video files - serve via CDN
 public/src/*.mp4
 public/hero.mp4
+# Upload script (contains token)
+scripts/upload-videos.mjs

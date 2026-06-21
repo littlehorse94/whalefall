@@ -3,8 +3,8 @@
 import { useEffect, useRef } from 'react';
 
 const VIDEOS = [
-  '/src/wf-hero-pre.mp4',
-  '/src/wf-hero.mp4',
+  'https://24crvoriam0dl2l7.public.blob.vercel-storage.com/wf-hero-pre.mp4',
+  'https://24crvoriam0dl2l7.public.blob.vercel-storage.com/wf-hero.mp4',
 ];
 
 export default function VideoBackground() {
