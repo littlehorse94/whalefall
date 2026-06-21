@@ -93,7 +93,7 @@ export default function PhotoContest() {
           boxShadow: '0 0 40px rgba(201,168,76,0.1)',
         }}
       >
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
           <div>
             <h3
               className="text-xl font-bold text-[#c9a84c] mb-1"
@@ -124,7 +124,7 @@ export default function PhotoContest() {
 
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Photo Grid */}
-        <div className="lg:col-span-2 grid grid-cols-2 gap-4">
+        <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
           {contestPhotos.map((photo, i) => (
             <motion.div
               key={photo.id}

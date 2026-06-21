@@ -6,7 +6,7 @@ import ParticleField from './ParticleField';
 export default function WhaleSanctuary() {
   return (
     <section
-      className="relative z-10 py-32 px-6 overflow-hidden"
+      className="relative z-10 py-16 md:py-32 px-4 md:px-6 overflow-hidden"
       style={{
         background: 'linear-gradient(180deg, transparent, rgba(1,2,8,0.95) 20%, rgba(1,2,8,1) 100%)',
         minHeight: '100vh',
@@ -62,7 +62,7 @@ export default function WhaleSanctuary() {
           <svg
             viewBox="0 0 700 300"
             xmlns="http://www.w3.org/2000/svg"
-            className="w-full max-w-2xl"
+            className="w-full max-w-xs sm:max-w-lg md:max-w-2xl"
             fill="none"
             stroke="#4dd9e8"
             strokeLinecap="round"
@@ -206,7 +206,7 @@ export default function WhaleSanctuary() {
           </h2>
 
           <div
-            className="text-4xl md:text-6xl mb-8 glow-cyan"
+            className="text-2xl sm:text-4xl md:text-6xl mb-8 glow-cyan"
             style={{ fontFamily: 'Cinzel Decorative, cursive', color: '#4dd9e8' }}
           >
             鲸落，万物生

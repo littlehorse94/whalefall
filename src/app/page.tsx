@@ -137,7 +137,7 @@ export default function Home() {
         ref={fixedCardsRef}
         style={{
           position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 5,
-          padding: '2rem 2.5rem', opacity: 0, pointerEvents: 'none',
+          padding: 'clamp(1rem, 3vw, 2rem) clamp(1rem, 4vw, 2.5rem)', opacity: 0, pointerEvents: 'none',
           transition: 'opacity 0.3s ease',
         }}
       >
@@ -145,7 +145,7 @@ export default function Home() {
           ref={cardsGridRef}
           style={{
             maxWidth: '72rem', margin: '0 auto',
-            display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '2.5rem',
+            display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem',
           }}
         >
           {FIXED_CARDS.map((c) => (
@@ -169,7 +169,7 @@ export default function Home() {
           <span style={{ fontWeight: 700, fontSize: '1.25rem', color: '#fff', letterSpacing: '-0.025em', fontFamily: "'Cinzel Decorative', cursive" }}>
             鲸落
           </span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+          <div className="hidden md:flex" style={{ alignItems: 'center', gap: '1.5rem', display: 'flex' }}>
             {['Chronicle', 'Gallery', 'Legends', 'Montages'].map(label => (
               <a key={label} href={`#${label.toLowerCase()}`} className="nav-link">{label}</a>
             ))}

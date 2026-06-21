@@ -10,33 +10,15 @@ export default function AudioToggle() {
   useEffect(() => {
     const audio = new Audio('/src/whalefall-drift.mp3');
     audio.loop   = true;
-    audio.volume = 0.3;
+    audio.volume = 1.0;
     audioRef.current = audio;
 
-    // Try to autoplay; browsers may block it until first interaction
-    const tryPlay = () => {
-      audio.play().then(() => setPlaying(true)).catch(() => {});
-    };
+    // Attempt autoplay on mount — succeeds if page already had interaction
+    audio.play().then(() => setPlaying(true)).catch(() => {
+      // Browser blocked autoplay; user must click the button first
+    });
 
-    // Attempt immediately — succeeds on most browsers after page interaction
-    tryPlay();
-
-    // Fallback: play on first user interaction if blocked
-    const onInteract = () => {
-      if (!playing) tryPlay();
-      window.removeEventListener('click', onInteract);
-      window.removeEventListener('scroll', onInteract);
-    };
-    window.addEventListener('click',  onInteract, { once: true });
-    window.addEventListener('scroll', onInteract, { once: true, passive: true });
-
-    return () => {
-      audio.pause();
-      audio.src = '';
-      window.removeEventListener('click',  onInteract);
-      window.removeEventListener('scroll', onInteract);
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => { audio.pause(); audio.src = ''; };
   }, []);
 
   const toggle = () => {
@@ -68,9 +50,9 @@ export default function AudioToggle() {
         transition: 'all 0.3s ease',
       }}
     >
-      <div className="relative flex items-center justify-center w-5 h-5">
+      <div className="flex items-center justify-center w-5 h-5">
         {playing ? (
-          <div className="flex items-center gap-0.5">
+          <div className="flex items-end gap-0.5 h-5">
             {[1, 2, 3, 4].map((i) => (
               <div
                 key={i}
@@ -84,12 +66,17 @@ export default function AudioToggle() {
             ))}
           </div>
         ) : (
-          <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-[#4dd9e8]">
-            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+          <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-[rgba(232,244,248,0.5)]">
+            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM16.5 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
           </svg>
         )}
       </div>
-      <span style={{ fontFamily: 'Cinzel, serif', letterSpacing: '0.05em', color: playing ? '#4dd9e8' : 'rgba(232,244,248,0.7)', fontSize: '0.7rem' }}>
+      <span style={{
+        fontFamily: 'Cinzel, serif',
+        letterSpacing: '0.05em',
+        color: playing ? '#4dd9e8' : 'rgba(232,244,248,0.5)',
+        fontSize: '0.7rem',
+      }}>
         {playing ? 'Ocean Song ♪' : 'Song of the Deep'}
       </span>
     </motion.button>
