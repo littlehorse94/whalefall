@@ -14,6 +14,7 @@ const members = [
     quote: '"Every whale fall begins with a single step into the unknown."',
     gradient: 'from-[#1a3a5c] to-[#0a1a2e]',
     color: '#4dd9e8',
+    glowColor: '#4dd9e8',
     initials: 'AT',
   },
   {
@@ -26,6 +27,7 @@ const members = [
     quote: '"In the chaos of battle, find the silence of purpose."',
     gradient: 'from-[#3a1a1a] to-[#1a0a0a]',
     color: '#e84d4d',
+    glowColor: '#e84d4d',
     initials: 'CV',
   },
   {
@@ -38,6 +40,7 @@ const members = [
     quote: '"A guild lives through the events that bring hearts together."',
     gradient: 'from-[#2a1a3a] to-[#1a0a2e]',
     color: '#c9a84c',
+    glowColor: '#a78bfa',
     initials: 'LP',
   },
   {
@@ -50,6 +53,7 @@ const members = [
     quote: '"No boss lives through three wipes. On the fourth, we feast."',
     gradient: 'from-[#1a2a1a] to-[#0a1a0a]',
     color: '#4de890',
+    glowColor: '#4de890',
     initials: 'IS',
   },
   {
@@ -62,6 +66,7 @@ const members = [
     quote: '"Every screenshot is a moment that deserves to live forever."',
     gradient: 'from-[#1a3a5c] to-[#0a2a4c]',
     color: '#4dd9e8',
+    glowColor: '#4dd9e8',
     initials: 'MA',
   },
   {
@@ -74,6 +79,7 @@ const members = [
     quote: '"A guild is only as strong as the bonds between its people."',
     gradient: 'from-[#3a2a1a] to-[#1a1a0a]',
     color: '#e8a84d',
+    glowColor: '#e8a84d',
     initials: 'TK',
   },
 ];
@@ -112,7 +118,7 @@ export default function HallOfLegends() {
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.6, delay: i * 0.1 }}
             className="glass rounded-xl overflow-hidden card-hover group"
-            style={{ border: `1px solid ${member.color}25`, '--hover-glow': `${member.color}33` } as CSSProperties}
+            style={{ border: `1px solid ${member.color}25`, '--hover-glow': `${member.glowColor}40` } as CSSProperties}
           >
             {/* Card Header */}
             <div

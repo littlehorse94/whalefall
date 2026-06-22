@@ -3,6 +3,7 @@
 import { useInView } from 'react-intersection-observer';
 import CountUp from 'react-countup';
 import { motion } from 'framer-motion';
+import { GlowingEffect } from '@/components/GlowingEffect';
 
 const stats = [
   { label: 'SEA Ranking', value: 60, prefix: 'Top ', suffix: '', desc: 'In Where Winds Meet' },
@@ -59,9 +60,10 @@ export default function StatsSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: i * 0.1 }}
-            className="glass rounded-lg p-6 text-center border-glow card-hover flex flex-col"
+            className="relative glass rounded-lg p-6 text-center border-glow card-hover flex flex-col"
             style={{ animationDelay: `${i * 0.1}s` }}
           >
+            <GlowingEffect disabled={false} glow proximity={60} spread={24} borderWidth={1.5} />
             <div
               className="flex items-center justify-center text-3xl md:text-4xl font-bold mb-1 glow-cyan"
               style={{ fontFamily: 'Cinzel Decorative, cursive', color: '#4dd9e8', minHeight: '4.5rem' }}

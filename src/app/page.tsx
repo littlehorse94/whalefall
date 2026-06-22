@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import VideoBackground from '@/components/VideoBackground';
 import AudioToggle from '@/components/AudioToggle';
+import { GlowingEffect } from '@/components/GlowingEffect';
 
 // ── Sub-section components (below the fold) ───────────────────────────────
 import StatsSection from '@/components/StatsSection';
@@ -90,10 +91,14 @@ export default function Home() {
         const sy         = window.scrollY;
 
         const start = triggerTop - vh * 0.5;
-        const end   = triggerTop + triggerH - vh * 0.3;
+        const end   = triggerTop + triggerH;
 
+        // Fade out gradually over the back half of the trigger zone (not a
+        // last-instant snap) so cards are fully gone well before the next
+        // section reveals — avoids overlapping the 鲸落 / WHALEFALL section.
+        const fadeOutStart = triggerTop + triggerH * 0.55;
         const fadeIn  = Math.min(1, Math.max(0, (sy - (start - vh * 0.2)) / (vh * 0.2)));
-        const fadeOut = Math.min(1, Math.max(0, (end + vh * 0.3 - sy) / (vh * 0.3)));
+        const fadeOut = Math.min(1, Math.max(0, (end - sy) / (end - fadeOutStart)));
         const opacity = Math.min(fadeIn, fadeOut);
 
         fixedCards.style.opacity        = String(opacity);
@@ -124,7 +129,7 @@ export default function Home() {
           s3.style.filter    = 'blur(0)';
           observer?.unobserve(s3);
         }
-      }, { threshold: 0.15 });
+      }, { threshold: 0.45 });
       observer.observe(s3);
     }
 
@@ -161,7 +166,15 @@ export default function Home() {
           }}
         >
           {FIXED_CARDS.map((c) => (
-            <div key={c.title}>
+            <div
+              key={c.title}
+              className="relative rounded-2xl"
+              style={{
+                padding: '1.5rem', background: 'rgba(5,8,16,0.45)',
+                backdropFilter: 'blur(8px)', border: '1px solid rgba(77,217,232,0.12)',
+              }}
+            >
+              <GlowingEffect disabled={false} glow proximity={70} spread={28} borderWidth={1.5} />
               <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#fff', marginBottom: '1rem', fontFamily: "'Cinzel Decorative', cursive" }}>
                 {c.title}
               </h3>
@@ -263,8 +276,8 @@ export default function Home() {
         {/* ── Cards trigger zone ─────────────────────────────────────────────── */}
         <div ref={cardsTriggerRef} style={{ height: '120vh' }} />
 
-        {/* Spacer 2 */}
-        <div style={{ height: '20vh' }} />
+        {/* Spacer 2 — gives the fixed cards room to fully fade before WHALEFALL reveals */}
+        <div style={{ height: '60vh' }} />
 
         {/* ── Section 3 — 鲸落 reveal ───────────────────────────────────────── */}
         <section style={{
