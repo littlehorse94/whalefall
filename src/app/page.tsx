@@ -331,6 +331,9 @@ export default function Home() {
               <p style={{ fontSize: '0.75rem', color: 'rgba(232,244,248,0.2)', fontFamily: "'Cinzel', serif" }}>
                 © 2025 Whalefall Guild. All memories preserved in the deep.
               </p>
+              <p style={{ fontSize: '0.7rem', color: 'rgba(232,244,248,0.15)', marginTop: '0.75rem', fontFamily: "'Cinzel', serif", letterSpacing: '0.1em' }}>
+                Developed by Macatting Studio
+              </p>
             </div>
           </footer>
         </div>

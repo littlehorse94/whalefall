@@ -100,7 +100,7 @@ export default function ChronicleSection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: '-100px' }}
             transition={{ duration: 0.7, delay: 0.1 }}
-            className={`relative flex items-center mb-16 ${
+            className={`relative flex items-center justify-between mb-16 ${
               m.side === 'left' ? 'md:flex-row' : 'md:flex-row-reverse'
             } flex-col`}
           >
@@ -153,14 +153,14 @@ export default function ChronicleSection() {
             {/* Year label */}
             <div
               className={`hidden md:block w-5/12 overflow-hidden ${
-                m.side === 'left' ? 'pl-16' : 'pr-16 text-right'
+                m.side === 'left' ? 'pl-8' : 'pr-8 text-right'
               }`}
             >
               <span
                 className="font-black opacity-20"
                 style={{
                   fontFamily: 'Cinzel Decorative, cursive', color: '#4dd9e8',
-                  fontSize: 'clamp(1.75rem, 3.5vw, 3rem)', whiteSpace: 'nowrap',
+                  fontSize: 'clamp(2rem, 4vw, 3.5rem)', whiteSpace: 'nowrap',
                 }}
               >
                 {m.year}
