@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { GlowingEffect } from '@/components/GlowingEffect';
 
 // Mock data shape mirrors Discord's free widget API response
 // (https://discord.com/developers/docs/resources/guild#get-guild-widget-json),
@@ -57,8 +58,9 @@ function WidgetCard({ children, delay = 0 }: { children: React.ReactNode; delay?
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6, delay }}
-      className="glass rounded-2xl p-6 border-glow flex flex-col"
+      className="relative glass rounded-2xl p-6 border-glow flex flex-col"
     >
+      <GlowingEffect disabled={false} glow proximity={70} spread={28} borderWidth={1.5} />
       {children}
     </motion.div>
   );

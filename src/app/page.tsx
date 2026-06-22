@@ -11,7 +11,6 @@ import StatsSection from '@/components/StatsSection';
 import ChronicleSection from '@/components/ChronicleSection';
 import DiscordWidget from '@/components/DiscordWidget';
 import PhotoContest from '@/components/PhotoContest';
-import Guestbook from '@/components/Guestbook';
 import WhaleSanctuary from '@/components/WhaleSanctuary';
 import Footer from '@/components/Footer';
 
@@ -62,7 +61,7 @@ const FIXED_CARDS = [
   {
     title: 'Guestbook',
     body: 'Leave your mark. Share a memory, a thank-you, or words for the guild in the deep.',
-    href: '#guestbook',
+    href: '/legends#guestbook',
   },
 ];
 
@@ -206,7 +205,6 @@ export default function Home() {
           </span>
           <div className="hidden md:flex" style={{ alignItems: 'center', gap: '1.5rem', display: 'flex' }}>
             {[
-              { label: 'Chronicle', href: '#chronicle' },
               { label: 'Gallery', href: '/gallery' },
               { label: 'Legends', href: '/legends' },
               { label: 'Montages', href: '/montages' },
@@ -336,7 +334,6 @@ export default function Home() {
           <Divider />
           <PhotoContest />
           <Divider />
-          <Guestbook />
           <WhaleSanctuary />
 
           <Footer />

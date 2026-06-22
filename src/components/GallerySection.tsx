@@ -1,33 +1,78 @@
 'use client';
 
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import Image from 'next/image';
+import ImageLightbox, { type LightboxPhoto } from './ImageLightbox';
 
-const categories = ['All', 'PvP', 'PvE', 'Scenery', 'Guild Gatherings', 'Funny Moments', 'Events'];
+interface GalleryEvent {
+  id: string;
+  title: string;
+  date: string;
+  description: string;
+  photos: LightboxPhoto[];
+}
 
-const photos = [
-  { id: 1, url: 'https://images.unsplash.com/photo-1579353977828-2a4eab540b9a?w=600&q=80', category: 'PvP', title: 'Battle for the Throne' },
-  { id: 2, url: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=600&q=80', category: 'PvE', title: 'Dragon Raid Night' },
-  { id: 3, url: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=600&q=80', category: 'Scenery', title: 'Dawn at the Crystal Peaks' },
-  { id: 4, url: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&q=80', category: 'Guild Gatherings', title: 'Anniversary Party 2023' },
-  { id: 5, url: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&q=80', category: 'PvP', title: 'Siege of Iron Gate' },
-  { id: 6, url: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=80', category: 'Scenery', title: 'Midnight Waterfall' },
-  { id: 7, url: 'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=600&q=80', category: 'Events', title: 'Summer Tournament 2024' },
-  { id: 8, url: 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=600&q=80', category: 'PvE', title: 'Ancient Temple Clear' },
-  { id: 9, url: 'https://images.unsplash.com/photo-1560253023-3ec5d502959f?w=600&q=80', category: 'Funny Moments', title: 'When the Tank Fell Off a Cliff' },
-  { id: 10, url: 'https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=600&q=80', category: 'Guild Gatherings', title: 'New Year Celebration' },
-  { id: 11, url: 'https://images.unsplash.com/photo-1563298723-dcfebaa392e3?w=600&q=80', category: 'Scenery', title: 'Ocean of Stars' },
-  { id: 12, url: 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=600&q=80', category: 'Events', title: 'Photo Contest Winners' },
+const events: GalleryEvent[] = [
+  {
+    id: 'iron-gate',
+    title: 'Siege of Iron Gate',
+    date: 'PvP · 2023',
+    description: 'Our biggest battlefield campaign — three guilds, one gate, and a night nobody forgot.',
+    photos: [
+      { url: 'https://images.unsplash.com/photo-1579353977828-2a4eab540b9a?w=900&q=80', title: 'Battle for the Throne' },
+      { url: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=900&q=80', title: 'Siege of Iron Gate' },
+      { url: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=900&q=80', title: 'Dragon Raid Night' },
+    ],
+  },
+  {
+    id: 'anniversary-2023',
+    title: '3rd Anniversary Celebration',
+    date: 'Guild Gathering · March 2023',
+    description: 'Three years of Whalefall, celebrated with the whole guild in one server.',
+    photos: [
+      { url: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=900&q=80', title: 'Anniversary Party 2023' },
+      { url: 'https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=900&q=80', title: 'New Year Celebration' },
+      { url: 'https://images.unsplash.com/photo-1560253023-3ec5d502959f?w=900&q=80', title: 'When the Tank Fell Off a Cliff' },
+    ],
+  },
+  {
+    id: 'summer-tournament',
+    title: 'Summer Tournament 2024',
+    date: 'Events · Summer 2024',
+    description: 'Our annual guild tournament — raids, races, and a screenshot contest.',
+    photos: [
+      { url: 'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=900&q=80', title: 'Summer Tournament 2024' },
+      { url: 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=900&q=80', title: 'Photo Contest Winners' },
+      { url: 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=900&q=80', title: 'Ancient Temple Clear' },
+    ],
+  },
+  {
+    id: 'scenic-exploration',
+    title: 'Scenic Exploration',
+    date: 'Scenery · Ongoing',
+    description: 'The quiet moments between battles — the views worth pausing for.',
+    photos: [
+      { url: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=900&q=80', title: 'Dawn at the Crystal Peaks' },
+      { url: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=900&q=80', title: 'Midnight Waterfall' },
+      { url: 'https://images.unsplash.com/photo-1563298723-dcfebaa392e3?w=900&q=80', title: 'Ocean of Stars' },
+    ],
+  },
 ];
 
 export default function GallerySection() {
-  const [activeCategory, setActiveCategory] = useState('All');
-  const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const [hoveredKey, setHoveredKey] = useState<string | null>(null);
+  const [activeEventId, setActiveEventId] = useState<string | null>(null);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
-  const filtered = activeCategory === 'All'
-    ? photos
-    : photos.filter(p => p.category === activeCategory);
+  const activeEvent = events.find(e => e.id === activeEventId) ?? null;
+
+  const openPhoto = (eventId: string, index: number) => {
+    setActiveEventId(eventId);
+    setActiveIndex(index);
+  };
+
+  const closePhoto = () => setActiveIndex(null);
 
   return (
     <section id="gallery" className="relative z-10 py-24 px-6">
@@ -36,7 +81,7 @@ export default function GallerySection() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8 }}
-        className="text-center mb-12"
+        className="text-center mb-16"
       >
         <p
           className="text-xs tracking-[0.5em] text-[#4dd9e8] uppercase mb-3"
@@ -48,102 +93,92 @@ export default function GallerySection() {
           Memory Gallery
         </h2>
         <p className="mt-4 text-[rgba(232,244,248,0.5)] max-w-xl mx-auto">
-          Every screenshot tells a story. Every moment shared becomes eternal.
+          Every screenshot tells a story. Every moment shared becomes eternal — organised by the event it came from.
         </p>
         <div className="mt-4 mx-auto w-24 h-px bg-gradient-to-r from-transparent via-[#4dd9e8] to-transparent" />
       </motion.div>
 
-      {/* Category Filters */}
-      <div className="flex flex-wrap justify-center gap-3 mb-10">
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setActiveCategory(cat)}
-            className="px-4 py-2 rounded text-sm transition-all duration-300"
-            style={{
-              fontFamily: 'Cinzel, serif',
-              fontSize: '0.7rem',
-              letterSpacing: '0.1em',
-              border: `1px solid ${activeCategory === cat ? '#4dd9e8' : 'rgba(77,217,232,0.2)'}`,
-              background: activeCategory === cat ? 'rgba(77,217,232,0.15)' : 'rgba(77,217,232,0.03)',
-              color: activeCategory === cat ? '#4dd9e8' : 'rgba(232,244,248,0.6)',
-              boxShadow: activeCategory === cat ? '0 0 15px rgba(77,217,232,0.3)' : 'none',
-            }}
+      <div className="max-w-6xl mx-auto flex flex-col gap-16">
+        {events.map((ev, eventIdx) => (
+          <motion.div
+            key={ev.id}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.6, delay: eventIdx * 0.05 }}
           >
-            {cat}
-          </button>
+            <div className="flex items-baseline justify-between flex-wrap gap-2 mb-5">
+              <div>
+                <h3
+                  className="text-xl font-bold text-[#e8f4f8]"
+                  style={{ fontFamily: 'Cinzel, serif' }}
+                >
+                  {ev.title}
+                </h3>
+                <p className="text-sm text-[rgba(232,244,248,0.5)] mt-1">{ev.description}</p>
+              </div>
+              <span
+                className="text-xs px-3 py-1 rounded-full flex-shrink-0"
+                style={{
+                  background: 'rgba(77,217,232,0.1)', border: '1px solid rgba(77,217,232,0.3)',
+                  color: '#4dd9e8', fontFamily: 'Cinzel, serif', letterSpacing: '0.05em',
+                }}
+              >
+                {ev.date}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {ev.photos.map((photo, i) => {
+                const key = `${ev.id}-${i}`;
+                return (
+                  <div
+                    key={key}
+                    className="relative group cursor-pointer rounded-lg overflow-hidden"
+                    style={{ aspectRatio: '4/3' }}
+                    onMouseEnter={() => setHoveredKey(key)}
+                    onMouseLeave={() => setHoveredKey(null)}
+                    onClick={() => openPhoto(ev.id, i)}
+                  >
+                    <Image
+                      src={photo.url}
+                      alt={photo.title}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                    />
+                    <div
+                      className="absolute inset-0 flex flex-col justify-end p-3 transition-all duration-300"
+                      style={{
+                        background: hoveredKey === key
+                          ? 'linear-gradient(0deg, rgba(5,8,16,0.85) 0%, rgba(5,8,16,0.3) 60%, transparent 100%)'
+                          : 'linear-gradient(0deg, rgba(5,8,16,0.45) 0%, transparent 60%)',
+                      }}
+                    >
+                      <motion.p
+                        initial={false}
+                        animate={{ opacity: hoveredKey === key ? 1 : 0, y: hoveredKey === key ? 0 : 8 }}
+                        transition={{ duration: 0.2 }}
+                        className="text-xs font-semibold text-[#e8f4f8]"
+                        style={{ fontFamily: 'Cinzel, serif' }}
+                      >
+                        {photo.title}
+                      </motion.p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
         ))}
       </div>
 
-      {/* Photo Grid */}
-      <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <AnimatePresence mode="popLayout">
-          {filtered.map((photo) => (
-            <motion.div
-              key={photo.id}
-              layout
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.3 }}
-              className="relative group cursor-pointer rounded-lg overflow-hidden"
-              style={{ aspectRatio: '4/3' }}
-              onMouseEnter={() => setHoveredId(photo.id)}
-              onMouseLeave={() => setHoveredId(null)}
-            >
-              <Image
-                src={photo.url}
-                alt={photo.title}
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-110"
-                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-              />
-              {/* Hover Overlay */}
-              <div
-                className="absolute inset-0 flex flex-col justify-end p-4 transition-all duration-300"
-                style={{
-                  background: hoveredId === photo.id
-                    ? 'linear-gradient(0deg, rgba(5,8,16,0.9) 0%, rgba(5,8,16,0.4) 60%, transparent 100%)'
-                    : 'linear-gradient(0deg, rgba(5,8,16,0.5) 0%, transparent 60%)',
-                }}
-              >
-                <motion.div
-                  initial={false}
-                  animate={{ opacity: hoveredId === photo.id ? 1 : 0, y: hoveredId === photo.id ? 0 : 10 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <span
-                    className="text-xs px-2 py-0.5 rounded mb-1 inline-block"
-                    style={{
-                      background: 'rgba(77,217,232,0.2)',
-                      border: '1px solid rgba(77,217,232,0.4)',
-                      color: '#4dd9e8',
-                      fontFamily: 'Cinzel, serif',
-                      fontSize: '0.65rem',
-                      letterSpacing: '0.1em',
-                    }}
-                  >
-                    {photo.category}
-                  </span>
-                  <p
-                    className="text-sm font-semibold text-[#e8f4f8]"
-                    style={{ fontFamily: 'Cinzel, serif' }}
-                  >
-                    {photo.title}
-                  </p>
-                </motion.div>
-              </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </div>
-
-      {/* View More */}
-      <div className="text-center mt-12">
-        <button className="cta-button">
-          View Full Gallery
-        </button>
-      </div>
+      <ImageLightbox
+        photos={activeEvent?.photos ?? []}
+        index={activeIndex}
+        onClose={closePhoto}
+        onNavigate={setActiveIndex}
+      />
     </section>
   );
 }

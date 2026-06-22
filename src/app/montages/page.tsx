@@ -1,4 +1,4 @@
-import OceanBackground from '@/components/OceanBackground';
+import PageVideoBackground from '@/components/PageVideoBackground';
 import ParticlesCanvas from '@/components/ParticlesCanvas';
 import SiteNav from '@/components/SiteNav';
 import MontageLibrary from '@/components/MontageLibrary';
@@ -7,7 +7,7 @@ import Footer from '@/components/Footer';
 export default function MontagesPage() {
   return (
     <main style={{ fontFamily: "'Inter', sans-serif", color: '#fff', position: 'relative' }}>
-      <OceanBackground />
+      <PageVideoBackground />
       <ParticlesCanvas />
       <div style={{ position: 'relative', zIndex: 2 }}>
         <SiteNav />

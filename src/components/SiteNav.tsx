@@ -12,11 +12,10 @@ function DiscordIcon() {
 
 const links = [
   { label: 'Home', href: '/' },
-  { label: 'Chronicle', href: '/#chronicle' },
   { label: 'Gallery', href: '/gallery' },
   { label: 'Legends', href: '/legends' },
   { label: 'Montages', href: '/montages' },
-  { label: 'Guestbook', href: '/#guestbook' },
+  { label: 'Guestbook', href: '/legends#guestbook' },
 ];
 
 export default function SiteNav() {

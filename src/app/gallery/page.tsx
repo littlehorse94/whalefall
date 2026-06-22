@@ -1,18 +1,20 @@
-import OceanBackground from '@/components/OceanBackground';
+import PageVideoBackground from '@/components/PageVideoBackground';
 import ParticlesCanvas from '@/components/ParticlesCanvas';
 import SiteNav from '@/components/SiteNav';
 import GallerySection from '@/components/GallerySection';
+import PhotoContest from '@/components/PhotoContest';
 import Footer from '@/components/Footer';
 
 export default function GalleryPage() {
   return (
     <main style={{ fontFamily: "'Inter', sans-serif", color: '#fff', position: 'relative' }}>
-      <OceanBackground />
+      <PageVideoBackground />
       <ParticlesCanvas />
       <div style={{ position: 'relative', zIndex: 2 }}>
         <SiteNav />
         <div style={{ paddingTop: '3rem' }}>
           <GallerySection />
+          <PhotoContest />
         </div>
         <Footer />
       </div>
