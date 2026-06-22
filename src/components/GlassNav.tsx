@@ -17,23 +17,6 @@ function DiscordIcon() {
   );
 }
 
-// SVG filter for the liquid-glass refraction effect on the floating pill.
-function GlassFilter() {
-  return (
-    <svg style={{ position: 'absolute', width: 0, height: 0 }} aria-hidden="true">
-      <filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%" filterUnits="objectBoundingBox">
-        <feTurbulence type="fractalNoise" baseFrequency="0.008 0.012" numOctaves="2" seed="17" result="turbulence" />
-        <feGaussianBlur in="turbulence" stdDeviation="2" result="softMap" />
-        <feSpecularLighting in="softMap" surfaceScale="4" specularConstant="0.8" specularExponent="80" lightingColor="white" result="specLight">
-          <fePointLight x="-150" y="-150" z="250" />
-        </feSpecularLighting>
-        <feComposite in="specLight" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="litImage" />
-        <feDisplacementMap in="SourceGraphic" in2="softMap" scale="10" xChannelSelector="R" yChannelSelector="G" />
-      </filter>
-    </svg>
-  );
-}
-
 export default function GlassNav() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -47,7 +30,6 @@ export default function GlassNav() {
 
   return (
     <>
-      <GlassFilter />
       <div
         style={{
           position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
@@ -71,26 +53,26 @@ export default function GlassNav() {
           }}
         >
           {/* ── Liquid glass layers (only meaningfully visible once floating) ──
-              The distortion filter must NOT share an element with border-radius:
-              SVG filters rasterize the layer as a plain rectangle, so applying
-              both to the same element makes the rounded-corner anti-aliasing
-              itself get displaced, producing a jagged/pixelated edge. Instead,
-              this layer stays a flat unrounded rectangle and lets the parent
-              <nav>'s overflow:hidden + border-radius clip it cleanly. */}
+              An SVG feTurbulence/feDisplacementMap distortion was tried here
+              for a true refraction effect, but at this element's small size
+              the noise pattern reads as visible blocky pixels rather than
+              fine grain, and rasterizing the filter as a rectangle makes the
+              rounded-corner edge itself look jagged. Backdrop blur + a touch
+              of extra saturation gives a clean glass look without either
+              problem. */}
           <div
             style={{
               position: 'absolute', inset: 0, zIndex: 0,
-              backdropFilter: scrolled ? 'blur(16px)' : 'blur(0px)',
-              WebkitBackdropFilter: scrolled ? 'blur(16px)' : 'blur(0px)',
-              filter: scrolled ? 'url(#glass-distortion)' : 'none',
-              background: scrolled ? 'rgba(10,14,26,0.35)' : 'transparent',
+              backdropFilter: scrolled ? 'blur(18px) saturate(1.6)' : 'blur(0px)',
+              WebkitBackdropFilter: scrolled ? 'blur(18px) saturate(1.6)' : 'blur(0px)',
+              background: scrolled ? 'rgba(10,14,26,0.4)' : 'transparent',
               transition: 'all 0.5s ease',
             }}
           />
           <div
             style={{
               position: 'absolute', inset: 0, zIndex: 1, borderRadius: 'inherit',
-              background: 'rgba(255,255,255,0.04)',
+              background: 'linear-gradient(155deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.03) 35%, rgba(255,255,255,0) 60%)',
               opacity: scrolled ? 1 : 0, transition: 'opacity 0.5s ease',
             }}
           />
