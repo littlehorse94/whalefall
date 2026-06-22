@@ -113,9 +113,9 @@ export default function GallerySection() {
         >
           Captured Moments
         </p>
-        <h2 className="section-title text-3xl md:text-5xl text-[#e8f4f8] glow-pearl">
+        <h1 className="section-title text-3xl md:text-5xl text-[#e8f4f8] glow-pearl">
           Memory Gallery
-        </h2>
+        </h1>
         <p className="mt-4 text-[rgba(232,244,248,0.5)] max-w-xl mx-auto">
           Every screenshot tells a story. Every moment shared becomes eternal — organised by the event it came from.
         </p>

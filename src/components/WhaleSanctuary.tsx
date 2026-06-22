@@ -1,9 +1,42 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import ParticleField from './ParticleField';
 
+interface BioluminescentDot {
+  width: number;
+  height: number;
+  left: number;
+  top: number;
+  alpha: number;
+  duration: number;
+  delay: number;
+}
+
+function generateDots(count: number): BioluminescentDot[] {
+  return Array.from({ length: count }, () => ({
+    width: Math.random() * 6 + 2,
+    height: Math.random() * 6 + 2,
+    left: Math.random() * 100,
+    top: Math.random() * 100,
+    alpha: Math.random() * 0.8 + 0.2,
+    duration: Math.random() * 3 + 2,
+    delay: Math.random() * 3,
+  }));
+}
+
 export default function WhaleSanctuary() {
+  // Generated client-side only after mount — calling Math.random() during
+  // render would make the server-rendered HTML and the first client render
+  // differ, triggering a hydration mismatch.
+  const [dots, setDots] = useState<BioluminescentDot[]>([]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: this is the one extra paint that lets us avoid a server/client hydration mismatch
+    setDots(generateDots(20));
+  }, []);
+
   return (
     <section
       className="relative z-10 py-16 md:py-32 px-4 md:px-6 overflow-hidden"
@@ -18,18 +51,18 @@ export default function WhaleSanctuary() {
 
       <div className="max-w-5xl mx-auto w-full text-center relative">
         {/* Bioluminescent particles around whale */}
-        {[...Array(20)].map((_, i) => (
+        {dots.map((d, i) => (
           <div
             key={i}
             className="absolute rounded-full"
             style={{
-              width: `${Math.random() * 6 + 2}px`,
-              height: `${Math.random() * 6 + 2}px`,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              background: `radial-gradient(circle, rgba(77,217,232,${Math.random() * 0.8 + 0.2}), transparent)`,
-              animation: `bioluminescent-pulse ${Math.random() * 3 + 2}s ease-in-out infinite`,
-              animationDelay: `${Math.random() * 3}s`,
+              width: `${d.width}px`,
+              height: `${d.height}px`,
+              left: `${d.left}%`,
+              top: `${d.top}%`,
+              background: `radial-gradient(circle, rgba(77,217,232,${d.alpha}), transparent)`,
+              animation: `bioluminescent-pulse ${d.duration}s ease-in-out infinite`,
+              animationDelay: `${d.delay}s`,
             }}
           />
         ))}

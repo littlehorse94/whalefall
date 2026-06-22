@@ -100,9 +100,9 @@ export default function HallOfLegends() {
         >
           The Pillars
         </p>
-        <h2 className="section-title text-3xl md:text-5xl text-[#e8f4f8] glow-gold">
+        <h1 className="section-title text-3xl md:text-5xl text-[#e8f4f8] glow-gold">
           Hall of Legends
-        </h2>
+        </h1>
         <p className="mt-4 text-[rgba(232,244,248,0.5)] max-w-xl mx-auto">
           These adventurers shaped the soul of Whalefall. Their deeds echo through the depths.
         </p>

@@ -84,9 +84,9 @@ export default function MontageLibrary() {
         >
           Cinematic Archive
         </p>
-        <h2 className="section-title text-3xl md:text-5xl text-[#e8f4f8] glow-pearl">
+        <h1 className="section-title text-3xl md:text-5xl text-[#e8f4f8] glow-pearl">
           Montage Library
-        </h2>
+        </h1>
         <p className="mt-4 text-[rgba(232,244,248,0.5)] max-w-xl mx-auto">
           Relive the battles, the laughs, and the legends through our video archive.
         </p>

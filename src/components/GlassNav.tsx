@@ -29,29 +29,28 @@ export default function GlassNav() {
   }, []);
 
   return (
-    <>
-      <div
+    <div
+      style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
+        display: 'flex', justifyContent: 'center',
+        padding: scrolled ? '0.75rem 1rem 0' : '0',
+        pointerEvents: 'none',
+        transition: 'padding 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.2)',
+      }}
+    >
+      <nav
         style={{
-          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
-          display: 'flex', justifyContent: 'center',
-          padding: scrolled ? '0.75rem 1rem 0' : '0',
-          pointerEvents: 'none',
-          transition: 'padding 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.2)',
+          position: 'relative', display: 'flex', alignItems: 'center',
+          pointerEvents: 'auto',
+          width: scrolled ? 'min(680px, 100%)' : '100%',
+          borderRadius: scrolled ? '999px' : '0px',
+          padding: scrolled ? '0.6rem 1.25rem' : 'clamp(0.85rem, 3vw, 1.25rem) clamp(1rem, 4vw, 2.5rem)',
+          boxShadow: scrolled ? '0 6px 24px rgba(0,0,0,0.35), 0 0 20px rgba(77,217,232,0.08)' : 'none',
+          transition: 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.2)',
+          overflow: 'hidden',
+          isolation: 'isolate',
         }}
       >
-        <nav
-          style={{
-            position: 'relative', display: 'flex', alignItems: 'center',
-            pointerEvents: 'auto',
-            width: scrolled ? 'min(680px, 100%)' : '100%',
-            borderRadius: scrolled ? '999px' : '0px',
-            padding: scrolled ? '0.6rem 1.5rem' : '1.25rem 2.5rem',
-            boxShadow: scrolled ? '0 6px 24px rgba(0,0,0,0.35), 0 0 20px rgba(77,217,232,0.08)' : 'none',
-            transition: 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.2)',
-            overflow: 'hidden',
-            isolation: 'isolate',
-          }}
-        >
           {/* ── Liquid glass layers (only meaningfully visible once floating) ──
               An SVG feTurbulence/feDisplacementMap distortion was tried here
               for a true refraction effect, but at this element's small size
@@ -148,8 +147,7 @@ export default function GlassNav() {
               </a>
             </div>
           )}
-        </nav>
-      </div>
-    </>
+      </nav>
+    </div>
   );
 }

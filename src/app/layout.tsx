@@ -1,10 +1,60 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import AudioToggle from "@/components/AudioToggle";
 
+// Set NEXT_PUBLIC_SITE_URL in Vercel project settings once the production
+// domain is final — every absolute URL below (OG images, canonical links,
+// sitemap) is derived from this one place.
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://whalefall.vercel.app";
+
 export const metadata: Metadata = {
-  title: "鲸落 | Whalefall Guild — Top 60 SEA Guild in Where Winds Meet",
-  description: "Whalefall (鲸落) is a Top 60 SEA gaming guild in Where Winds Meet. Some battles fade. Some memories become legends.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "鲸落 | Whalefall Guild — Top 60 SEA Guild in Where Winds Meet",
+    template: "%s | 鲸落 Whalefall",
+  },
+  description:
+    "Whalefall (鲸落) is a Top 60 SEA gaming guild in Where Winds Meet. Some battles fade. Some memories become legends.",
+  keywords: [
+    "Whalefall",
+    "鲸落",
+    "Where Winds Meet",
+    "Where Winds Meet guild",
+    "Top 60 SEA guild",
+    "Where Winds Meet SEA",
+    "gaming guild",
+  ],
+  authors: [{ name: "Whalefall Guild" }],
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: SITE_URL,
+    siteName: "鲸落 Whalefall",
+    title: "鲸落 | Whalefall Guild — Top 60 SEA Guild in Where Winds Meet",
+    description:
+      "A Top 60 SEA gaming guild in Where Winds Meet. Some battles fade. Some memories become legends.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "鲸落 | Whalefall Guild",
+    description:
+      "A Top 60 SEA gaming guild in Where Winds Meet. Some battles fade. Some memories become legends.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
+  icons: {
+    icon: "/favicon.ico",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#0a0e1a",
 };
 
 export default function RootLayout({

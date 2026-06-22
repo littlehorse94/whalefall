@@ -166,9 +166,9 @@ export default function Home() {
       >
         <div
           ref={cardsGridRef}
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
           style={{
-            maxWidth: '72rem', margin: '0 auto',
-            display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.25rem 2rem',
+            maxWidth: '72rem', margin: '0 auto', gap: '1.25rem 2rem',
           }}
         >
           {FIXED_CARDS.map((c) => (
@@ -294,7 +294,7 @@ export default function Home() {
               <span>Whalefall</span>
             </h2>
             <p style={{ color: '#9ca3af', fontSize: '1rem', marginTop: '1rem', fontFamily: "'Cinzel', serif", letterSpacing: '0.1em' }}>
-              "Some battles fade. Some memories become legends."
+              &ldquo;Some battles fade. Some memories become legends.&rdquo;
             </p>
           </div>
         </section>
@@ -319,10 +319,6 @@ export default function Home() {
         @keyframes bounce {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-8px); }
-        }
-        @media (max-width: 768px) {
-          nav { padding: 1rem 1.5rem !important; }
-          #fixed-cards-grid { grid-template-columns: 1fr !important; gap: 1.5rem !important; }
         }
       `}</style>
     </main>
