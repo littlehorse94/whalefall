@@ -1,6 +1,6 @@
 import PageVideoBackground from '@/components/PageVideoBackground';
 import ParticlesCanvas from '@/components/ParticlesCanvas';
-import SiteNav from '@/components/SiteNav';
+import GlassNav from '@/components/GlassNav';
 import GallerySection from '@/components/GallerySection';
 import PhotoContest from '@/components/PhotoContest';
 import Footer from '@/components/Footer';
@@ -10,9 +10,9 @@ export default function GalleryPage() {
     <main style={{ fontFamily: "'Inter', sans-serif", color: '#fff', position: 'relative' }}>
       <PageVideoBackground />
       <ParticlesCanvas />
+      <GlassNav />
       <div style={{ position: 'relative', zIndex: 2 }}>
-        <SiteNav />
-        <div style={{ paddingTop: '3rem' }}>
+        <div style={{ paddingTop: '7rem' }}>
           <GallerySection />
           <PhotoContest />
         </div>

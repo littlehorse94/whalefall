@@ -5,6 +5,7 @@ import Link from 'next/link';
 import VideoBackground from '@/components/VideoBackground';
 import { GlowingEffect } from '@/components/GlowingEffect';
 import ParticlesCanvas from '@/components/ParticlesCanvas';
+import GlassNav from '@/components/GlassNav';
 
 // ── Sub-section components (below the fold) ───────────────────────────────
 import StatsSection from '@/components/StatsSection';
@@ -194,33 +195,7 @@ export default function Home() {
       </div>
 
       {/* ── Navigation ────────────────────────────────────────────────────── */}
-      <nav style={{
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '1.25rem 2.5rem',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-          <Link href="/" style={{ fontWeight: 400, fontSize: '1.4rem', color: '#fff', fontFamily: "'Long Cang', cursive", textDecoration: 'none' }}>
-            鲸落
-          </Link>
-          <div className="hidden md:flex" style={{ alignItems: 'center', gap: '1.5rem', display: 'flex' }}>
-            {[
-              { label: 'Gallery', href: '/gallery' },
-              { label: 'Legends', href: '/legends' },
-              { label: 'Montages', href: '/montages' },
-            ].map(link => (
-              <Link key={link.label} href={link.href} className="nav-link">{link.label}</Link>
-            ))}
-          </div>
-        </div>
-        <a href="https://discord.gg/whalefall" target="_blank" rel="noopener noreferrer"
-          style={{ color: '#d1d5db', transition: 'color 0.2s' }}
-          onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
-          onMouseLeave={e => (e.currentTarget.style.color = '#d1d5db')}
-        >
-          <DiscordIcon />
-        </a>
-      </nav>
+      <GlassNav />
 
       {/* ── Main scrollable content ────────────────────────────────────────── */}
       <div style={{ position: 'relative', zIndex: 2 }}>

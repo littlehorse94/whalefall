@@ -1,6 +1,6 @@
 import PageVideoBackground from '@/components/PageVideoBackground';
 import ParticlesCanvas from '@/components/ParticlesCanvas';
-import SiteNav from '@/components/SiteNav';
+import GlassNav from '@/components/GlassNav';
 import MontageLibrary from '@/components/MontageLibrary';
 import Footer from '@/components/Footer';
 
@@ -9,9 +9,9 @@ export default function MontagesPage() {
     <main style={{ fontFamily: "'Inter', sans-serif", color: '#fff', position: 'relative' }}>
       <PageVideoBackground />
       <ParticlesCanvas />
+      <GlassNav />
       <div style={{ position: 'relative', zIndex: 2 }}>
-        <SiteNav />
-        <div style={{ paddingTop: '3rem' }}>
+        <div style={{ paddingTop: '7rem' }}>
           <MontageLibrary />
         </div>
         <Footer />
