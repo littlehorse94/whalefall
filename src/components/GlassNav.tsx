@@ -28,7 +28,7 @@ function GlassFilter() {
           <fePointLight x="-150" y="-150" z="250" />
         </feSpecularLighting>
         <feComposite in="specLight" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="litImage" />
-        <feDisplacementMap in="SourceGraphic" in2="softMap" scale="18" xChannelSelector="R" yChannelSelector="G" />
+        <feDisplacementMap in="SourceGraphic" in2="softMap" scale="10" xChannelSelector="R" yChannelSelector="G" />
       </filter>
     </svg>
   );
@@ -67,12 +67,19 @@ export default function GlassNav() {
             boxShadow: scrolled ? '0 6px 24px rgba(0,0,0,0.35), 0 0 20px rgba(77,217,232,0.08)' : 'none',
             transition: 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.2)',
             overflow: 'hidden',
+            isolation: 'isolate',
           }}
         >
-          {/* ── Liquid glass layers (only meaningfully visible once floating) ── */}
+          {/* ── Liquid glass layers (only meaningfully visible once floating) ──
+              The distortion filter must NOT share an element with border-radius:
+              SVG filters rasterize the layer as a plain rectangle, so applying
+              both to the same element makes the rounded-corner anti-aliasing
+              itself get displaced, producing a jagged/pixelated edge. Instead,
+              this layer stays a flat unrounded rectangle and lets the parent
+              <nav>'s overflow:hidden + border-radius clip it cleanly. */}
           <div
             style={{
-              position: 'absolute', inset: 0, zIndex: 0, borderRadius: 'inherit',
+              position: 'absolute', inset: 0, zIndex: 0,
               backdropFilter: scrolled ? 'blur(16px)' : 'blur(0px)',
               WebkitBackdropFilter: scrolled ? 'blur(16px)' : 'blur(0px)',
               filter: scrolled ? 'url(#glass-distortion)' : 'none',
