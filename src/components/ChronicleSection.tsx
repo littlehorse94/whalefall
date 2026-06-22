@@ -152,13 +152,16 @@ export default function ChronicleSection() {
 
             {/* Year label */}
             <div
-              className={`hidden md:block w-5/12 ${
-                m.side === 'left' ? 'pl-12' : 'pr-12 text-right'
+              className={`hidden md:block w-5/12 overflow-hidden ${
+                m.side === 'left' ? 'pl-16' : 'pr-16 text-right'
               }`}
             >
               <span
-                className="text-5xl font-black opacity-20"
-                style={{ fontFamily: 'Cinzel Decorative, cursive', color: '#4dd9e8' }}
+                className="font-black opacity-20"
+                style={{
+                  fontFamily: 'Cinzel Decorative, cursive', color: '#4dd9e8',
+                  fontSize: 'clamp(1.75rem, 3.5vw, 3rem)', whiteSpace: 'nowrap',
+                }}
               >
                 {m.year}
               </span>

@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import type { CSSProperties } from 'react';
 
 const members = [
   {
@@ -111,7 +112,7 @@ export default function HallOfLegends() {
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.6, delay: i * 0.1 }}
             className="glass rounded-xl overflow-hidden card-hover group"
-            style={{ border: `1px solid ${member.color}25` }}
+            style={{ border: `1px solid ${member.color}25`, '--hover-glow': `${member.color}33` } as CSSProperties}
           >
             {/* Card Header */}
             <div

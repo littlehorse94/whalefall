@@ -50,7 +50,7 @@ export default function StatsSection() {
       {/* Stats Grid */}
       <div
         ref={ref}
-        className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"
+        className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-4"
       >
         {stats.map((stat, i) => (
           <motion.div
@@ -59,12 +59,12 @@ export default function StatsSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: i * 0.1 }}
-            className="glass rounded-lg p-6 text-center border-glow card-hover"
+            className="glass rounded-lg p-6 text-center border-glow card-hover flex flex-col"
             style={{ animationDelay: `${i * 0.1}s` }}
           >
             <div
-              className="text-3xl md:text-4xl font-bold mb-1 glow-cyan"
-              style={{ fontFamily: 'Cinzel Decorative, cursive', color: '#4dd9e8' }}
+              className="flex items-center justify-center text-3xl md:text-4xl font-bold mb-1 glow-cyan"
+              style={{ fontFamily: 'Cinzel Decorative, cursive', color: '#4dd9e8', minHeight: '4.5rem' }}
             >
               {stat.prefix}
               {inView ? (

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import type { CSSProperties } from 'react';
 
 const sampleMessages = [
   {
@@ -184,7 +185,7 @@ export default function Guestbook() {
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.4, delay: i * 0.05 }}
                 className="glass rounded-xl p-6 card-hover"
-                style={{ border: `1px solid ${msg.color}20` }}
+                style={{ border: `1px solid ${msg.color}20`, '--hover-glow': `${msg.color}33` } as CSSProperties}
               >
                 <div className="flex items-start gap-4">
                   {/* Avatar */}
