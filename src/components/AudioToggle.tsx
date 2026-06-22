@@ -9,7 +9,7 @@ export default function AudioToggle() {
   const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
-    const audio = new Audio('/src/whalefall-drift.mp3');
+    const audio = new Audio('https://24crvoriam0dl2l7.public.blob.vercel-storage.com/Celestial-Whale-Tide.mp3');
     audio.loop   = true;
     audio.volume = 0.8;
     audioRef.current = audio;

@@ -1,76 +1,62 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import VideoLightbox from './VideoLightbox';
 
+// Placeholder clips — official "Where Winds Meet" trailers, until the guild's
+// own montage footage is ready to swap in (just replace youtubeId per entry).
 const montages = [
-  {
-    id: 1,
-    title: 'Season 1 Highlights — Birth of the Whale',
-    editor: 'CrimsonVeil',
-    views: '12.4K',
-    likes: '847',
-    duration: '8:32',
-    gradient: 'from-[#0a1a3a] to-[#1a0a2e]',
-  },
-  {
-    id: 2,
-    title: 'The Great Siege of Iron Gate (Full Battle)',
-    editor: 'MistyArrow',
-    views: '9.2K',
-    likes: '631',
-    duration: '12:15',
-    gradient: 'from-[#1a0a0a] to-[#0a1a2e]',
-  },
-  {
-    id: 3,
-    title: 'Anniversary Reel 2023 — A Year of Legends',
-    editor: 'LunarPetal',
-    views: '18.7K',
-    likes: '1.2K',
-    duration: '6:48',
-    gradient: 'from-[#2a1a0a] to-[#0a0a1a]',
-  },
-  {
-    id: 4,
-    title: 'Top 60 Conquest — The Ascent Montage',
-    editor: 'ThunderKoi',
-    views: '22.1K',
-    likes: '1.8K',
-    duration: '10:04',
-    gradient: 'from-[#0a2a1a] to-[#1a1a0a]',
-  },
-  {
-    id: 5,
-    title: 'Funny Moments Compilation Vol. 3',
-    editor: 'IronSerpent',
-    views: '31.5K',
-    likes: '2.4K',
-    duration: '15:22',
-    gradient: 'from-[#1a1a2a] to-[#0a1a0a]',
-  },
-  {
-    id: 6,
-    title: 'Whalefall — 3rd Anniversary Cinematic',
-    editor: 'AzureTide',
-    views: '45.8K',
-    likes: '3.6K',
-    duration: '4:55',
-    gradient: 'from-[#0a1a3a] to-[#1a0a1a]',
-  },
-  {
-    id: 7,
-    title: 'PvP Montage — The Bloodtide Chronicles',
-    editor: 'CrimsonVeil',
-    views: '8.9K',
-    likes: '512',
-    duration: '7:11',
-    gradient: 'from-[#2a0a0a] to-[#0a0a2a]',
-  },
+  { id: 1, title: 'Official Gameplay Trailer', youtubeId: 'e8S4yoXNMPU', views: '12.4K', likes: '847', duration: '—' },
+  { id: 2, title: 'Official Launch Trailer', youtubeId: 'cpY_JFJRA9Q', views: '9.2K', likes: '631', duration: '—' },
+  { id: 3, title: 'Open World Gameplay Trailer', youtubeId: 'gyjHNix6x9E', views: '18.7K', likes: '1.2K', duration: '—' },
+  { id: 4, title: 'Heng Blade Gameplay Trailer', youtubeId: 'd_IX82_gokE', views: '22.1K', likes: '1.8K', duration: '—' },
+  { id: 5, title: 'Imperial Palace Gameplay Trailer', youtubeId: 'w9AtlAQ9UG8', views: '31.5K', likes: '2.4K', duration: '—' },
+  { id: 6, title: 'Qinchuan Hexi Expansion Trailer', youtubeId: 'MBQhCtwo9r8', views: '45.8K', likes: '3.6K', duration: '—' },
+  { id: 7, title: 'Hidden Mountain Expansion Trailer', youtubeId: 'GsUkkYMik94', views: '8.9K', likes: '512', duration: '—' },
 ];
+
+const FRAME_SUFFIXES = ['1', '2', '3'];
+
+function HoverThumb({ youtubeId, title }: { youtubeId: string; title: string }) {
+  const [hovering, setHovering] = useState(false);
+  const [frame, setFrame] = useState(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const startCycle = () => {
+    setHovering(true);
+    let i = 0;
+    intervalRef.current = setInterval(() => {
+      i = (i + 1) % FRAME_SUFFIXES.length;
+      setFrame(i);
+    }, 450);
+  };
+
+  const stopCycle = () => {
+    setHovering(false);
+    setFrame(0);
+    if (intervalRef.current) clearInterval(intervalRef.current);
+  };
+
+  const src = hovering
+    ? `https://img.youtube.com/vi/${youtubeId}/${FRAME_SUFFIXES[frame]}.jpg`
+    : `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt={title}
+      onMouseEnter={startCycle}
+      onMouseLeave={stopCycle}
+      className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+    />
+  );
+}
 
 export default function MontageLibrary() {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
 
   const handleWheel = (e: React.WheelEvent) => {
     if (scrollRef.current) {
@@ -128,31 +114,23 @@ export default function MontageLibrary() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: i * 0.08 }}
             className="flex-shrink-0 w-72 md:w-80 group cursor-pointer"
+            onClick={() => setActiveId(m.youtubeId)}
           >
             {/* Thumbnail */}
             <div
-              className="relative w-full rounded-xl overflow-hidden mb-3"
+              className="relative w-full rounded-xl overflow-hidden mb-3 bg-black"
               style={{ aspectRatio: '16/9' }}
             >
-              <div
-                className={`absolute inset-0 bg-gradient-to-br ${m.gradient}`}
-              />
-              {/* Grid pattern overlay */}
-              <div
-                className="absolute inset-0 opacity-20"
-                style={{
-                  backgroundImage: 'linear-gradient(rgba(77,217,232,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(77,217,232,0.1) 1px, transparent 1px)',
-                  backgroundSize: '20px 20px',
-                }}
-              />
+              <HoverThumb youtubeId={m.youtubeId} title={m.title} />
+
               {/* Play button */}
-              <div className="absolute inset-0 flex items-center justify-center">
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div
                   className="w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110"
                   style={{
-                    background: 'rgba(77,217,232,0.15)',
-                    border: '2px solid rgba(77,217,232,0.6)',
-                    boxShadow: '0 0 30px rgba(77,217,232,0.3)',
+                    background: 'rgba(5,8,16,0.4)',
+                    border: '2px solid rgba(77,217,232,0.7)',
+                    boxShadow: '0 0 30px rgba(77,217,232,0.4)',
                   }}
                 >
                   <svg
@@ -164,23 +142,11 @@ export default function MontageLibrary() {
                   </svg>
                 </div>
               </div>
-              {/* Duration badge */}
-              <div
-                className="absolute bottom-2 right-2 px-2 py-0.5 rounded text-xs"
-                style={{
-                  background: 'rgba(5,8,16,0.8)',
-                  border: '1px solid rgba(77,217,232,0.3)',
-                  color: '#e8f4f8',
-                  fontFamily: 'Cinzel, serif',
-                  fontSize: '0.7rem',
-                }}
-              >
-                {m.duration}
-              </div>
+
               {/* Hover overlay */}
               <div
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                style={{ background: 'rgba(77,217,232,0.05)' }}
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+                style={{ background: 'rgba(77,217,232,0.08)' }}
               />
             </div>
 
@@ -197,7 +163,7 @@ export default function MontageLibrary() {
                   className="text-xs text-[rgba(232,244,248,0.5)]"
                   style={{ fontFamily: 'Cinzel, serif' }}
                 >
-                  by {m.editor}
+                  Where Winds Meet
                 </span>
                 <div className="flex items-center gap-3">
                   <span className="text-xs text-[rgba(232,244,248,0.4)] flex items-center gap-1">
@@ -218,6 +184,8 @@ export default function MontageLibrary() {
           </motion.div>
         ))}
       </div>
+
+      <VideoLightbox youtubeId={activeId} onClose={() => setActiveId(null)} />
     </section>
   );
 }

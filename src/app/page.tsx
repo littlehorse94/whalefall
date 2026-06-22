@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import Link from 'next/link';
 import VideoBackground from '@/components/VideoBackground';
 import AudioToggle from '@/components/AudioToggle';
 import { GlowingEffect } from '@/components/GlowingEffect';
@@ -8,12 +9,11 @@ import { GlowingEffect } from '@/components/GlowingEffect';
 // ── Sub-section components (below the fold) ───────────────────────────────
 import StatsSection from '@/components/StatsSection';
 import ChronicleSection from '@/components/ChronicleSection';
-import GallerySection from '@/components/GallerySection';
-import HallOfLegends from '@/components/HallOfLegends';
-import MontageLibrary from '@/components/MontageLibrary';
+import DiscordWidget from '@/components/DiscordWidget';
 import PhotoContest from '@/components/PhotoContest';
 import Guestbook from '@/components/Guestbook';
 import WhaleSanctuary from '@/components/WhaleSanctuary';
+import Footer from '@/components/Footer';
 
 // Discord SVG
 function DiscordIcon() {
@@ -37,26 +37,32 @@ const FIXED_CARDS = [
   {
     title: 'Guild Chronicle',
     body: 'A living timeline of our victories, milestones, and turning points since 2022.',
+    href: '#chronicle',
   },
   {
     title: 'Memory Gallery',
     body: 'Screenshots and moments from PvP, PvE, guild events, and beyond — preserved in the deep.',
+    href: '/gallery',
   },
   {
     title: 'Hall of Legends',
     body: 'Honouring the members who carried the soul of Whalefall through every battle.',
+    href: '/legends',
   },
   {
     title: 'Montage Library',
     body: 'Relive the battles, the laughs, and the legends through our cinematic video archive.',
+    href: '/montages',
   },
   {
     title: 'Photo Contest',
     body: 'Vote for the best screenshot of the month. Every frame a story worth remembering.',
+    href: '#photo-contest',
   },
   {
     title: 'Guestbook',
     body: 'Leave your mark. Share a memory, a thank-you, or words for the guild in the deep.',
+    href: '#guestbook',
   },
 ];
 
@@ -166,20 +172,24 @@ export default function Home() {
           }}
         >
           {FIXED_CARDS.map((c) => (
-            <div
+            <Link
               key={c.title}
-              className="relative rounded-2xl"
+              href={c.href}
+              className="relative rounded-2xl block"
               style={{
                 padding: '1.5rem', background: 'rgba(5,8,16,0.45)',
                 backdropFilter: 'blur(8px)', border: '1px solid rgba(77,217,232,0.12)',
+                textDecoration: 'none', transition: 'border-color 0.3s ease',
               }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(77,217,232,0.4)')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(77,217,232,0.12)')}
             >
               <GlowingEffect disabled={false} glow proximity={70} spread={28} borderWidth={1.5} />
               <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#fff', marginBottom: '1rem', fontFamily: "'Cinzel Decorative', cursive" }}>
                 {c.title}
               </h3>
               <p style={{ color: '#d1d5db', fontSize: '0.875rem', lineHeight: 1.7 }}>{c.body}</p>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
@@ -195,8 +205,13 @@ export default function Home() {
             鲸落
           </span>
           <div className="hidden md:flex" style={{ alignItems: 'center', gap: '1.5rem', display: 'flex' }}>
-            {['Chronicle', 'Gallery', 'Legends', 'Montages'].map(label => (
-              <a key={label} href={`#${label.toLowerCase()}`} className="nav-link">{label}</a>
+            {[
+              { label: 'Chronicle', href: '#chronicle' },
+              { label: 'Gallery', href: '/gallery' },
+              { label: 'Legends', href: '/legends' },
+              { label: 'Montages', href: '/montages' },
+            ].map(link => (
+              <Link key={link.label} href={link.href} className="nav-link">{link.label}</Link>
             ))}
           </div>
         </div>
@@ -316,39 +331,15 @@ export default function Home() {
           <StatsSection />
           <Divider />
           <ChronicleSection />
-          <Divider />
-          <GallerySection />
           <Divider color="#c9a84c" />
-          <HallOfLegends />
+          <DiscordWidget />
           <Divider />
-          <MontageLibrary />
-          <Divider color="#c9a84c" />
           <PhotoContest />
           <Divider />
           <Guestbook />
           <WhaleSanctuary />
 
-          <footer style={{
-            position: 'relative', zIndex: 10, padding: '3rem 1.5rem', textAlign: 'center',
-            background: 'rgba(1,2,4,0.95)', borderTop: '1px solid rgba(77,217,232,0.1)',
-          }}>
-            <div style={{ maxWidth: '56rem', margin: '0 auto' }}>
-              <div className="shimmer-text" style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '0.5rem', fontFamily: "'Cinzel Decorative', cursive" }}>
-                <span style={{ fontFamily: "'Long Cang', cursive" }}>鲸落</span>
-                {' | Whalefall'}
-              </div>
-              <p style={{ fontSize: '0.75rem', color: 'rgba(232,244,248,0.35)', marginBottom: '1.5rem', letterSpacing: '0.2em', fontFamily: "'Cinzel', serif" }}>
-                TOP 60 SEA GUILD · WHERE WINDS MEET · EST. 2022
-              </p>
-              <div style={{ height: '1px', background: 'linear-gradient(to right, transparent, rgba(77,217,232,0.2), transparent)', marginBottom: '1.5rem' }} />
-              <p style={{ fontSize: '0.75rem', color: 'rgba(232,244,248,0.2)', fontFamily: "'Cinzel', serif" }}>
-                © 2025 Whalefall Guild. All memories preserved in the deep.
-              </p>
-              <p style={{ fontSize: '0.7rem', color: 'rgba(232,244,248,0.15)', marginTop: '0.75rem', fontFamily: "'Cinzel', serif", letterSpacing: '0.1em' }}>
-                Developed by Macatting Studio
-              </p>
-            </div>
-          </footer>
+          <Footer />
         </div>
       </div>
 

@@ -55,7 +55,7 @@ export default function PhotoContest() {
   };
 
   return (
-    <section className="relative z-10 py-24 px-6">
+    <section id="photo-contest" className="relative z-10 py-24 px-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
