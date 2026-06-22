@@ -13,7 +13,7 @@ export default function PageVideoBackground() {
     const onScroll = () => {
       const el = containerRef.current;
       if (!el) return;
-      const fade = Math.max(0, 1 - window.scrollY / (window.innerHeight * 0.35));
+      const fade = Math.max(0, 1 - window.scrollY / (window.innerHeight * 1.2));
       el.style.opacity = String(fade);
     };
     window.addEventListener('scroll', onScroll, { passive: true });

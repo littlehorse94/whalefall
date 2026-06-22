@@ -11,11 +11,9 @@ function DiscordIcon() {
 }
 
 const links = [
-  { label: 'Home', href: '/' },
   { label: 'Gallery', href: '/gallery' },
   { label: 'Legends', href: '/legends' },
   { label: 'Montages', href: '/montages' },
-  { label: 'Guestbook', href: '/legends#guestbook' },
 ];
 
 export default function SiteNav() {

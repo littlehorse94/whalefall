@@ -200,9 +200,9 @@ export default function Home() {
         padding: '1.25rem 2.5rem',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-          <span style={{ fontWeight: 400, fontSize: '1.4rem', color: '#fff', fontFamily: "'Long Cang', cursive" }}>
+          <Link href="/" style={{ fontWeight: 400, fontSize: '1.4rem', color: '#fff', fontFamily: "'Long Cang', cursive", textDecoration: 'none' }}>
             鲸落
-          </span>
+          </Link>
           <div className="hidden md:flex" style={{ alignItems: 'center', gap: '1.5rem', display: 'flex' }}>
             {[
               { label: 'Gallery', href: '/gallery' },
