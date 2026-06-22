@@ -159,7 +159,7 @@ export default function GallerySection() {
 
               return (
                 <>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
                     {visible.map((photo, i) => {
                       const key = `${ev.id}-${i}`;
                       const isLastVisible = !expanded && overflow > 0 && i === visible.length - 1;
