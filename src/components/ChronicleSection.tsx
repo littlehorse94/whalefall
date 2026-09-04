@@ -1,67 +1,13 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import type { Milestone } from '@/lib/content-types';
 
-const milestones = [
-  {
-    year: '2022',
-    month: 'March',
-    title: 'Guild Founded',
-    desc: 'Whalefall (鲸落) was established by a group of passionate adventurers united by one dream — to build a guild that feels like a second family.',
-    icon: '🐋',
-    side: 'left',
-  },
-  {
-    year: '2022',
-    month: 'August',
-    title: 'First PvP Victory',
-    desc: 'Our first major battlefield triumph. The strategy, the coordination, the roar of 30 voices celebrating in voice chat — unforgettable.',
-    icon: '⚔️',
-    side: 'right',
-  },
-  {
-    year: '2023',
-    month: 'February',
-    title: 'Reached Top 100 SEA',
-    desc: 'A landmark achievement as Whalefall broke into the Top 100 guilds in Southeast Asia, cementing our place among the elite.',
-    icon: '🏆',
-    side: 'left',
-  },
-  {
-    year: '2023',
-    month: 'March',
-    title: '1st Guild Anniversary',
-    desc: 'We celebrated one year of laughter, battles, and late-night raids. The anniversary party drew over 80 members in a single event.',
-    icon: '🎉',
-    side: 'right',
-  },
-  {
-    year: '2024',
-    month: 'January',
-    title: 'Broke into Top 60 SEA',
-    desc: 'Through relentless dedication and tactical brilliance, Whalefall ascended to the Top 60 — where legends dwell.',
-    icon: '🌊',
-    side: 'left',
-  },
-  {
-    year: '2024',
-    month: 'September',
-    title: '100th Member Milestone',
-    desc: 'One hundred adventurers now called Whalefall home. Each one a chapter in our ongoing story of the deep.',
-    icon: '👥',
-    side: 'right',
-  },
-  {
-    year: '2025',
-    month: 'March',
-    title: '3rd Anniversary Celebration',
-    desc: 'Three years strong. The guild gathered for our grandest celebration yet — a testament to bonds forged in the depths of adventure.',
-    icon: '✨',
-    side: 'left',
-  },
-];
+interface ChronicleSectionProps {
+  milestones: Milestone[];
+}
 
-export default function ChronicleSection() {
+export default function ChronicleSection({ milestones }: ChronicleSectionProps) {
   return (
     <section id="chronicle" className="relative z-10 py-24 px-6">
       <motion.div
@@ -93,9 +39,9 @@ export default function ChronicleSection() {
           style={{ background: 'linear-gradient(180deg, transparent, #4dd9e8 10%, #4dd9e8 90%, transparent)' }}
         />
 
-        {milestones.map((m, i) => (
+        {milestones.map((m) => (
           <motion.div
-            key={i}
+            key={m.id}
             initial={{ opacity: 0, x: m.side === 'left' ? -50 : 50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: '-100px' }}

@@ -2,22 +2,21 @@
 
 import { useEffect, useRef } from 'react';
 
-const VIDEOS = [
-  'https://24crvoriam0dl2l7.public.blob.vercel-storage.com/wf-hero-pre.mp4',
-  'https://24crvoriam0dl2l7.public.blob.vercel-storage.com/wf-hero-video.mp4',
-];
+interface VideoBackgroundProps {
+  videos: string[];
+}
 
-export default function VideoBackground() {
+export default function VideoBackground({ videos }: VideoBackgroundProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const indexRef = useRef(0);
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video || videos.length === 0) return;
 
     const playNext = () => {
-      indexRef.current = (indexRef.current + 1) % VIDEOS.length;
-      video.src = VIDEOS[indexRef.current];
+      indexRef.current = (indexRef.current + 1) % videos.length;
+      video.src = videos[indexRef.current];
       video.load();
       video.play().catch(() => {});
     };
@@ -25,7 +24,9 @@ export default function VideoBackground() {
     video.addEventListener('ended', playNext);
     video.play().catch(() => {});
     return () => video.removeEventListener('ended', playNext);
-  }, []);
+  }, [videos]);
+
+  if (videos.length === 0) return null;
 
   return (
     <div
@@ -38,7 +39,7 @@ export default function VideoBackground() {
     >
       <video
         ref={videoRef}
-        src={VIDEOS[0]}
+        src={videos[0]}
         muted
         playsInline
         preload="auto"

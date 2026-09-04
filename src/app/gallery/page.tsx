@@ -5,6 +5,10 @@ import GlassNav from '@/components/GlassNav';
 import GallerySection from '@/components/GallerySection';
 import PhotoContest from '@/components/PhotoContest';
 import Footer from '@/components/Footer';
+import { getSection } from '@/lib/blob-store';
+import { GALLERY_SEED, MEDIA_SEED, PHOTO_CONTEST_SEED, SITE_SETTINGS_SEED } from '@/lib/seed-data';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Memory Gallery',
@@ -12,18 +16,25 @@ export const metadata: Metadata = {
   alternates: { canonical: '/gallery' },
 };
 
-export default function GalleryPage() {
+export default async function GalleryPage() {
+  const [events, media, contest, settings] = await Promise.all([
+    getSection('gallery', GALLERY_SEED),
+    getSection('media', MEDIA_SEED),
+    getSection('photo-contest', PHOTO_CONTEST_SEED),
+    getSection('site-settings', SITE_SETTINGS_SEED),
+  ]);
+
   return (
     <main style={{ fontFamily: "'Inter', sans-serif", color: '#fff', position: 'relative' }}>
-      <PageVideoBackground />
+      <PageVideoBackground videoUrl={media.pageVideoUrl} />
       <ParticlesCanvas />
-      <GlassNav />
+      <GlassNav navLinks={settings.navLinks} discordInviteUrl={settings.discordInviteUrl} guildName={settings.guildName} />
       <div style={{ position: 'relative', zIndex: 2 }}>
         <div style={{ paddingTop: '7rem' }}>
-          <GallerySection />
-          <PhotoContest />
+          <GallerySection events={events} />
+          <PhotoContest config={contest} />
         </div>
-        <Footer />
+        <Footer settings={settings} />
       </div>
     </main>
   );

@@ -2,14 +2,24 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import { usePathname } from 'next/navigation';
 
-export default function AudioToggle() {
+interface AudioToggleProps {
+  audioUrl: string;
+  labelPlaying: string;
+  labelPaused: string;
+}
+
+export default function AudioToggle({ audioUrl, labelPlaying, labelPaused }: AudioToggleProps) {
+  const pathname = usePathname();
+  const isAdmin = pathname.startsWith('/admin');
   const audioRef     = useRef<HTMLAudioElement | null>(null);
   const userMutedRef = useRef(false);
   const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
-    const audio = new Audio('https://24crvoriam0dl2l7.public.blob.vercel-storage.com/Celestial-Whale-Tide.mp3');
+    if (isAdmin) return;
+    const audio = new Audio(audioUrl);
     audio.loop   = true;
     audio.volume = 0.8;
     audioRef.current = audio;
@@ -31,7 +41,7 @@ export default function AudioToggle() {
       document.removeEventListener('click',      unlockPlay);
       document.removeEventListener('touchstart', unlockPlay);
     };
-  }, []);
+  }, [audioUrl, isAdmin]);
 
   const toggle = () => {
     const audio = audioRef.current;
@@ -45,6 +55,8 @@ export default function AudioToggle() {
       userMutedRef.current = false;
     }
   };
+
+  if (isAdmin) return null;
 
   return (
     <motion.button
@@ -91,7 +103,7 @@ export default function AudioToggle() {
         color: playing ? '#4dd9e8' : 'rgba(232,244,248,0.5)',
         fontSize: '0.7rem',
       }}>
-        {playing ? 'Ocean Song ♪' : 'Song of the Deep'}
+        {playing ? labelPlaying : labelPaused}
       </span>
     </motion.button>
   );

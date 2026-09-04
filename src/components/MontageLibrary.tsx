@@ -2,62 +2,18 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import VideoLightbox from './VideoLightbox';
+import VideoLightbox, { type ActiveVideo } from './VideoLightbox';
 import TiltVideoCard from './TiltVideoCard';
-
-interface Montage {
-  id: number;
-  title: string;
-  youtubeId: string;
-  views: string;
-  likes: string;
-}
-
-interface MontageCategory {
-  id: string;
-  title: string;
-  description: string;
-  videos: Montage[];
-}
-
-// Placeholder clips — official "Where Winds Meet" trailers, until the guild's
-// own montage footage is ready (just replace youtubeId per entry; add more
-// entries to any category any time, the grid below grows to fit).
-const categories: MontageCategory[] = [
-  {
-    id: 'gameplay',
-    title: 'Gameplay Trailers',
-    description: 'Combat, exploration, and the world of Where Winds Meet in motion.',
-    videos: [
-      { id: 1, title: 'Official Gameplay Trailer', youtubeId: 'e8S4yoXNMPU', views: '12.4K', likes: '847' },
-      { id: 3, title: 'Open World Gameplay Trailer', youtubeId: 'gyjHNix6x9E', views: '18.7K', likes: '1.2K' },
-      { id: 4, title: 'Heng Blade Gameplay Trailer', youtubeId: 'd_IX82_gokE', views: '22.1K', likes: '1.8K' },
-      { id: 5, title: 'Imperial Palace Gameplay Trailer', youtubeId: 'w9AtlAQ9UG8', views: '31.5K', likes: '2.4K' },
-    ],
-  },
-  {
-    id: 'expansions',
-    title: 'Expansion Trailers',
-    description: 'New regions, new stories — the major content drops since launch.',
-    videos: [
-      { id: 6, title: 'Qinchuan Hexi Expansion Trailer', youtubeId: 'MBQhCtwo9r8', views: '45.8K', likes: '3.6K' },
-      { id: 7, title: 'Hidden Mountain Expansion Trailer', youtubeId: 'GsUkkYMik94', views: '8.9K', likes: '512' },
-    ],
-  },
-  {
-    id: 'launch',
-    title: 'Launch & Cinematics',
-    description: 'Where it all began.',
-    videos: [
-      { id: 2, title: 'Official Launch Trailer', youtubeId: 'cpY_JFJRA9Q', views: '9.2K', likes: '631' },
-    ],
-  },
-];
+import type { MontageCategory } from '@/lib/content-types';
 
 const VISIBLE_CAP = 6;
 
-export default function MontageLibrary() {
-  const [activeId, setActiveId] = useState<string | null>(null);
+interface MontageLibraryProps {
+  categories: MontageCategory[];
+}
+
+export default function MontageLibrary({ categories }: MontageLibraryProps) {
+  const [activeVideo, setActiveVideo] = useState<ActiveVideo | null>(null);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
   const toggleExpand = (categoryId: string) => {
@@ -158,10 +114,11 @@ export default function MontageLibrary() {
                         <TiltVideoCard
                           title={m.title}
                           subtitle="Where Winds Meet"
-                          youtubeId={m.youtubeId}
+                          youtubeId={m.youtubeId || undefined}
+                          videoUrl={m.videoUrl}
                           views={m.views}
                           likes={m.likes}
-                          onPlay={() => setActiveId(m.youtubeId)}
+                          onPlay={() => setActiveVideo({ youtubeId: m.youtubeId || undefined, videoUrl: m.videoUrl, title: m.title })}
                         />
                       )}
                     </motion.div>
@@ -189,7 +146,7 @@ export default function MontageLibrary() {
         })}
       </div>
 
-      <VideoLightbox youtubeId={activeId} onClose={() => setActiveId(null)} />
+      <VideoLightbox active={activeVideo} onClose={() => setActiveVideo(null)} />
     </section>
   );
 }

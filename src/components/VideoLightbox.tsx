@@ -3,15 +3,20 @@
 import { useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
-interface VideoLightboxProps {
-  youtubeId: string | null;
+export interface ActiveVideo {
+  youtubeId?: string;
+  videoUrl?: string;
   title?: string;
+}
+
+interface VideoLightboxProps {
+  active: ActiveVideo | null;
   onClose: () => void;
 }
 
-export default function VideoLightbox({ youtubeId, title, onClose }: VideoLightboxProps) {
+export default function VideoLightbox({ active, onClose }: VideoLightboxProps) {
   useEffect(() => {
-    if (!youtubeId) return;
+    if (!active) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
@@ -21,11 +26,11 @@ export default function VideoLightbox({ youtubeId, title, onClose }: VideoLightb
       document.removeEventListener('keydown', onKey);
       document.body.style.overflow = '';
     };
-  }, [youtubeId, onClose]);
+  }, [active, onClose]);
 
   return (
     <AnimatePresence>
-      {youtubeId && (
+      {active && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -67,13 +72,22 @@ export default function VideoLightbox({ youtubeId, title, onClose }: VideoLightb
               border: '1px solid rgba(77,217,232,0.25)', boxShadow: '0 0 60px rgba(77,217,232,0.2)',
             }}
           >
-            <iframe
-              src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`}
-              title={title ?? 'Video'}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }}
-            />
+            {active.youtubeId ? (
+              <iframe
+                src={`https://www.youtube.com/embed/${active.youtubeId}?autoplay=1&rel=0`}
+                title={active.title ?? 'Video'}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }}
+              />
+            ) : (
+              <video
+                src={active.videoUrl}
+                controls
+                autoPlay
+                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+              />
+            )}
           </motion.div>
         </motion.div>
       )}

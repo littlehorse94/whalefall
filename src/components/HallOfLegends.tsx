@@ -2,89 +2,13 @@
 
 import { motion } from 'framer-motion';
 import type { CSSProperties } from 'react';
+import type { LegendMember } from '@/lib/content-types';
 
-const members = [
-  {
-    name: 'AzureTide',
-    role: 'Guild Master',
-    title: 'The Leviathan',
-    joinDate: 'March 2022',
-    badge: '👑',
-    badgeLabel: 'Founder',
-    quote: '"Every whale fall begins with a single step into the unknown."',
-    gradient: 'from-[#1a3a5c] to-[#0a1a2e]',
-    color: '#4dd9e8',
-    glowColor: '#4dd9e8',
-    initials: 'AT',
-  },
-  {
-    name: 'CrimsonVeil',
-    role: 'PvP Commander',
-    title: 'The Bloodtide',
-    joinDate: 'April 2022',
-    badge: '⚔️',
-    badgeLabel: 'PvP Legend',
-    quote: '"In the chaos of battle, find the silence of purpose."',
-    gradient: 'from-[#3a1a1a] to-[#1a0a0a]',
-    color: '#e84d4d',
-    glowColor: '#e84d4d',
-    initials: 'CV',
-  },
-  {
-    name: 'LunarPetal',
-    role: 'Event Coordinator',
-    title: 'The Starweaver',
-    joinDate: 'June 2022',
-    badge: '🌙',
-    badgeLabel: 'Event Maestro',
-    quote: '"A guild lives through the events that bring hearts together."',
-    gradient: 'from-[#2a1a3a] to-[#1a0a2e]',
-    color: '#c9a84c',
-    glowColor: '#a78bfa',
-    initials: 'LP',
-  },
-  {
-    name: 'IronSerpent',
-    role: 'PvE Raid Leader',
-    title: 'The Dungeon Diver',
-    joinDate: 'August 2022',
-    badge: '🐉',
-    badgeLabel: 'Raid Master',
-    quote: '"No boss lives through three wipes. On the fourth, we feast."',
-    gradient: 'from-[#1a2a1a] to-[#0a1a0a]',
-    color: '#4de890',
-    glowColor: '#4de890',
-    initials: 'IS',
-  },
-  {
-    name: 'MistyArrow',
-    role: 'Photography Captain',
-    title: 'The Chronicler',
-    joinDate: 'January 2023',
-    badge: '📸',
-    badgeLabel: 'Memory Keeper',
-    quote: '"Every screenshot is a moment that deserves to live forever."',
-    gradient: 'from-[#1a3a5c] to-[#0a2a4c]',
-    color: '#4dd9e8',
-    glowColor: '#4dd9e8',
-    initials: 'MA',
-  },
-  {
-    name: 'ThunderKoi',
-    role: 'Recruitment Officer',
-    title: 'The Harbor Master',
-    joinDate: 'March 2023',
-    badge: '🎯',
-    badgeLabel: 'Top Recruiter',
-    quote: '"A guild is only as strong as the bonds between its people."',
-    gradient: 'from-[#3a2a1a] to-[#1a1a0a]',
-    color: '#e8a84d',
-    glowColor: '#e8a84d',
-    initials: 'TK',
-  },
-];
+interface HallOfLegendsProps {
+  members: LegendMember[];
+}
 
-export default function HallOfLegends() {
+export default function HallOfLegends({ members }: HallOfLegendsProps) {
   return (
     <section id="hall-of-legends" className="relative z-10 py-24 px-6">
       <motion.div
@@ -112,7 +36,7 @@ export default function HallOfLegends() {
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {members.map((member, i) => (
           <motion.div
-            key={member.name}
+            key={member.id}
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
@@ -127,7 +51,7 @@ export default function HallOfLegends() {
             >
               {/* Avatar */}
               <div
-                className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold flex-shrink-0"
+                className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold flex-shrink-0 overflow-hidden"
                 style={{
                   background: `radial-gradient(circle, ${member.color}30, ${member.color}05)`,
                   border: `2px solid ${member.color}60`,
@@ -136,7 +60,12 @@ export default function HallOfLegends() {
                   boxShadow: `0 0 20px ${member.color}30`,
                 }}
               >
-                {member.initials}
+                {member.photoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={member.photoUrl} alt={member.name} className="w-full h-full object-cover" />
+                ) : (
+                  member.initials
+                )}
               </div>
               <div>
                 <h3

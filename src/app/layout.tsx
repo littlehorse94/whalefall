@@ -1,11 +1,18 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import AudioToggle from "@/components/AudioToggle";
+import { getSection } from "@/lib/blob-store";
+import { MEDIA_SEED } from "@/lib/seed-data";
 
 // Set NEXT_PUBLIC_SITE_URL in Vercel project settings once the production
 // domain is final — every absolute URL below (OG images, canonical links,
 // sitemap) is derived from this one place.
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://whalefall.vercel.app";
+
+// Content is served from Blob storage and can change at any time via the
+// admin panel, so every page needs to render per-request rather than being
+// frozen into the build's static output.
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -57,11 +64,13 @@ export const viewport: Viewport = {
   themeColor: "#0a0e1a",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const media = await getSection('media', MEDIA_SEED);
+
   return (
     <html lang="en" className="h-full">
       <head>
@@ -74,7 +83,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full bg-[#0a0e1a] text-[#e8f4f8] antialiased">
         {children}
-        <AudioToggle />
+        <AudioToggle audioUrl={media.audioUrl} labelPlaying={media.audioLabelPlaying} labelPaused={media.audioLabelPaused} />
       </body>
     </html>
   );

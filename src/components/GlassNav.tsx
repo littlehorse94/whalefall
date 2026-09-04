@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import type { NavLink } from '@/lib/content-types';
 
-const NAV_LINKS = [
-  { label: 'Gallery', href: '/gallery' },
-  { label: 'Legends', href: '/legends' },
-  { label: 'Montages', href: '/montages' },
-];
+interface GlassNavProps {
+  navLinks: NavLink[];
+  discordInviteUrl: string;
+  guildName: string;
+}
 
 function DiscordIcon() {
   return (
@@ -17,7 +18,7 @@ function DiscordIcon() {
   );
 }
 
-export default function GlassNav() {
+export default function GlassNav({ navLinks, discordInviteUrl, guildName }: GlassNavProps) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -90,19 +91,19 @@ export default function GlassNav() {
           <div className="relative z-10 grid grid-cols-[auto_1fr_auto] md:grid-cols-3 items-center w-full gap-4">
             <div className="flex justify-start">
               <Link href="/" style={{ fontWeight: 400, fontSize: '1.4rem', color: '#fff', fontFamily: "'Long Cang', cursive", textDecoration: 'none', lineHeight: 1 }}>
-                鲸落
+                {guildName}
               </Link>
             </div>
 
             <div className="hidden md:flex items-center justify-center gap-6">
-              {NAV_LINKS.map(link => (
-                <Link key={link.label} href={link.href} className="nav-link">{link.label}</Link>
+              {navLinks.map(link => (
+                <Link key={link.id} href={link.href} className="nav-link">{link.label}</Link>
               ))}
             </div>
 
             <div className="flex items-center justify-end gap-3">
               <a
-                href="https://discord.gg/whalefall"
+                href={discordInviteUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hidden md:inline-flex"
@@ -131,13 +132,13 @@ export default function GlassNav() {
               className="md:hidden absolute left-0 right-0 top-full mt-2 flex flex-col gap-3 p-4 rounded-2xl"
               style={{ background: 'rgba(5,8,16,0.95)', backdropFilter: 'blur(20px)', border: '1px solid rgba(77,217,232,0.15)' }}
             >
-              {NAV_LINKS.map(link => (
-                <Link key={link.label} href={link.href} className="nav-link" onClick={() => setMenuOpen(false)}>
+              {navLinks.map(link => (
+                <Link key={link.id} href={link.href} className="nav-link" onClick={() => setMenuOpen(false)}>
                   {link.label}
                 </Link>
               ))}
               <a
-                href="https://discord.gg/whalefall"
+                href={discordInviteUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="nav-link"

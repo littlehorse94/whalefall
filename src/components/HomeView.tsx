@@ -1,0 +1,292 @@
+'use client';
+
+import { useEffect, useRef } from 'react';
+import Link from 'next/link';
+import VideoBackground from '@/components/VideoBackground';
+import { GlowingEffect } from '@/components/GlowingEffect';
+import ParticlesCanvas from '@/components/ParticlesCanvas';
+import GlassNav from '@/components/GlassNav';
+
+import StatsSection from '@/components/StatsSection';
+import ChronicleSection from '@/components/ChronicleSection';
+import DiscordWidget from '@/components/DiscordWidget';
+import PhotoContest from '@/components/PhotoContest';
+import WhaleSanctuary from '@/components/WhaleSanctuary';
+import Footer from '@/components/Footer';
+
+import type {
+  HeroContent, StatTile, Milestone, DiscordConfig, PhotoContestConfig, MediaSettings, SiteSettings,
+} from '@/lib/content-types';
+
+interface HomeViewProps {
+  hero: HeroContent;
+  stats: StatTile[];
+  milestones: Milestone[];
+  discord: DiscordConfig;
+  contest: PhotoContestConfig;
+  media: MediaSettings;
+  settings: SiteSettings;
+}
+
+function DiscordIcon() {
+  return (
+    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286z" />
+    </svg>
+  );
+}
+
+function ChevronDown() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" width={24} height={24}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+    </svg>
+  );
+}
+
+export default function HomeView({ hero, stats, milestones, discord, contest, media, settings }: HomeViewProps) {
+  const heroRef        = useRef<HTMLElement>(null);
+  const fixedCardsRef  = useRef<HTMLDivElement>(null);
+  const cardsGridRef   = useRef<HTMLDivElement>(null);
+  const cardsTriggerRef = useRef<HTMLDivElement>(null);
+  const s3InnerRef     = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const hero = heroRef.current;
+      if (hero) {
+        const fade = Math.max(0, 1 - window.scrollY / (window.innerHeight * 0.35));
+        hero.style.opacity = String(fade);
+      }
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    let cardRaf = 0;
+    const tickCards = () => {
+      const trigger = cardsTriggerRef.current;
+      const fixedCards = fixedCardsRef.current;
+      const grid = cardsGridRef.current;
+      if (trigger && fixedCards && grid) {
+        const triggerTop = trigger.getBoundingClientRect().top + window.scrollY;
+        const triggerH   = trigger.offsetHeight;
+        const vh         = window.innerHeight;
+        const sy         = window.scrollY;
+
+        const start = triggerTop - vh * 0.5;
+        const end   = triggerTop + triggerH;
+
+        const fadeOutStart = triggerTop + triggerH * 0.55;
+        const fadeIn  = Math.min(1, Math.max(0, (sy - (start - vh * 0.2)) / (vh * 0.2)));
+        const fadeOut = Math.min(1, Math.max(0, (end - sy) / (end - fadeOutStart)));
+        const opacity = Math.min(fadeIn, fadeOut);
+
+        fixedCards.style.opacity        = String(opacity);
+        fixedCards.style.pointerEvents  = opacity > 0.1 ? 'auto' : 'none';
+
+        const progress    = Math.max(0, Math.min(1, (sy - start) / (end - start)));
+        const revealPct   = progress * 130;
+        const isMobile    = window.innerWidth < 768;
+        const mask = isMobile
+          ? `linear-gradient(to bottom, black ${revealPct}%, transparent ${revealPct + 20}%)`
+          : `linear-gradient(to right, black ${revealPct}%, transparent ${revealPct + 15}%)`;
+
+        grid.style.maskImage         = mask;
+        grid.style.webkitMaskImage   = mask;
+      }
+      cardRaf = requestAnimationFrame(tickCards);
+    };
+    cardRaf = requestAnimationFrame(tickCards);
+
+    const s3 = s3InnerRef.current;
+    let observer: IntersectionObserver | null = null;
+    if (s3) {
+      observer = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) {
+          s3.style.opacity   = '1';
+          s3.style.transform = 'translateY(0)';
+          s3.style.filter    = 'blur(0)';
+          observer?.unobserve(s3);
+        }
+      }, { threshold: 0.45 });
+      observer.observe(s3);
+    }
+
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      cancelAnimationFrame(cardRaf);
+      observer?.disconnect();
+    };
+  }, []);
+
+  return (
+    <main style={{ fontFamily: "'Inter', sans-serif", background: 'transparent', color: '#fff', overflowX: 'hidden' }}>
+
+      <VideoBackground videos={media.heroVideoUrls} />
+
+      <ParticlesCanvas />
+
+      <div
+        ref={fixedCardsRef}
+        style={{
+          position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 5,
+          padding: 'clamp(1rem, 3vw, 2rem) clamp(1rem, 4vw, 2.5rem)', opacity: 0, pointerEvents: 'none',
+          transition: 'opacity 0.3s ease',
+        }}
+      >
+        <div
+          ref={cardsGridRef}
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
+          style={{
+            maxWidth: '72rem', margin: '0 auto', gap: '1.25rem 2rem',
+          }}
+        >
+          {hero.cards.map((c) => (
+            <Link
+              key={c.id}
+              href={c.href}
+              className="relative rounded-2xl block"
+              style={{
+                padding: '1.5rem', background: 'rgba(5,8,16,0.45)',
+                backdropFilter: 'blur(8px)', border: '1px solid rgba(77,217,232,0.12)',
+                textDecoration: 'none', transition: 'border-color 0.3s ease',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(77,217,232,0.4)')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(77,217,232,0.12)')}
+            >
+              <GlowingEffect disabled={false} glow proximity={70} spread={28} borderWidth={1.5} />
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#fff', marginBottom: '1rem', fontFamily: "'Cinzel Decorative', cursive" }}>
+                {c.title}
+              </h3>
+              <p style={{ color: '#d1d5db', fontSize: '0.875rem', lineHeight: 1.7 }}>{c.body}</p>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      <GlassNav navLinks={settings.navLinks} discordInviteUrl={settings.discordInviteUrl} guildName={settings.guildName} />
+
+      <div style={{ position: 'relative', zIndex: 2 }}>
+
+        <section
+          ref={heroRef}
+          id="hero"
+          style={{ position: 'relative', height: '100vh', width: '100%', display: 'flex', flexDirection: 'column' }}
+        >
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: 'linear-gradient(to top, rgba(0,0,0,0.65), transparent, transparent)',
+          }} />
+
+          <div style={{
+            position: 'relative', zIndex: 10, flex: 1, display: 'flex', flexDirection: 'column',
+            alignItems: 'center', justifyContent: 'flex-end', textAlign: 'center',
+            padding: '0 1.5rem 6rem',
+          }}>
+            <p style={{ fontSize: '0.875rem', color: '#9ca3af', marginBottom: '1rem', letterSpacing: '0.1em', fontFamily: "'Cinzel', serif", textTransform: 'uppercase' }}>
+              {hero.eyebrow}
+            </p>
+
+            <h1 style={{
+              fontSize: 'clamp(1.6rem, 5vw, 3.75rem)', fontWeight: 600, lineHeight: 1.2,
+              maxWidth: '52rem', fontFamily: "'Cinzel', serif",
+            }}>
+              {hero.headlinePrefix}{' '}
+              <span style={{ position: 'relative', display: 'inline-block' }}>
+                <span style={{
+                  position: 'absolute', bottom: '0.2rem', left: 0, width: '100%', height: '10px',
+                  background: '#1a3a5c', borderRadius: '2px',
+                }} />
+                <span style={{ position: 'relative' }}>{hero.headlineHighlight}</span>
+              </span>
+              {' '}{hero.headlineSuffix}
+            </h1>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '2.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <a href={settings.discordInviteUrl} target="_blank" rel="noopener noreferrer"
+                className="cta-button"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+              >
+                <DiscordIcon /> {hero.ctaPrimaryLabel}
+              </a>
+              <a href={hero.ctaSecondaryHref} className="cta-button cta-button-gold">
+                {hero.ctaSecondaryLabel}
+              </a>
+            </div>
+          </div>
+
+          <div style={{ position: 'relative', zIndex: 10, display: 'flex', justifyContent: 'center', paddingBottom: '2rem' }}>
+            <span style={{ color: '#6b7280', animation: 'bounce 1s infinite' }}>
+              <ChevronDown />
+            </span>
+          </div>
+        </section>
+
+        <div style={{ height: '30vh' }} />
+
+        <div ref={cardsTriggerRef} style={{ height: '120vh' }} />
+
+        <div style={{ height: '60vh' }} />
+
+        <section style={{
+          position: 'relative', minHeight: '60vh', display: 'flex',
+          alignItems: 'flex-end', justifyContent: 'center',
+          padding: '0 2.5rem 5rem',
+        }}>
+          <div
+            ref={s3InnerRef}
+            style={{
+              position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column',
+              alignItems: 'center', textAlign: 'center',
+              opacity: 0, transform: 'translateY(32px)', filter: 'blur(8px)',
+              transition: 'opacity 1s ease-out, transform 1s ease-out, filter 1s ease-out',
+            }}
+          >
+            <p style={{ color: '#d1d5db', fontSize: '1rem', marginBottom: '0.75rem', fontFamily: "'Cinzel', serif", letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+              {hero.revealEyebrow}
+            </p>
+            <h2
+              className="shimmer-text"
+              style={{ fontSize: 'clamp(2.5rem, 8vw, 6rem)', fontWeight: 900, fontFamily: "'Cinzel Decorative', cursive" }}
+            >
+              <span style={{ fontFamily: "'Long Cang', cursive" }}>{settings.guildName}</span>
+              {' · '}
+              <span>Whalefall</span>
+            </h2>
+            <p style={{ color: '#9ca3af', fontSize: '1rem', marginTop: '1rem', fontFamily: "'Cinzel', serif", letterSpacing: '0.1em' }}>
+              {hero.revealQuote}
+            </p>
+          </div>
+        </section>
+
+        <div style={{ background: 'linear-gradient(180deg, transparent 0%, rgba(5,8,16,0.95) 8%)' }}>
+          <StatsSection stats={stats} />
+          <Divider />
+          <ChronicleSection milestones={milestones} />
+          <Divider color="#c9a84c" />
+          <DiscordWidget config={discord} />
+          <Divider />
+          <PhotoContest config={contest} />
+          <Divider />
+          <WhaleSanctuary />
+
+          <Footer settings={settings} />
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-8px); }
+        }
+      `}</style>
+    </main>
+  );
+}
+
+function Divider({ color = '#4dd9e8' }: { color?: string }) {
+  return (
+    <div style={{ height: '1px', maxWidth: '56rem', margin: '0.5rem auto', position: 'relative' }}>
+      <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(to right, transparent, ${color}, transparent)`, opacity: 0.3 }} />
+    </div>
+  );
+}

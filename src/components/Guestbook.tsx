@@ -1,68 +1,36 @@
 'use client';
 
-import { useState } from 'react';
+import { useActionState, useRef, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { CSSProperties } from 'react';
+import { submitGuestbookEntry } from '@/lib/public-actions';
+import type { GuestbookEntry } from '@/lib/content-types';
 
-const sampleMessages = [
-  {
-    id: 1,
-    name: 'CrimsonVeil',
-    message: 'Three years with this guild and it still feels like home. The memories we\'ve made together are worth more than any ranking. To many more years of battles and laughter!',
-    date: 'June 12, 2025',
-    avatar: 'CV',
-    color: '#e84d4d',
-  },
-  {
-    id: 2,
-    name: 'LunarPetal',
-    message: 'Every event I organise, every screenshot I take, every moment I share — it\'s all because of this incredible community. Whalefall is not just a guild. It\'s family. 鲸落万岁！',
-    date: 'June 10, 2025',
-    avatar: 'LP',
-    color: '#c9a84c',
-  },
-  {
-    id: 3,
-    name: 'NewWave99',
-    message: 'Just joined last month and already feel so welcomed. Can\'t believe I found a guild with such amazing people. The vibes here are immaculate. Excited for what\'s ahead!',
-    date: 'June 8, 2025',
-    avatar: 'NW',
-    color: '#4dd9e8',
-  },
-  {
-    id: 4,
-    name: 'ThunderKoi',
-    message: 'When a whale falls to the ocean floor, it becomes a sanctuary for thousands of creatures. That\'s exactly what this guild is — a sanctuary. Thank you, AzureTide, for everything.',
-    date: 'June 5, 2025',
-    avatar: 'TK',
-    color: '#e8a84d',
-  },
-];
+interface GuestbookProps {
+  entries: GuestbookEntry[];
+}
 
-export default function Guestbook() {
-  const [messages, setMessages] = useState(sampleMessages);
-  const [name, setName] = useState('');
-  const [message, setMessage] = useState('');
-  const [submitted, setSubmitted] = useState(false);
+export default function Guestbook({ entries }: GuestbookProps) {
+  const [state, formAction, pending] = useActionState(
+    async (_prev: { error: string } | null, formData: FormData): Promise<{ error: string } | null> => {
+      const result = await submitGuestbookEntry(formData);
+      return result ?? null;
+    },
+    null,
+  );
+  const formRef = useRef<HTMLFormElement>(null);
+  const wasPending = useRef(false);
+  const [justSubmitted, setJustSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim() || !message.trim()) return;
-    const colors = ['#4dd9e8', '#c9a84c', '#e84d4d', '#4de890', '#e8a84d'];
-    const newMsg = {
-      id: Date.now(),
-      name: name.trim(),
-      message: message.trim(),
-      date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-      avatar: name.trim().slice(0, 2).toUpperCase(),
-      color: colors[Math.floor(Math.random() * colors.length)],
-    };
-    setMessages(prev => [newMsg, ...prev]);
-    setName('');
-    setMessage('');
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 3000);
-  };
+  useEffect(() => {
+    if (wasPending.current && !pending && !state?.error) {
+      formRef.current?.reset();
+      setJustSubmitted(true);
+      const timer = setTimeout(() => setJustSubmitted(false), 3000);
+      return () => clearTimeout(timer);
+    }
+    wasPending.current = pending;
+  }, [pending, state]);
 
   return (
     <section id="guestbook" className="relative z-10 py-24 px-6">
@@ -91,11 +59,12 @@ export default function Guestbook() {
       <div className="max-w-4xl mx-auto">
         {/* Form */}
         <motion.form
+          ref={formRef}
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7 }}
-          onSubmit={handleSubmit}
+          action={formAction}
           className="glass rounded-2xl p-8 mb-12 border-glow"
         >
           <h3
@@ -113,9 +82,10 @@ export default function Guestbook() {
                 YOUR NAME
               </label>
               <input
+                name="name"
                 type="text"
-                value={name}
-                onChange={e => setName(e.target.value)}
+                required
+                maxLength={60}
                 placeholder="Your guild name or username..."
                 className="w-full px-4 py-3 rounded-lg text-sm text-[#e8f4f8] outline-none transition-all duration-300"
                 style={{
@@ -135,8 +105,9 @@ export default function Guestbook() {
                 YOUR MESSAGE
               </label>
               <textarea
-                value={message}
-                onChange={e => setMessage(e.target.value)}
+                name="message"
+                required
+                maxLength={600}
                 placeholder="Share a memory, a thank-you, or words for the guild..."
                 rows={4}
                 className="w-full px-4 py-3 rounded-lg text-sm text-[#e8f4f8] outline-none transition-all duration-300 resize-none"
@@ -152,13 +123,25 @@ export default function Guestbook() {
             <div className="flex items-center gap-4">
               <button
                 type="submit"
+                disabled={pending}
                 className="cta-button"
-                style={{ padding: '12px 32px' }}
+                style={{ padding: '12px 32px', opacity: pending ? 0.6 : 1 }}
               >
-                Send to the Deep
+                {pending ? 'Sending…' : 'Send to the Deep'}
               </button>
               <AnimatePresence>
-                {submitted && (
+                {state?.error && (
+                  <motion.span
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="text-sm"
+                    style={{ fontFamily: 'Cinzel, serif', color: '#e84d4d' }}
+                  >
+                    {state.error}
+                  </motion.span>
+                )}
+                {justSubmitted && !state?.error && (
                   <motion.span
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -177,7 +160,7 @@ export default function Guestbook() {
         {/* Messages */}
         <div className="flex flex-col gap-5">
           <AnimatePresence mode="popLayout">
-            {messages.map((msg, i) => (
+            {entries.map((msg, i) => (
               <motion.div
                 key={msg.id}
                 initial={{ opacity: 0, y: 20 }}

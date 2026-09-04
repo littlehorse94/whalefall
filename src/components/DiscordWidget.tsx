@@ -1,48 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { GlowingEffect } from '@/components/GlowingEffect';
-
-// Mock data shape mirrors Discord's free widget API response
-// (https://discord.com/developers/docs/resources/guild#get-guild-widget-json),
-// fetched from https://discord.com/api/guilds/<SERVER_ID>/widget.json once a
-// real server ID is supplied and Server Settings → Widget → Enable is turned on.
-interface DiscordWidgetData {
-  name: string;
-  presence_count: number;
-  member_count: number;
-  boost_level: number;
-  members: { username: string; status: string; avatar_url: string | null }[];
-  channels: { name: string }[];
-}
-
-const MOCK_DATA: DiscordWidgetData = {
-  name: 'Whalefall',
-  presence_count: 47,
-  member_count: 214,
-  boost_level: 2,
-  members: [
-    { username: 'AzureTide', status: 'online', avatar_url: null },
-    { username: 'CrimsonVeil', status: 'online', avatar_url: null },
-    { username: 'LunarPetal', status: 'idle', avatar_url: null },
-    { username: 'IronSerpent', status: 'online', avatar_url: null },
-    { username: 'MistyArrow', status: 'dnd', avatar_url: null },
-    { username: 'ThunderKoi', status: 'online', avatar_url: null },
-  ],
-  channels: [
-    { name: '🌊 general-chat' },
-    { name: '⚔️ pvp-strategy' },
-    { name: '🎙️ Raid Voice 1' },
-    { name: '📸 screenshots' },
-  ],
-};
-
-const HIGHLIGHTS = [
-  { tag: 'Announcement', text: 'Guild reached Top 60 SEA this season — celebration event this weekend!', time: '2h ago' },
-  { tag: 'Event', text: 'Saturday Raid Night — Iron Gate Siege, 8PM server time.', time: '1d ago' },
-  { tag: 'Recruitment', text: 'Recruitment open for PvE Raid Leader and Photography roles.', time: '3d ago' },
-];
+import type { DiscordConfig } from '@/lib/content-types';
 
 const STATUS_COLOR: Record<string, string> = {
   online: '#4de890',
@@ -77,10 +37,11 @@ function CardTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function DiscordWidget() {
-  // Swap this for a real fetch once a server ID is available:
-  // useEffect(() => { fetch(`https://discord.com/api/guilds/${ID}/widget.json`).then(...) }, []);
-  const [data] = useState<DiscordWidgetData>(MOCK_DATA);
+interface DiscordWidgetProps {
+  config: DiscordConfig;
+}
+
+export default function DiscordWidget({ config: data }: DiscordWidgetProps) {
 
   return (
     <section id="discord" className="relative z-10 py-24 px-6">
@@ -113,7 +74,7 @@ export default function DiscordWidget() {
             <div className="flex items-center gap-3">
               <div className="w-3 h-3 rounded-full bg-[#4de890]" style={{ boxShadow: '0 0 10px #4de890' }} />
               <span className="font-bold text-[#e8f4f8]" style={{ fontFamily: 'Cinzel, serif' }}>
-                {data.name}
+                {data.guildName}
               </span>
             </div>
             <span
@@ -123,13 +84,13 @@ export default function DiscordWidget() {
                 color: '#4dd9e8', fontFamily: 'Cinzel, serif', letterSpacing: '0.1em',
               }}
             >
-              {data.presence_count} online
+              {data.presenceCount} online
             </span>
           </div>
 
           <div className="flex flex-col gap-2">
             {data.members.map((m) => (
-              <div key={m.username} className="flex items-center gap-3 px-3 py-2 rounded-lg" style={{ background: 'rgba(77,217,232,0.04)' }}>
+              <div key={m.id} className="flex items-center gap-3 px-3 py-2 rounded-lg" style={{ background: 'rgba(77,217,232,0.04)' }}>
                 <div
                   className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
                   style={{
@@ -157,11 +118,11 @@ export default function DiscordWidget() {
           <CardTitle>Server Pulse</CardTitle>
           <div className="grid grid-cols-2 gap-3 mb-5">
             <div className="rounded-lg p-3 text-center" style={{ background: 'rgba(77,217,232,0.06)' }}>
-              <div className="text-2xl font-bold text-[#4dd9e8]" style={{ fontFamily: 'Cinzel Decorative, cursive' }}>{data.member_count}</div>
+              <div className="text-2xl font-bold text-[#4dd9e8]" style={{ fontFamily: 'Cinzel Decorative, cursive' }}>{data.memberCount}</div>
               <div className="text-xs text-[rgba(232,244,248,0.5)]" style={{ fontFamily: 'Cinzel, serif' }}>Members</div>
             </div>
             <div className="rounded-lg p-3 text-center" style={{ background: 'rgba(201,168,76,0.06)' }}>
-              <div className="text-2xl font-bold text-[#c9a84c]" style={{ fontFamily: 'Cinzel Decorative, cursive' }}>Lv.{data.boost_level}</div>
+              <div className="text-2xl font-bold text-[#c9a84c]" style={{ fontFamily: 'Cinzel Decorative, cursive' }}>Lv.{data.boostLevel}</div>
               <div className="text-xs text-[rgba(232,244,248,0.5)]" style={{ fontFamily: 'Cinzel, serif' }}>Boost Level</div>
             </div>
           </div>
@@ -172,7 +133,7 @@ export default function DiscordWidget() {
           <div className="flex flex-wrap gap-2">
             {data.channels.map((c) => (
               <span
-                key={c.name}
+                key={c.id}
                 className="text-xs px-3 py-1.5 rounded-full"
                 style={{
                   background: 'rgba(77,217,232,0.08)', border: '1px solid rgba(77,217,232,0.2)',
@@ -189,8 +150,8 @@ export default function DiscordWidget() {
         <WidgetCard delay={0.2}>
           <CardTitle>Recent Highlights</CardTitle>
           <div className="flex flex-col gap-3">
-            {HIGHLIGHTS.map((h) => (
-              <div key={h.text} className="rounded-lg p-3" style={{ background: 'rgba(77,217,232,0.04)', borderLeft: '2px solid rgba(77,217,232,0.4)' }}>
+            {data.highlights.map((h) => (
+              <div key={h.id} className="rounded-lg p-3" style={{ background: 'rgba(77,217,232,0.04)', borderLeft: '2px solid rgba(77,217,232,0.4)' }}>
                 <div className="flex items-center justify-between mb-1">
                   <span
                     className="text-xs px-2 py-0.5 rounded"
@@ -209,7 +170,7 @@ export default function DiscordWidget() {
 
       <div className="max-w-5xl mx-auto mt-6">
         <a
-          href="https://discord.gg/whalefall"
+          href={data.inviteUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="cta-button cta-button-gold w-full"

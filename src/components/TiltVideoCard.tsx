@@ -7,7 +7,8 @@ import { Play } from 'lucide-react';
 interface TiltVideoCardProps {
   title: string;
   subtitle: string;
-  youtubeId: string;
+  youtubeId?: string;
+  videoUrl?: string;
   views: string;
   likes: string;
   onPlay: () => void;
@@ -15,7 +16,7 @@ interface TiltVideoCardProps {
 
 const FRAME_SUFFIXES = ['1', '2', '3'];
 
-export default function TiltVideoCard({ title, subtitle, youtubeId, views, likes, onPlay }: TiltVideoCardProps) {
+export default function TiltVideoCard({ title, subtitle, youtubeId, videoUrl, views, likes, onPlay }: TiltVideoCardProps) {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
@@ -55,9 +56,11 @@ export default function TiltVideoCard({ title, subtitle, youtubeId, views, likes
     if (intervalRef.current) clearInterval(intervalRef.current);
   };
 
-  const src = hovering
-    ? `https://img.youtube.com/vi/${youtubeId}/${FRAME_SUFFIXES[frame]}.jpg`
-    : `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
+  const src = youtubeId
+    ? (hovering
+      ? `https://img.youtube.com/vi/${youtubeId}/${FRAME_SUFFIXES[frame]}.jpg`
+      : `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`)
+    : undefined;
 
   return (
     <motion.div
@@ -72,12 +75,21 @@ export default function TiltVideoCard({ title, subtitle, youtubeId, views, likes
         style={{ transform: 'translateZ(40px)', transformStyle: 'preserve-3d' }}
         className="absolute inset-0 grid h-full w-full grid-rows-[1fr_auto] overflow-hidden rounded-2xl border border-[rgba(77,217,232,0.2)]"
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={src}
-          alt={title}
-          className="absolute inset-0 h-full w-full object-cover"
-        />
+        {src ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={src}
+            alt={title}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ) : (
+          <video
+            src={videoUrl}
+            muted
+            preload="metadata"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/80" />
 
         <div className="relative flex flex-col justify-between h-full p-4 text-white">

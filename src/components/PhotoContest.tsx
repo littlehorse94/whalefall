@@ -1,57 +1,33 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import { voteForPhoto } from '@/lib/public-actions';
+import type { PhotoContestConfig } from '@/lib/content-types';
 
-const contestPhotos = [
-  {
-    id: 1,
-    url: 'https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=600&q=80',
-    submitter: 'MistyArrow',
-    title: 'Ocean Dreamscape',
-    votes: 142,
-  },
-  {
-    id: 2,
-    url: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=600&q=80',
-    submitter: 'LunarPetal',
-    title: 'Crystal Depths',
-    votes: 98,
-  },
-  {
-    id: 3,
-    url: 'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=600&q=80',
-    submitter: 'ThunderKoi',
-    title: 'Night Bloom',
-    votes: 187,
-  },
-  {
-    id: 4,
-    url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80',
-    submitter: 'IronSerpent',
-    title: 'Forest of Serenity',
-    votes: 73,
-  },
-];
+interface PhotoContestProps {
+  config: PhotoContestConfig;
+}
 
-const leaderboard = [
-  { rank: 1, name: 'ThunderKoi', votes: 187, photo: 'Night Bloom' },
-  { rank: 2, name: 'MistyArrow', votes: 142, photo: 'Ocean Dreamscape' },
-  { rank: 3, name: 'LunarPetal', votes: 98, photo: 'Crystal Depths' },
-  { rank: 4, name: 'IronSerpent', votes: 73, photo: 'Forest of Serenity' },
-];
+export default function PhotoContest({ config }: PhotoContestProps) {
+  const [photos, setPhotos] = useState(config.photos);
+  const [voted, setVoted] = useState<Set<string>>(new Set());
+  const [pending, startTransition] = useTransition();
 
-export default function PhotoContest() {
-  const [votes, setVotes] = useState<Record<number, number>>(
-    Object.fromEntries(contestPhotos.map(p => [p.id, p.votes]))
-  );
-  const [voted, setVoted] = useState<Set<number>>(new Set());
+  const leaderboard = [...photos].sort((a, b) => b.votes - a.votes);
 
-  const handleVote = (id: number) => {
-    if (voted.has(id)) return;
-    setVotes(prev => ({ ...prev, [id]: prev[id] + 1 }));
+  const handleVote = (id: string) => {
+    if (voted.has(id) || pending) return;
+    setPhotos(prev => prev.map(p => (p.id === id ? { ...p, votes: p.votes + 1 } : p)));
     setVoted(prev => new Set(prev).add(id));
+    startTransition(async () => {
+      const result = await voteForPhoto(id);
+      if (result?.error) {
+        // Revert optimistic update if the server rejected the vote (e.g. already voted this month).
+        setPhotos(prev => prev.map(p => (p.id === id ? { ...p, votes: Math.max(0, p.votes - 1) } : p)));
+      }
+    });
   };
 
   return (
@@ -67,7 +43,7 @@ export default function PhotoContest() {
           className="text-xs tracking-[0.5em] text-[#c9a84c] uppercase mb-3"
           style={{ fontFamily: 'Cinzel, serif' }}
         >
-          June 2025
+          {config.monthLabel}
         </p>
         <h2 className="text-3xl md:text-5xl text-[#e8f4f8] glow-gold" style={{ fontFamily: "'Long Cang', cursive" }}>
           鲸落摄影大赛
@@ -99,10 +75,10 @@ export default function PhotoContest() {
               className="text-xl font-bold text-[#c9a84c] mb-1"
               style={{ fontFamily: 'Cinzel Decorative, cursive' }}
             >
-              🏆 Contest Theme: &ldquo;Depths of Wonder&rdquo;
+              🏆 Contest Theme: &ldquo;{config.theme}&rdquo;
             </h3>
             <p className="text-sm text-[rgba(232,244,248,0.6)]">
-              Submit screenshots that capture the most breathtaking vistas in Where Winds Meet
+              {config.description}
             </p>
           </div>
           <div className="text-center">
@@ -110,7 +86,7 @@ export default function PhotoContest() {
               className="text-3xl font-bold text-[#c9a84c]"
               style={{ fontFamily: 'Cinzel Decorative, cursive' }}
             >
-              12
+              {config.daysLeft}
             </div>
             <div
               className="text-xs text-[rgba(232,244,248,0.5)]"
@@ -125,7 +101,7 @@ export default function PhotoContest() {
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Photo Grid */}
         <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {contestPhotos.map((photo, i) => (
+          {photos.map((photo, i) => (
             <motion.div
               key={photo.id}
               initial={{ opacity: 0, y: 20 }}
@@ -166,7 +142,7 @@ export default function PhotoContest() {
                   className="text-sm font-bold"
                   style={{ color: '#c9a84c', fontFamily: 'Cinzel, serif' }}
                 >
-                  {votes[photo.id]} votes
+                  {photo.votes} votes
                 </span>
                 <button
                   onClick={() => handleVote(photo.id)}
@@ -200,48 +176,45 @@ export default function PhotoContest() {
             <span>🏆</span> Leaderboard
           </h3>
           <div className="flex flex-col gap-3">
-            {[...leaderboard]
-              .map(l => ({ ...l, currentVotes: votes[contestPhotos.find(p => p.submitter === l.name)?.id ?? 0] ?? l.votes }))
-              .sort((a, b) => b.currentVotes - a.currentVotes)
-              .map((entry, i) => (
-                <div
-                  key={entry.name}
-                  className="flex items-center gap-3 p-3 rounded-lg"
+            {leaderboard.map((photo, i) => (
+              <div
+                key={photo.id}
+                className="flex items-center gap-3 p-3 rounded-lg"
+                style={{
+                  background: i === 0 ? 'rgba(201,168,76,0.1)' : 'rgba(77,217,232,0.03)',
+                  border: `1px solid ${i === 0 ? 'rgba(201,168,76,0.3)' : 'rgba(77,217,232,0.08)'}`,
+                }}
+              >
+                <span
+                  className="text-lg font-bold w-6 text-center"
                   style={{
-                    background: i === 0 ? 'rgba(201,168,76,0.1)' : 'rgba(77,217,232,0.03)',
-                    border: `1px solid ${i === 0 ? 'rgba(201,168,76,0.3)' : 'rgba(77,217,232,0.08)'}`,
+                    fontFamily: 'Cinzel Decorative, cursive',
+                    color: i === 0 ? '#c9a84c' : i === 1 ? '#9ba8b8' : i === 2 ? '#c87533' : 'rgba(232,244,248,0.4)',
                   }}
                 >
-                  <span
-                    className="text-lg font-bold w-6 text-center"
-                    style={{
-                      fontFamily: 'Cinzel Decorative, cursive',
-                      color: i === 0 ? '#c9a84c' : i === 1 ? '#9ba8b8' : i === 2 ? '#c87533' : 'rgba(232,244,248,0.4)',
-                    }}
+                  {i + 1}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p
+                    className="text-sm font-semibold text-[#e8f4f8] truncate"
+                    style={{ fontFamily: 'Cinzel, serif' }}
                   >
-                    {i + 1}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <p
-                      className="text-sm font-semibold text-[#e8f4f8] truncate"
-                      style={{ fontFamily: 'Cinzel, serif' }}
-                    >
-                      {entry.name}
-                    </p>
-                    <p
-                      className="text-xs text-[rgba(232,244,248,0.4)] truncate"
-                    >
-                      {entry.photo}
-                    </p>
-                  </div>
-                  <span
-                    className="text-sm font-bold flex-shrink-0"
-                    style={{ color: '#c9a84c', fontFamily: 'Cinzel, serif' }}
+                    {photo.submitter}
+                  </p>
+                  <p
+                    className="text-xs text-[rgba(232,244,248,0.4)] truncate"
                   >
-                    {entry.currentVotes}
-                  </span>
+                    {photo.title}
+                  </p>
                 </div>
-              ))}
+                <span
+                  className="text-sm font-bold flex-shrink-0"
+                  style={{ color: '#c9a84c', fontFamily: 'Cinzel, serif' }}
+                >
+                  {photo.votes}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </div>

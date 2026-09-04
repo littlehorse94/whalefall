@@ -4,17 +4,13 @@ import { useInView } from 'react-intersection-observer';
 import CountUp from 'react-countup';
 import { motion } from 'framer-motion';
 import { GlowingEffect } from '@/components/GlowingEffect';
+import type { StatTile } from '@/lib/content-types';
 
-const stats = [
-  { label: 'SEA Ranking', value: 60, prefix: 'Top ', suffix: '', desc: 'In Where Winds Meet' },
-  { label: 'Members', value: 200, prefix: '', suffix: '+', desc: 'Active adventurers' },
-  { label: 'Guild Age', value: 3, prefix: '', suffix: ' Years', desc: 'Of shared memories' },
-  { label: 'Events Hosted', value: 50, prefix: '', suffix: '+', desc: 'Epic gatherings' },
-  { label: 'Photos Uploaded', value: 1000, prefix: '', suffix: '+', desc: 'Captured moments' },
-  { label: 'Montages', value: 20, prefix: '', suffix: '+', desc: 'Cinematic memories' },
-];
+interface StatsSectionProps {
+  stats: StatTile[];
+}
 
-export default function StatsSection() {
+export default function StatsSection({ stats }: StatsSectionProps) {
   const { ref, inView } = useInView({ threshold: 0.2, triggerOnce: true });
 
   return (
@@ -55,7 +51,7 @@ export default function StatsSection() {
       >
         {stats.map((stat, i) => (
           <motion.div
-            key={stat.label}
+            key={stat.id}
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}

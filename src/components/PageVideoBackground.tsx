@@ -2,11 +2,13 @@
 
 import { useEffect, useRef } from 'react';
 
-const VIDEO_URL = 'https://24crvoriam0dl2l7.public.blob.vercel-storage.com/wf-page-video.mp4';
+interface PageVideoBackgroundProps {
+  videoUrl: string;
+}
 
 // Same fixed video + scroll-fade treatment as the homepage hero, but for the
 // shorter looping clip used as ambient background on the sub-pages.
-export default function PageVideoBackground() {
+export default function PageVideoBackground({ videoUrl }: PageVideoBackgroundProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -31,7 +33,7 @@ export default function PageVideoBackground() {
       }}
     >
       <video
-        src={VIDEO_URL}
+        src={videoUrl}
         autoPlay
         loop
         muted
