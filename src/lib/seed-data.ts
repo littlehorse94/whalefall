@@ -6,6 +6,7 @@ import type {
   HeroContent, MediaSettings, StatTile, Milestone, GalleryEvent, LegendMember,
   MontageCategory, DiscordConfig, GuestbookEntry, PhotoContestConfig, SiteSettings,
 } from './content-types';
+import { getSection } from './blob-store';
 
 export const HERO_SEED: HeroContent = {
   eyebrow: 'Our Legacy',
@@ -183,6 +184,17 @@ export const PHOTO_CONTEST_SEED: PhotoContestConfig = {
   submissionsEndDate: '',
   pendingPhotos: [],
 };
+
+/**
+ * Reads the Photo Contest section and backfills any fields missing from
+ * data saved before those fields existed (e.g. voting/submission settings
+ * added after the contest was already in use) with seed defaults, so old
+ * saved content doesn't crash on newly-added required fields.
+ */
+export async function getPhotoContestConfig(): Promise<PhotoContestConfig> {
+  const stored = await getSection('photo-contest', PHOTO_CONTEST_SEED);
+  return { ...PHOTO_CONTEST_SEED, ...stored };
+}
 
 export const SITE_SETTINGS_SEED: SiteSettings = {
   guildName: '鲸落',

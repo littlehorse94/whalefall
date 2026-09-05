@@ -6,7 +6,7 @@ import GallerySection from '@/components/GallerySection';
 import PhotoContest from '@/components/PhotoContest';
 import Footer from '@/components/Footer';
 import { getSection } from '@/lib/blob-store';
-import { GALLERY_SEED, MEDIA_SEED, PHOTO_CONTEST_SEED, SITE_SETTINGS_SEED } from '@/lib/seed-data';
+import { GALLERY_SEED, MEDIA_SEED, SITE_SETTINGS_SEED, getPhotoContestConfig } from '@/lib/seed-data';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,7 +20,7 @@ export default async function GalleryPage() {
   const [events, media, contest, settings] = await Promise.all([
     getSection('gallery', GALLERY_SEED),
     getSection('media', MEDIA_SEED),
-    getSection('photo-contest', PHOTO_CONTEST_SEED),
+    getPhotoContestConfig(),
     getSection('site-settings', SITE_SETTINGS_SEED),
   ]);
 

@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { put } from '@vercel/blob';
 import { getSection, putSection } from './blob-store';
 import { isSubmissionsOpen, isVotingOpen } from './contest-schedule';
-import { GUESTBOOK_SEED, PHOTO_CONTEST_SEED } from './seed-data';
+import { GUESTBOOK_SEED, getPhotoContestConfig } from './seed-data';
 import type { ContestPhoto, GuestbookEntry } from './content-types';
 
 const GUESTBOOK_KEY = 'guestbook';
@@ -33,7 +33,7 @@ export async function submitGuestbookEntry(formData: FormData): Promise<{ error:
 }
 
 export async function voteForPhoto(photoId: string): Promise<{ error: string } | void> {
-  const config = await getSection(CONTEST_KEY, PHOTO_CONTEST_SEED);
+  const config = await getPhotoContestConfig();
 
   if (!isVotingOpen(config)) {
     return { error: 'Voting is currently closed.' };
@@ -71,7 +71,7 @@ export async function voteForPhoto(photoId: string): Promise<{ error: string } |
 const CONTEST_SUBMISSION_MAX_BYTES = 8 * 1024 * 1024;
 
 export async function submitContestPhoto(formData: FormData): Promise<{ error: string } | void> {
-  const config = await getSection(CONTEST_KEY, PHOTO_CONTEST_SEED);
+  const config = await getPhotoContestConfig();
   if (!isSubmissionsOpen(config)) {
     return { error: 'Submissions are closed for this contest.' };
   }
