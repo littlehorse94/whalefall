@@ -220,7 +220,23 @@ export function DateField({
  * values. Always full-width and single-column: datetime-local inputs
  * don't shrink below their content width, so two side by side in a
  * narrow sidebar would overflow its box.
+ *
+ * The stored `value` is a full ISO timestamp (with a timezone offset),
+ * not the input's own naive local string — a plain datetime-local input
+ * has no timezone attached, so if we stored it as-is the server (which
+ * runs in UTC) would compare it as if it were UTC, silently shifting the
+ * window by the admin's UTC offset. Converting to/from ISO here means
+ * the picker always shows the admin's own local time, but the stored
+ * value is an unambiguous instant that compares correctly everywhere.
  */
+function isoToLocalInputValue(iso: string): string {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 export function NativeDateTimeField({
   label, value, onChange,
 }: {
@@ -237,8 +253,8 @@ export function NativeDateTimeField({
         <input
           ref={inputRef}
           type="datetime-local"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
+          value={isoToLocalInputValue(value)}
+          onChange={(e) => onChange(e.target.value ? new Date(e.target.value).toISOString() : '')}
           style={{ ...inputBase, flex: 1, minWidth: 0 }}
         />
         <button

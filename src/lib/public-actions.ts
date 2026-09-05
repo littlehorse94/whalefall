@@ -62,7 +62,13 @@ export async function voteForPhoto(photoId: string): Promise<{ error: string } |
     ...config,
     photos: config.photos.map((p) => (p.id === photoId ? { ...p, votes: p.votes + 1 } : p)),
   };
-  await putSection(CONTEST_KEY, next);
+
+  try {
+    await putSection(CONTEST_KEY, next);
+  } catch (err) {
+    console.error('voteForPhoto: failed to save vote', err);
+    return { error: 'Could not save your vote — please try again.' };
+  }
 
   if (config.oneVotePerVoter) {
     cookieStore.set(cookieName, photoId, {
@@ -95,11 +101,16 @@ export async function submitContestPhoto(formData: FormData): Promise<{ error: s
   if (file.size > CONTEST_SUBMISSION_MAX_BYTES) return { error: 'Image must be under 8MB.' };
 
   const pathname = `media/photo-contest-submissions/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${file.name}`;
-  const blob = await put(pathname, file, { access: 'public', addRandomSuffix: true, contentType: file.type });
 
-  const entry: ContestPhoto = { id: crypto.randomUUID(), url: blob.url, submitter, title, votes: 0 };
-  const next = { ...config, pendingPhotos: [...config.pendingPhotos, entry] };
-  await putSection(CONTEST_KEY, next);
+  try {
+    const blob = await put(pathname, file, { access: 'public', addRandomSuffix: true, contentType: file.type });
+    const entry: ContestPhoto = { id: crypto.randomUUID(), url: blob.url, submitter, title, votes: 0 };
+    const next = { ...config, pendingPhotos: [...config.pendingPhotos, entry] };
+    await putSection(CONTEST_KEY, next);
+  } catch (err) {
+    console.error('submitContestPhoto: failed to save submission', err);
+    return { error: 'Could not save your submission — please try again.' };
+  }
 
   revalidatePath('/admin/photo-contest');
 }
