@@ -42,10 +42,11 @@ export async function voteForPhoto(photoId: string): Promise<{ error: string } |
   const cookieStore = await cookies();
   const monthKey = new Date().toISOString().slice(0, 7);
   const cookieName = `wf_voted_${monthKey}`;
-  const voted = new Set((cookieStore.get(cookieName)?.value ?? '').split(',').filter(Boolean));
 
-  if (config.oneVotePerVoter && voted.has(photoId)) {
-    return { error: 'You already voted for this photo.' };
+  // One vote total for the whole contest, not one vote per photo — a
+  // visitor who already voted (for any photo) is done for the month.
+  if (config.oneVotePerVoter && cookieStore.get(cookieName)?.value) {
+    return { error: 'You have already cast your vote for this contest.' };
   }
 
   const next = {
@@ -55,8 +56,7 @@ export async function voteForPhoto(photoId: string): Promise<{ error: string } |
   await putSection(CONTEST_KEY, next);
 
   if (config.oneVotePerVoter) {
-    voted.add(photoId);
-    cookieStore.set(cookieName, Array.from(voted).join(','), {
+    cookieStore.set(cookieName, photoId, {
       httpOnly: true,
       sameSite: 'lax',
       path: '/',

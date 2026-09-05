@@ -54,7 +54,7 @@ function VotingSettingsPanel({
           </div>
           <ToggleField
             label="One vote per visitor"
-            description="Limit each visitor to a single vote per photo, per month (tracked by cookie)."
+            description="Limit each visitor to a single vote for the whole contest per month, not one vote per photo (tracked by cookie)."
             checked={data.oneVotePerVoter}
             onChange={(v) => update({ oneVotePerVoter: v })}
           />

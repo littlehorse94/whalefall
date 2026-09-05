@@ -112,22 +112,27 @@ function SubmitPhotoForm() {
 
 export default function PhotoContest({ config }: PhotoContestProps) {
   const [photos, setPhotos] = useState(config.photos);
-  const [voted, setVoted] = useState<Set<string>>(new Set());
+  const [votedPhotoId, setVotedPhotoId] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const votingOpen = isVotingOpen(config);
   const submissionsOpen = isSubmissionsOpen(config);
+  // When "one vote per visitor" is on, a vote for ANY photo uses up the
+  // visitor's single vote for the whole contest — not one vote per photo.
+  const voteLocked = config.oneVotePerVoter && votedPhotoId !== null;
 
   const leaderboard = [...photos].sort((a, b) => b.votes - a.votes);
 
   const handleVote = (id: string) => {
-    if (!votingOpen || voted.has(id) || pending) return;
+    if (!votingOpen || voteLocked || pending) return;
+    const previousVotedId = votedPhotoId;
     setPhotos(prev => prev.map(p => (p.id === id ? { ...p, votes: p.votes + 1 } : p)));
-    setVoted(prev => new Set(prev).add(id));
+    setVotedPhotoId(id);
     startTransition(async () => {
       const result = await voteForPhoto(id);
       if (result?.error) {
         // Revert optimistic update if the server rejected the vote (e.g. already voted this month).
         setPhotos(prev => prev.map(p => (p.id === id ? { ...p, votes: Math.max(0, p.votes - 1) } : p)));
+        setVotedPhotoId(previousVotedId);
       }
     });
   };
@@ -157,9 +162,11 @@ export default function PhotoContest({ config }: PhotoContestProps) {
           Monthly Photo Contest
         </p>
         <p className="mt-3 text-[rgba(232,244,248,0.5)] max-w-xl mx-auto">
-          {votingOpen
-            ? 'Vote for your favourite screenshot of the month.'
-            : 'Voting is currently closed — check back when the next round opens.'}
+          {!votingOpen
+            ? 'Voting is currently closed — check back when the next round opens.'
+            : config.oneVotePerVoter
+              ? 'Pick your one favourite screenshot of the month — one vote per visitor.'
+              : 'Vote for your favourite screenshots of the month.'}
         </p>
         <div className="mt-4 mx-auto w-24 h-px bg-gradient-to-r from-transparent via-[#c9a84c] to-transparent" />
       </motion.div>
@@ -250,19 +257,19 @@ export default function PhotoContest({ config }: PhotoContestProps) {
                 </span>
                 <button
                   onClick={() => handleVote(photo.id)}
-                  disabled={!votingOpen || voted.has(photo.id)}
+                  disabled={!votingOpen || voteLocked}
                   className="text-xs px-3 py-1.5 rounded transition-all duration-300"
                   style={{
                     fontFamily: 'Cinzel, serif',
                     letterSpacing: '0.1em',
-                    background: voted.has(photo.id) ? 'rgba(77,217,232,0.1)' : 'rgba(201,168,76,0.15)',
-                    border: `1px solid ${voted.has(photo.id) ? 'rgba(77,217,232,0.3)' : 'rgba(201,168,76,0.5)'}`,
-                    color: voted.has(photo.id) ? '#4dd9e8' : '#c9a84c',
-                    cursor: !votingOpen || voted.has(photo.id) ? 'not-allowed' : 'pointer',
-                    opacity: !votingOpen && !voted.has(photo.id) ? 0.5 : 1,
+                    background: photo.id === votedPhotoId ? 'rgba(77,217,232,0.1)' : 'rgba(201,168,76,0.15)',
+                    border: `1px solid ${photo.id === votedPhotoId ? 'rgba(77,217,232,0.3)' : 'rgba(201,168,76,0.5)'}`,
+                    color: photo.id === votedPhotoId ? '#4dd9e8' : '#c9a84c',
+                    cursor: !votingOpen || voteLocked ? 'not-allowed' : 'pointer',
+                    opacity: (!votingOpen || voteLocked) && photo.id !== votedPhotoId ? 0.5 : 1,
                   }}
                 >
-                  {voted.has(photo.id) ? '✓ Voted' : !votingOpen ? 'Voting closed' : '♡ Vote'}
+                  {photo.id === votedPhotoId ? '✓ Voted' : voteLocked ? 'Vote used' : !votingOpen ? 'Voting closed' : '♡ Vote'}
                 </button>
               </div>
             </motion.div>
