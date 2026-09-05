@@ -1,32 +1,37 @@
 import { NextResponse } from 'next/server';
-import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
-import { getSession } from '@/lib/auth';
+import { put } from '@vercel/blob';
+import { requireAdmin } from '@/lib/auth';
+
+const ALLOWED_PREFIXES = ['image/', 'video/', 'audio/'];
 
 export async function POST(request: Request): Promise<NextResponse> {
-  const body = (await request.json()) as HandleUploadBody;
+  try {
+    await requireAdmin();
+  } catch {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const formData = await request.formData();
+  const file = formData.get('file');
+  const pathname = formData.get('pathname');
+
+  if (!(file instanceof File) || typeof pathname !== 'string' || !pathname) {
+    return NextResponse.json({ error: 'Missing file or pathname' }, { status: 400 });
+  }
+
+  if (!ALLOWED_PREFIXES.some((p) => file.type.startsWith(p))) {
+    return NextResponse.json({ error: 'Only image, video, or audio files are allowed' }, { status: 400 });
+  }
 
   try {
-    const jsonResponse = await handleUpload({
-      body,
-      request,
-      onBeforeGenerateToken: async () => {
-        const session = await getSession();
-        if (!session) throw new Error('Unauthorized');
-
-        return {
-          allowedContentTypes: ['image/*', 'video/*', 'audio/*'],
-          addRandomSuffix: true,
-          allowOverwrite: false,
-          maximumSizeInBytes: 500 * 1024 * 1024,
-        };
-      },
+    const blob = await put(pathname, file, {
+      access: 'public',
+      addRandomSuffix: true,
+      contentType: file.type,
     });
-
-    return NextResponse.json(jsonResponse);
+    return NextResponse.json({ url: blob.url });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Upload failed' },
-      { status: 401 },
-    );
+    const message = error instanceof Error ? error.message : 'Upload failed';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

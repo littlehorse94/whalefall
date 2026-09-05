@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { upload } from '@vercel/blob/client';
+import { uploadFile } from '@/lib/upload-client';
 
 interface MediaUploadFieldProps {
   label: string;
@@ -20,11 +20,8 @@ export default function MediaUploadField({ label, value, onChange, accept, secti
     setUploading(true);
     setError(null);
     try {
-      const blob = await upload(`media/${section}/${Date.now()}-${file.name}`, file, {
-        access: 'public',
-        handleUploadUrl: '/api/admin/blob-upload',
-      });
-      onChange(blob.url);
+      const url = await uploadFile(file, section);
+      onChange(url);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed');
     } finally {

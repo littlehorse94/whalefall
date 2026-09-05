@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/auth';
 import { logout } from '../login/actions';
-import { ADMIN_SECTIONS } from '@/lib/admin-sections';
+import { ADMIN_SECTION_GROUPS } from '@/lib/admin-sections';
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
@@ -23,21 +23,35 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <Link href="/admin" style={{ fontWeight: 700, fontSize: '1.1rem', color: '#e8f4f8', textDecoration: 'none', marginBottom: '1.5rem', display: 'block' }}>
           鲸落 Admin
         </Link>
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem', flex: 1 }}>
-          {ADMIN_SECTIONS.map((s) => (
-            <Link
-              key={s.slug}
-              href={`/admin/${s.slug}`}
-              style={{
-                padding: '0.5rem 0.6rem',
-                borderRadius: '6px',
-                fontSize: '0.85rem',
-                color: 'rgba(232,244,248,0.75)',
-                textDecoration: 'none',
-              }}
-            >
-              {s.label}
-            </Link>
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem', flex: 1, overflowY: 'auto' }}>
+          {ADMIN_SECTION_GROUPS.map((group) => (
+            <div key={group.group}>
+              <div
+                style={{
+                  fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
+                  color: 'rgba(77,217,232,0.55)', padding: '0 0.6rem', marginBottom: '0.35rem',
+                }}
+              >
+                {group.group}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem' }}>
+                {group.sections.map((s) => (
+                  <Link
+                    key={s.slug}
+                    href={`/admin/${s.slug}`}
+                    style={{
+                      padding: '0.4rem 0.6rem',
+                      borderRadius: '6px',
+                      fontSize: '0.85rem',
+                      color: 'rgba(232,244,248,0.75)',
+                      textDecoration: 'none',
+                    }}
+                  >
+                    {s.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
           ))}
         </nav>
         <form action={logout}>

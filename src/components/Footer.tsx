@@ -1,5 +1,5 @@
-import Link from 'next/link';
 import type { SiteSettings } from '@/lib/content-types';
+import FooterAdminLink from './FooterAdminLink';
 
 interface FooterProps {
   settings: SiteSettings;
@@ -16,26 +16,15 @@ export default function Footer({ settings }: FooterProps) {
           <span style={{ fontFamily: "'Long Cang', cursive" }}>{settings.guildName}</span>
           {' | Whalefall'}
         </div>
-        <p style={{ fontSize: '0.75rem', color: 'rgba(232,244,248,0.35)', marginBottom: '1.5rem', letterSpacing: '0.2em', fontFamily: "'Cinzel', serif" }}>
+        <p style={{ fontSize: '0.75rem', color: 'rgba(232,244,248,0.55)', marginBottom: '1.5rem', letterSpacing: '0.2em', fontFamily: "'Cinzel', serif" }}>
           {settings.footerTagline}
         </p>
         <div style={{ height: '1px', background: 'linear-gradient(to right, transparent, rgba(77,217,232,0.2), transparent)', marginBottom: '1.5rem' }} />
-        <p style={{ fontSize: '0.75rem', color: 'rgba(232,244,248,0.2)', fontFamily: "'Cinzel', serif" }}>
+        <p style={{ fontSize: '0.75rem', color: 'rgba(232,244,248,0.45)', fontFamily: "'Cinzel', serif" }}>
           {settings.footerCopyright}
         </p>
-        <Link
-          href="/admin"
-          style={{
-            display: 'inline-block', fontSize: '0.65rem', color: 'rgba(232,244,248,0.12)',
-            marginTop: '0.5rem', fontFamily: "'Cinzel', serif", letterSpacing: '0.15em',
-            textDecoration: 'none', transition: 'color 0.2s ease',
-          }}
-          onMouseEnter={e => (e.currentTarget.style.color = 'rgba(77,217,232,0.4)')}
-          onMouseLeave={e => (e.currentTarget.style.color = 'rgba(232,244,248,0.12)')}
-        >
-          admin
-        </Link>
-        <p style={{ fontSize: '0.7rem', color: 'rgba(232,244,248,0.15)', marginTop: '0.75rem', fontFamily: "'Cinzel', serif", letterSpacing: '0.1em' }}>
+        <FooterAdminLink />
+        <p style={{ fontSize: '0.7rem', color: 'rgba(232,244,248,0.35)', marginTop: '0.75rem', fontFamily: "'Cinzel', serif", letterSpacing: '0.1em' }}>
           {settings.footerCredit}
         </p>
       </div>
