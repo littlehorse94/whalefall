@@ -214,21 +214,47 @@ export function DateField({
 }
 
 /**
- * A plain native date input bound directly to a yyyy-mm-dd string — for
- * schedule bounds (start/end) that need to be compared as real dates,
- * unlike DateField's free-text display values.
+ * A native date+time input bound directly to a datetime-local string
+ * (yyyy-MM-ddTHH:mm) — for schedule bounds (start/end) that need to be
+ * compared as real timestamps, unlike DateField's free-text display
+ * values. Always full-width and single-column: datetime-local inputs
+ * don't shrink below their content width, so two side by side in a
+ * narrow sidebar would overflow its box.
  */
-export function NativeDateField({
+export function NativeDateTimeField({
   label, value, onChange,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
 }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
   return (
     <div>
       <FieldLabel>{label}</FieldLabel>
-      <input type="date" value={value} onChange={(e) => onChange(e.target.value)} style={inputBase} />
+      <div style={{ display: 'flex', gap: '0.4rem' }}>
+        <input
+          ref={inputRef}
+          type="datetime-local"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          style={{ ...inputBase, flex: 1, minWidth: 0 }}
+        />
+        <button
+          type="button"
+          onClick={() => inputRef.current?.showPicker?.()}
+          aria-label="Pick a date and time"
+          title="Pick a date and time"
+          style={{
+            flexShrink: 0, width: '2.2rem', borderRadius: '7px',
+            border: '1px solid rgba(77,217,232,0.3)', background: 'rgba(77,217,232,0.1)',
+            color: '#4dd9e8', cursor: 'pointer', fontSize: '0.9rem',
+          }}
+        >
+          📅
+        </button>
+      </div>
     </div>
   );
 }

@@ -1,12 +1,12 @@
 import type { PhotoContestConfig } from './content-types';
 
 /**
- * Date bounds are plain yyyy-mm-dd strings (or '' for no bound), compared
- * against local midnight so the end date is inclusive of the whole day.
+ * Bounds are datetime-local strings (yyyy-MM-ddTHH:mm, local time) or ''
+ * for no bound.
  */
 function isWithinWindow(start: string, end: string, now: Date): boolean {
-  if (start && now < new Date(`${start}T00:00:00`)) return false;
-  if (end && now > new Date(`${end}T23:59:59`)) return false;
+  if (start && now < new Date(start)) return false;
+  if (end && now > new Date(end)) return false;
   return true;
 }
 

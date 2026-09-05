@@ -1,7 +1,7 @@
 'use client';
 
 import SettingsForm from '@/components/admin/SettingsForm';
-import { TextField, TextAreaField, DateField, NativeDateField, ToggleField, smallButtonStyle } from '@/components/admin/ui';
+import { TextField, TextAreaField, DateField, NativeDateTimeField, ToggleField, smallButtonStyle } from '@/components/admin/ui';
 import BulkMediaListEditor, { titleFromFilename } from '@/components/admin/BulkMediaListEditor';
 import { savePhotoContestConfig } from './actions';
 import type { PhotoContestConfig, ContestPhoto } from '@/lib/content-types';
@@ -45,13 +45,13 @@ function VotingSettingsPanel({
             checked={data.votingOpen}
             onChange={(v) => update({ votingOpen: v })}
           />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginLeft: '2.85rem' }}>
-            <NativeDateField label="Voting starts" value={data.votingStartDate} onChange={(v) => update({ votingStartDate: v })} />
-            <NativeDateField label="Voting ends" value={data.votingEndDate} onChange={(v) => update({ votingEndDate: v })} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', paddingLeft: '0.75rem', borderLeft: '2px solid rgba(77,217,232,0.15)' }}>
+            <NativeDateTimeField label="Voting starts" value={data.votingStartDate} onChange={(v) => update({ votingStartDate: v })} />
+            <NativeDateTimeField label="Voting ends" value={data.votingEndDate} onChange={(v) => update({ votingEndDate: v })} />
+            <p style={{ fontSize: '0.7rem', color: 'rgba(232,244,248,0.35)' }}>
+              Leave either blank for no limit. Voting must be open above AND within this window.
+            </p>
           </div>
-          <p style={{ fontSize: '0.7rem', color: 'rgba(232,244,248,0.35)', marginLeft: '2.85rem', marginTop: '-0.5rem' }}>
-            Leave either date blank for no limit. Voting must be open above AND within this window.
-          </p>
           <ToggleField
             label="One vote per visitor"
             description="Limit each visitor to a single vote per photo, per month (tracked by cookie)."
@@ -64,13 +64,13 @@ function VotingSettingsPanel({
             checked={data.submissionsOpen}
             onChange={(v) => update({ submissionsOpen: v })}
           />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginLeft: '2.85rem' }}>
-            <NativeDateField label="Submissions start" value={data.submissionsStartDate} onChange={(v) => update({ submissionsStartDate: v })} />
-            <NativeDateField label="Submissions end" value={data.submissionsEndDate} onChange={(v) => update({ submissionsEndDate: v })} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', paddingLeft: '0.75rem', borderLeft: '2px solid rgba(77,217,232,0.15)' }}>
+            <NativeDateTimeField label="Submissions start" value={data.submissionsStartDate} onChange={(v) => update({ submissionsStartDate: v })} />
+            <NativeDateTimeField label="Submissions end" value={data.submissionsEndDate} onChange={(v) => update({ submissionsEndDate: v })} />
+            <p style={{ fontSize: '0.7rem', color: 'rgba(232,244,248,0.35)' }}>
+              Leave either blank for no limit. Submissions must be open above AND within this window.
+            </p>
           </div>
-          <p style={{ fontSize: '0.7rem', color: 'rgba(232,244,248,0.35)', marginLeft: '2.85rem', marginTop: '-0.5rem' }}>
-            Leave either date blank for no limit. Submissions must be open above AND within this window.
-          </p>
         </div>
       </div>
 
