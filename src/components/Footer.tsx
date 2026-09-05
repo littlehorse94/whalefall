@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { SiteSettings } from '@/lib/content-types';
 
 interface FooterProps {
@@ -22,6 +23,18 @@ export default function Footer({ settings }: FooterProps) {
         <p style={{ fontSize: '0.75rem', color: 'rgba(232,244,248,0.2)', fontFamily: "'Cinzel', serif" }}>
           {settings.footerCopyright}
         </p>
+        <Link
+          href="/admin"
+          style={{
+            display: 'inline-block', fontSize: '0.65rem', color: 'rgba(232,244,248,0.12)',
+            marginTop: '0.5rem', fontFamily: "'Cinzel', serif", letterSpacing: '0.15em',
+            textDecoration: 'none', transition: 'color 0.2s ease',
+          }}
+          onMouseEnter={e => (e.currentTarget.style.color = 'rgba(77,217,232,0.4)')}
+          onMouseLeave={e => (e.currentTarget.style.color = 'rgba(232,244,248,0.12)')}
+        >
+          admin
+        </Link>
         <p style={{ fontSize: '0.7rem', color: 'rgba(232,244,248,0.15)', marginTop: '0.75rem', fontFamily: "'Cinzel', serif", letterSpacing: '0.1em' }}>
           {settings.footerCredit}
         </p>

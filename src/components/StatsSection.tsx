@@ -14,7 +14,7 @@ export default function StatsSection({ stats }: StatsSectionProps) {
   const { ref, inView } = useInView({ threshold: 0.2, triggerOnce: true });
 
   return (
-    <section className="relative z-10 py-20 px-6">
+    <section id="stats" className="relative z-10 py-20 px-6">
       <div
         className="absolute inset-0"
         style={{

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 interface AudioToggleProps {
   audioUrl: string;
@@ -12,7 +12,11 @@ interface AudioToggleProps {
 
 export default function AudioToggle({ audioUrl, labelPlaying, labelPaused }: AudioToggleProps) {
   const pathname = usePathname();
-  const isAdmin = pathname.startsWith('/admin');
+  const searchParams = useSearchParams();
+  // Also suppressed inside the admin dashboard's live page previews (?preview=1),
+  // which embed the real site in small iframes — without this every thumbnail
+  // would start its own copy of the ambient track playing at once.
+  const isAdmin = pathname.startsWith('/admin') || searchParams.get('preview') === '1';
   const audioRef     = useRef<HTMLAudioElement | null>(null);
   const userMutedRef = useRef(false);
   const [playing, setPlaying] = useState(false);
