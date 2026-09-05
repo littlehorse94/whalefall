@@ -174,6 +174,14 @@ export const PHOTO_CONTEST_SEED: PhotoContestConfig = {
     { id: 'c3', url: 'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=600&q=80', submitter: 'ThunderKoi', title: 'Night Bloom', votes: 187 },
     { id: 'c4', url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80', submitter: 'IronSerpent', title: 'Forest of Serenity', votes: 73 },
   ],
+  votingOpen: true,
+  votingStartDate: '',
+  votingEndDate: '',
+  oneVotePerVoter: true,
+  submissionsOpen: false,
+  submissionsStartDate: '',
+  submissionsEndDate: '',
+  pendingPhotos: [],
 };
 
 export const SITE_SETTINGS_SEED: SiteSettings = {

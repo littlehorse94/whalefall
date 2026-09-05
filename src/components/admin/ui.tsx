@@ -213,6 +213,67 @@ export function DateField({
   );
 }
 
+/**
+ * A plain native date input bound directly to a yyyy-mm-dd string — for
+ * schedule bounds (start/end) that need to be compared as real dates,
+ * unlike DateField's free-text display values.
+ */
+export function NativeDateField({
+  label, value, onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div>
+      <FieldLabel>{label}</FieldLabel>
+      <input type="date" value={value} onChange={(e) => onChange(e.target.value)} style={inputBase} />
+    </div>
+  );
+}
+
+export function ToggleField({
+  label, description, checked, onChange,
+}: {
+  label: string;
+  description?: string;
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem', cursor: 'pointer' }}>
+      <span
+        role="switch"
+        aria-checked={checked}
+        onClick={() => onChange(!checked)}
+        style={{
+          flexShrink: 0, width: '2.2rem', height: '1.25rem', borderRadius: '999px', marginTop: '0.15rem',
+          position: 'relative', transition: 'background 0.2s',
+          background: checked ? 'rgba(77,217,232,0.5)' : 'rgba(232,244,248,0.12)',
+          border: `1px solid ${checked ? 'rgba(77,217,232,0.7)' : 'rgba(232,244,248,0.25)'}`,
+        }}
+      >
+        <span
+          style={{
+            position: 'absolute', top: '1px', left: checked ? '1.05rem' : '1px',
+            width: '1rem', height: '1rem', borderRadius: '50%', background: '#e8f4f8',
+            transition: 'left 0.2s',
+          }}
+        />
+      </span>
+      <span>
+        <span style={{ display: 'block', fontSize: '0.85rem', color: '#e8f4f8' }}>{label}</span>
+        {description && (
+          <span style={{ display: 'block', fontSize: '0.72rem', color: 'rgba(232,244,248,0.5)', marginTop: '0.1rem' }}>
+            {description}
+          </span>
+        )}
+      </span>
+    </label>
+  );
+}
+
 export function InlineListEditor<T extends { id: string }>({
   label, items, onChange, createEmpty, renderRow,
 }: {

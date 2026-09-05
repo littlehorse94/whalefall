@@ -148,6 +148,14 @@ export interface PhotoContestConfig {
   daysLeft: number;
   description: string;
   photos: ContestPhoto[];
+  votingOpen: boolean;
+  votingStartDate: string;
+  votingEndDate: string;
+  oneVotePerVoter: boolean;
+  submissionsOpen: boolean;
+  submissionsStartDate: string;
+  submissionsEndDate: string;
+  pendingPhotos: ContestPhoto[];
 }
 
 export interface NavLink {

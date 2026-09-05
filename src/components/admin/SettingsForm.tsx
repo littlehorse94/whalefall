@@ -10,9 +10,10 @@ interface SettingsFormProps<T> {
   initial: T;
   onSave: (data: T) => Promise<SaveResult>;
   renderForm: (data: T, update: (patch: Partial<T>) => void) => ReactNode;
+  maxWidth?: string;
 }
 
-export default function SettingsForm<T>({ initial, onSave, renderForm }: SettingsFormProps<T>) {
+export default function SettingsForm<T>({ initial, onSave, renderForm, maxWidth = '640px' }: SettingsFormProps<T>) {
   const router = useRouter();
   const [data, setData] = useState<T>(initial);
   const [busy, setBusy] = useState(false);
@@ -39,7 +40,7 @@ export default function SettingsForm<T>({ initial, onSave, renderForm }: Setting
   }
 
   return (
-    <div style={{ maxWidth: '640px' }}>
+    <div style={{ maxWidth }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
         {renderForm(data, update)}
       </div>

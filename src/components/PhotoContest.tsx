@@ -1,24 +1,126 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { voteForPhoto } from '@/lib/public-actions';
+import { submitContestPhoto, voteForPhoto } from '@/lib/public-actions';
+import { isSubmissionsOpen, isVotingOpen } from '@/lib/contest-schedule';
 import type { PhotoContestConfig } from '@/lib/content-types';
 
 interface PhotoContestProps {
   config: PhotoContestConfig;
 }
 
+function SubmitPhotoForm() {
+  const [state, formAction, pending] = useActionState(
+    async (_prev: { error: string } | null, formData: FormData): Promise<{ error: string } | null> => {
+      const result = await submitContestPhoto(formData);
+      return result ?? null;
+    },
+    null,
+  );
+  const formRef = useRef<HTMLFormElement>(null);
+  const wasPending = useRef(false);
+  const [justSubmitted, setJustSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (wasPending.current && !pending && !state?.error) {
+      formRef.current?.reset();
+      setJustSubmitted(true);
+      const timer = setTimeout(() => setJustSubmitted(false), 4000);
+      return () => clearTimeout(timer);
+    }
+    wasPending.current = pending;
+  }, [pending, state]);
+
+  return (
+    <motion.form
+      ref={formRef}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.7 }}
+      action={formAction}
+      className="max-w-6xl mx-auto mt-10 glass rounded-2xl p-6"
+      style={{ border: '1px solid rgba(201,168,76,0.2)' }}
+    >
+      <h3
+        className="text-lg font-bold text-[#c9a84c] mb-4 flex items-center gap-2"
+        style={{ fontFamily: 'Cinzel, serif' }}
+      >
+        <span>📸</span> Submit Your Photo
+      </h3>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+        <div>
+          <label className="block text-xs mb-2 text-[rgba(232,244,248,0.6)]" style={{ fontFamily: 'Cinzel, serif', letterSpacing: '0.1em' }}>
+            YOUR NAME
+          </label>
+          <input
+            name="submitter"
+            type="text"
+            required
+            maxLength={60}
+            placeholder="Your guild name..."
+            className="w-full px-4 py-2.5 rounded-lg text-sm text-[#e8f4f8] outline-none"
+            style={{ background: 'rgba(5,8,16,0.6)', border: '1px solid rgba(201,168,76,0.25)' }}
+          />
+        </div>
+        <div>
+          <label className="block text-xs mb-2 text-[rgba(232,244,248,0.6)]" style={{ fontFamily: 'Cinzel, serif', letterSpacing: '0.1em' }}>
+            PHOTO TITLE
+          </label>
+          <input
+            name="title"
+            type="text"
+            required
+            maxLength={80}
+            placeholder="Give it a name..."
+            className="w-full px-4 py-2.5 rounded-lg text-sm text-[#e8f4f8] outline-none"
+            style={{ background: 'rgba(5,8,16,0.6)', border: '1px solid rgba(201,168,76,0.25)' }}
+          />
+        </div>
+        <div>
+          <label className="block text-xs mb-2 text-[rgba(232,244,248,0.6)]" style={{ fontFamily: 'Cinzel, serif', letterSpacing: '0.1em' }}>
+            PHOTO FILE
+          </label>
+          <input
+            name="file"
+            type="file"
+            accept="image/*"
+            required
+            className="w-full text-xs text-[rgba(232,244,248,0.7)] file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:bg-[rgba(201,168,76,0.15)] file:text-[#c9a84c]"
+          />
+        </div>
+      </div>
+      <p className="mt-3 text-xs text-[rgba(232,244,248,0.4)]">
+        Submissions are reviewed before they appear in the contest.
+      </p>
+      <div className="flex items-center gap-4 mt-4">
+        <button type="submit" disabled={pending} className="cta-button cta-button-gold" style={{ padding: '10px 28px', opacity: pending ? 0.6 : 1 }}>
+          {pending ? 'Submitting…' : 'Submit Photo'}
+        </button>
+        {state?.error && (
+          <span className="text-sm" style={{ fontFamily: 'Cinzel, serif', color: '#e84d4d' }}>{state.error}</span>
+        )}
+        {justSubmitted && !state?.error && (
+          <span className="text-sm" style={{ fontFamily: 'Cinzel, serif', color: '#c9a84c' }}>✓ Submitted for review!</span>
+        )}
+      </div>
+    </motion.form>
+  );
+}
+
 export default function PhotoContest({ config }: PhotoContestProps) {
   const [photos, setPhotos] = useState(config.photos);
   const [voted, setVoted] = useState<Set<string>>(new Set());
   const [pending, startTransition] = useTransition();
+  const votingOpen = isVotingOpen(config);
+  const submissionsOpen = isSubmissionsOpen(config);
 
   const leaderboard = [...photos].sort((a, b) => b.votes - a.votes);
 
   const handleVote = (id: string) => {
-    if (voted.has(id) || pending) return;
+    if (!votingOpen || voted.has(id) || pending) return;
     setPhotos(prev => prev.map(p => (p.id === id ? { ...p, votes: p.votes + 1 } : p)));
     setVoted(prev => new Set(prev).add(id));
     startTransition(async () => {
@@ -55,7 +157,9 @@ export default function PhotoContest({ config }: PhotoContestProps) {
           Monthly Photo Contest
         </p>
         <p className="mt-3 text-[rgba(232,244,248,0.5)] max-w-xl mx-auto">
-          Vote for your favourite screenshot of the month. One vote per photo allowed.
+          {votingOpen
+            ? 'Vote for your favourite screenshot of the month.'
+            : 'Voting is currently closed — check back when the next round opens.'}
         </p>
         <div className="mt-4 mx-auto w-24 h-px bg-gradient-to-r from-transparent via-[#c9a84c] to-transparent" />
       </motion.div>
@@ -146,7 +250,7 @@ export default function PhotoContest({ config }: PhotoContestProps) {
                 </span>
                 <button
                   onClick={() => handleVote(photo.id)}
-                  disabled={voted.has(photo.id)}
+                  disabled={!votingOpen || voted.has(photo.id)}
                   className="text-xs px-3 py-1.5 rounded transition-all duration-300"
                   style={{
                     fontFamily: 'Cinzel, serif',
@@ -154,10 +258,11 @@ export default function PhotoContest({ config }: PhotoContestProps) {
                     background: voted.has(photo.id) ? 'rgba(77,217,232,0.1)' : 'rgba(201,168,76,0.15)',
                     border: `1px solid ${voted.has(photo.id) ? 'rgba(77,217,232,0.3)' : 'rgba(201,168,76,0.5)'}`,
                     color: voted.has(photo.id) ? '#4dd9e8' : '#c9a84c',
-                    cursor: voted.has(photo.id) ? 'not-allowed' : 'pointer',
+                    cursor: !votingOpen || voted.has(photo.id) ? 'not-allowed' : 'pointer',
+                    opacity: !votingOpen && !voted.has(photo.id) ? 0.5 : 1,
                   }}
                 >
-                  {voted.has(photo.id) ? '✓ Voted' : '♡ Vote'}
+                  {voted.has(photo.id) ? '✓ Voted' : !votingOpen ? 'Voting closed' : '♡ Vote'}
                 </button>
               </div>
             </motion.div>
@@ -218,6 +323,8 @@ export default function PhotoContest({ config }: PhotoContestProps) {
           </div>
         </div>
       </div>
+
+      {submissionsOpen && <SubmitPhotoForm />}
     </section>
   );
 }
