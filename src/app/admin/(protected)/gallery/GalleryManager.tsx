@@ -1,7 +1,7 @@
 'use client';
 
 import CrudManager from '@/components/admin/CrudManager';
-import { TextField, TextAreaField } from '@/components/admin/ui';
+import { TextField, TextAreaField, DateField } from '@/components/admin/ui';
 import BulkMediaListEditor, { titleFromFilename } from '@/components/admin/BulkMediaListEditor';
 import { saveGalleryEvent, deleteGalleryEvent } from './actions';
 import type { GalleryEvent, LightboxPhoto } from '@/lib/content-types';
@@ -41,7 +41,13 @@ export default function GalleryManager({ initialItems }: { initialItems: Gallery
       renderForm={(item, update) => (
         <>
           <TextField label="Title" value={item.title} onChange={(v) => update({ title: v })} />
-          <TextField label="Date / category label" value={item.date} onChange={(v) => update({ date: v })} />
+          <DateField
+            label="Date / category label"
+            value={item.date}
+            onChange={(v) => update({ date: v })}
+            format="month-year"
+            placeholder="e.g. PvP · 2023, or pick a date below"
+          />
           <TextAreaField label="Description" value={item.description} onChange={(v) => update({ description: v })} />
           <PhotoListEditor photos={item.photos} onChange={(photos) => update({ photos })} />
         </>

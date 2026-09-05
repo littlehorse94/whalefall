@@ -1,4 +1,6 @@
-import type { CSSProperties, ReactNode } from 'react';
+'use client';
+
+import { useRef, type CSSProperties, type ReactNode } from 'react';
 
 export const cardStyle: CSSProperties = {
   border: '1px solid rgba(77,217,232,0.15)',
@@ -143,6 +145,70 @@ export function SelectField({
           <option key={o.value} value={o.value}>{o.label}</option>
         ))}
       </select>
+    </div>
+  );
+}
+
+const DATE_FORMATTERS = {
+  full: (d: Date) => d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+  'month-year': (d: Date) => d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+  year: (d: Date) => String(d.getFullYear()),
+} as const;
+
+/**
+ * A free-text field with a calendar button that pops out the browser's
+ * native date picker (via showPicker()) and writes the picked date into
+ * the text field in the given format. Stays free text rather than
+ * type="date" because several of these fields hold non-date values too
+ * (e.g. gallery event dates like "Scenery · Ongoing").
+ */
+export function DateField({
+  label, value, onChange, format = 'full', placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  format?: keyof typeof DATE_FORMATTERS;
+  placeholder?: string;
+}) {
+  const dateInputRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <div>
+      <FieldLabel>{label}</FieldLabel>
+      <div style={{ position: 'relative', display: 'flex', gap: '0.4rem' }}>
+        <input
+          type="text"
+          value={value}
+          placeholder={placeholder}
+          onChange={(e) => onChange(e.target.value)}
+          style={{ ...inputBase, flex: 1 }}
+        />
+        <button
+          type="button"
+          onClick={() => dateInputRef.current?.showPicker?.()}
+          aria-label="Pick a date"
+          title="Pick a date"
+          style={{
+            flexShrink: 0, width: '2.2rem', borderRadius: '7px',
+            border: '1px solid rgba(77,217,232,0.3)', background: 'rgba(77,217,232,0.1)',
+            color: '#4dd9e8', cursor: 'pointer', fontSize: '0.9rem',
+          }}
+        >
+          📅
+        </button>
+        <input
+          ref={dateInputRef}
+          type="date"
+          onChange={(e) => {
+            if (!e.target.value) return;
+            const d = new Date(`${e.target.value}T00:00:00`);
+            onChange(DATE_FORMATTERS[format](d));
+          }}
+          style={{ position: 'absolute', right: 0, top: '100%', width: 0, height: 0, opacity: 0, pointerEvents: 'none' }}
+          tabIndex={-1}
+        />
+      </div>
     </div>
   );
 }

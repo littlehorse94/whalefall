@@ -1,7 +1,7 @@
 'use client';
 
 import CrudManager from '@/components/admin/CrudManager';
-import { TextField, TextAreaField } from '@/components/admin/ui';
+import { TextField, TextAreaField, DateField } from '@/components/admin/ui';
 import MediaUploadField from '@/components/admin/MediaUploadField';
 import { saveLegend, deleteLegend } from './actions';
 import type { LegendMember } from '@/lib/content-types';
@@ -28,7 +28,7 @@ export default function LegendsManager({ initialItems }: { initialItems: LegendM
           <TextField label="Initials (avatar fallback)" value={item.initials} onChange={(v) => update({ initials: v.toUpperCase().slice(0, 3) })} />
           <TextField label="Role" value={item.role} onChange={(v) => update({ role: v })} />
           <TextField label="Flavor title" value={item.title} onChange={(v) => update({ title: v })} />
-          <TextField label="Join date" value={item.joinDate} onChange={(v) => update({ joinDate: v })} />
+          <DateField label="Join date" value={item.joinDate} onChange={(v) => update({ joinDate: v })} format="month-year" />
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
             <TextField label="Badge (emoji)" value={item.badge} onChange={(v) => update({ badge: v })} />
             <TextField label="Badge label" value={item.badgeLabel} onChange={(v) => update({ badgeLabel: v })} />

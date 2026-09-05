@@ -1,7 +1,7 @@
 'use client';
 
 import SettingsForm from '@/components/admin/SettingsForm';
-import { TextField, TextAreaField } from '@/components/admin/ui';
+import { TextField, TextAreaField, DateField } from '@/components/admin/ui';
 import BulkMediaListEditor, { titleFromFilename } from '@/components/admin/BulkMediaListEditor';
 import { savePhotoContestConfig } from './actions';
 import type { PhotoContestConfig } from '@/lib/content-types';
@@ -15,7 +15,7 @@ export default function PhotoContestManager({ initial }: { initial: PhotoContest
         <>
           <TextField label="Contest theme" value={data.theme} onChange={(v) => update({ theme: v })} />
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-            <TextField label="Month label" value={data.monthLabel} onChange={(v) => update({ monthLabel: v })} />
+            <DateField label="Month label" value={data.monthLabel} onChange={(v) => update({ monthLabel: v })} format="month-year" />
             <TextField label="Days left" type="number" value={data.daysLeft} onChange={(v) => update({ daysLeft: Number(v) })} />
           </div>
           <TextAreaField label="Description" value={data.description} onChange={(v) => update({ description: v })} />

@@ -1,7 +1,7 @@
 'use client';
 
 import CrudManager from '@/components/admin/CrudManager';
-import { TextField, TextAreaField } from '@/components/admin/ui';
+import { TextField, TextAreaField, DateField } from '@/components/admin/ui';
 import { saveGuestbookEntry, deleteGuestbookEntry } from './actions';
 import type { GuestbookEntry } from '@/lib/content-types';
 
@@ -25,7 +25,7 @@ export default function GuestbookManager({ initialItems }: { initialItems: Guest
         <>
           <TextField label="Name" value={item.name} onChange={(v) => update({ name: v, avatar: v.slice(0, 2).toUpperCase() })} />
           <TextAreaField label="Message" value={item.message} onChange={(v) => update({ message: v })} rows={4} />
-          <TextField label="Date" value={item.date} onChange={(v) => update({ date: v })} />
+          <DateField label="Date" value={item.date} onChange={(v) => update({ date: v })} format="full" />
         </>
       )}
       onSave={saveGuestbookEntry}
