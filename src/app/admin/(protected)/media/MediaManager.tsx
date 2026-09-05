@@ -43,7 +43,7 @@ export default function MediaManager({ initial }: { initial: MediaSettings }) {
             accept="audio/*"
             section="audio"
           />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <TextField label="Audio toggle label (playing)" value={data.audioLabelPlaying} onChange={(v) => update({ audioLabelPlaying: v })} />
             <TextField label="Audio toggle label (paused)" value={data.audioLabelPaused} onChange={(v) => update({ audioLabelPaused: v })} />
           </div>

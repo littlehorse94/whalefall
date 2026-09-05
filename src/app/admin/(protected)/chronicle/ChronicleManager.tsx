@@ -54,7 +54,7 @@ export default function ChronicleManager({ initialItems }: { initialItems: Miles
       )}
       renderForm={(item, update) => (
         <>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '0.75rem', alignItems: 'start' }}>
+          <div className="grid grid-cols-2 sm:grid-cols-[1fr_1fr_auto] gap-3 items-start">
             <TextField label="Year" value={item.year} onChange={(v) => update({ year: v })} />
             <TextField label="Month" value={item.month} onChange={(v) => update({ month: v })} />
             <YearMonthPicker onPick={(year, month) => update({ year, month })} />

@@ -124,10 +124,10 @@ export default function PhotoContestManager({ initial }: { initial: PhotoContest
       onSave={savePhotoContestConfig}
       maxWidth="100%"
       renderForm={(data, update) => (
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 640px) minmax(260px, 320px)', gap: '1.5rem', alignItems: 'start' }}>
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,640px)_minmax(260px,320px)] gap-6 items-start">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem', minWidth: 0 }}>
             <TextField label="Contest theme" value={data.theme} onChange={(v) => update({ theme: v })} />
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <DateField label="Month label" value={data.monthLabel} onChange={(v) => update({ monthLabel: v })} format="month-year" />
               <TextField label="Days left" type="number" value={data.daysLeft} onChange={(v) => update({ daysLeft: Number(v) })} />
             </div>
@@ -144,7 +144,7 @@ export default function PhotoContestManager({ initial }: { initial: PhotoContest
               createEmpty={() => ({ id: crypto.randomUUID(), url: '', submitter: '', title: '', votes: 0 })}
               createFromFile={(file, url) => ({ id: crypto.randomUUID(), url, submitter: '', title: titleFromFilename(file.name), votes: 0 })}
               renderFields={(photo, updateRow) => (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem' }}>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <TextField label="Title" value={photo.title} onChange={(v) => updateRow({ title: v })} />
                   <TextField label="Submitter" value={photo.submitter} onChange={(v) => updateRow({ submitter: v })} />
                   <TextField label="Votes" type="number" value={photo.votes} onChange={(v) => updateRow({ votes: Number(v) })} />

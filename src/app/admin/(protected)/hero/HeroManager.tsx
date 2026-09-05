@@ -16,7 +16,7 @@ export default function HeroManager({ initial }: { initial: HeroContent }) {
           <TextField label="Headline (before highlight)" value={data.headlinePrefix} onChange={(v) => update({ headlinePrefix: v })} />
           <TextField label="Headline (highlighted word)" value={data.headlineHighlight} onChange={(v) => update({ headlineHighlight: v })} />
           <TextField label="Headline (after highlight)" value={data.headlineSuffix} onChange={(v) => update({ headlineSuffix: v })} />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <TextField label="Primary CTA label" value={data.ctaPrimaryLabel} onChange={(v) => update({ ctaPrimaryLabel: v })} />
             <TextField label="Secondary CTA label" value={data.ctaSecondaryLabel} onChange={(v) => update({ ctaSecondaryLabel: v })} />
           </div>

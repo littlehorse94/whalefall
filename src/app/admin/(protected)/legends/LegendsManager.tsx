@@ -29,14 +29,12 @@ export default function LegendsManager({ initialItems }: { initialItems: LegendM
           <TextField label="Role" value={item.role} onChange={(v) => update({ role: v })} />
           <TextField label="Flavor title" value={item.title} onChange={(v) => update({ title: v })} />
           <DateField label="Join date" value={item.joinDate} onChange={(v) => update({ joinDate: v })} format="month-year" />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <TextField label="Badge (emoji)" value={item.badge} onChange={(v) => update({ badge: v })} />
             <TextField label="Badge label" value={item.badgeLabel} onChange={(v) => update({ badgeLabel: v })} />
           </div>
           <TextAreaField label="Quote" value={item.quote} onChange={(v) => update({ quote: v })} />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-            <TextField label="Accent color (hex)" value={item.color} onChange={(v) => update({ color: v, glowColor: v })} />
-          </div>
+          <TextField label="Accent color (hex)" value={item.color} onChange={(v) => update({ color: v, glowColor: v })} />
           <MediaUploadField
             label="Photo (optional — falls back to initials)"
             value={item.photoUrl ?? ''}

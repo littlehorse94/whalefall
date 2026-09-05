@@ -54,5 +54,3 @@ export const ADMIN_SECTION_GROUPS: AdminSectionGroup[] = [
     ],
   },
 ];
-
-export const ADMIN_SECTIONS: AdminSection[] = ADMIN_SECTION_GROUPS.flatMap((g) => g.sections);

@@ -23,7 +23,7 @@ function VideoListEditor({ videos, onChange }: { videos: Montage[]; onChange: (v
         <>
           <TextField label="Title" value={video.title} onChange={(v) => update({ title: v })} />
           <TextField label="YouTube video ID (leave blank if uploading a file)" value={video.youtubeId} onChange={(v) => update({ youtubeId: v })} />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <TextField label="Views (display text)" value={video.views} onChange={(v) => update({ views: v })} />
             <TextField label="Likes (display text)" value={video.likes} onChange={(v) => update({ likes: v })} />
           </div>

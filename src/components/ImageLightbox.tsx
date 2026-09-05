@@ -2,11 +2,7 @@
 
 import { useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-
-export interface LightboxPhoto {
-  url: string;
-  title: string;
-}
+import type { LightboxPhoto } from '@/lib/content-types';
 
 interface ImageLightboxProps {
   photos: LightboxPhoto[];

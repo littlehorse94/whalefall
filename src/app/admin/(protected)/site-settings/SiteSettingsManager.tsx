@@ -13,7 +13,7 @@ export default function SiteSettingsManager({ initial }: { initial: SiteSettings
       renderForm={(data, update) => (
         <>
           <TextField label="Guild name" value={data.guildName} onChange={(v) => update({ guildName: v })} />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <TextField label="Guild rank" value={data.guildRank} onChange={(v) => update({ guildRank: v })} />
             <TextField label="Member count (display)" value={data.memberCount} onChange={(v) => update({ memberCount: v })} />
           </div>
@@ -25,7 +25,7 @@ export default function SiteSettingsManager({ initial }: { initial: SiteSettings
             onChange={(navLinks) => update({ navLinks })}
             createEmpty={() => ({ id: crypto.randomUUID(), label: '', href: '' })}
             renderRow={(link, updateRow) => (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <TextField label="Label" value={link.label} onChange={(v) => updateRow({ label: v })} />
                 <TextField label="Link" value={link.href} onChange={(v) => updateRow({ href: v })} />
               </div>

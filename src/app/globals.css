@@ -47,38 +47,17 @@ body {
 .border-glow {
   box-shadow: 0 0 15px rgba(77,217,232,0.3), inset 0 0 15px rgba(77,217,232,0.05);
 }
-.border-glow-gold {
-  box-shadow: 0 0 15px rgba(201,168,76,0.3), inset 0 0 15px rgba(201,168,76,0.05);
-}
-
 .glass {
   background: rgba(10,14,26,0.6);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(77,217,232,0.15);
 }
-.glass-dark {
-  background: rgba(5,8,16,0.8);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(77,217,232,0.1);
-}
-
 @keyframes float-up {
   0% { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
   10% { opacity: 1; }
   90% { opacity: 0.5; }
   100% { transform: translateY(-100vh) translateX(30px) scale(0.5); opacity: 0; }
-}
-@keyframes float-drift {
-  0%,100% { transform: translateY(0px) translateX(0px); }
-  25% { transform: translateY(-15px) translateX(8px); }
-  50% { transform: translateY(-8px) translateX(15px); }
-  75% { transform: translateY(-20px) translateX(-5px); }
-}
-@keyframes whale-swim {
-  0% { transform: translateX(-120%) translateY(0px); }
-  100% { transform: translateX(120%) translateY(-30px); }
 }
 @keyframes bioluminescent-pulse {
   0%,100% { opacity: 0.3; transform: scale(1); }
@@ -118,12 +97,6 @@ body {
   border-radius: 50%;
   background: radial-gradient(circle, rgba(77,217,232,0.8), rgba(77,217,232,0));
   animation: float-up linear infinite;
-}
-.whale-swim-anim {
-  animation: whale-swim 40s linear infinite;
-}
-.float-drift {
-  animation: float-drift 6s ease-in-out infinite;
 }
 .shimmer-text {
   background: linear-gradient(90deg, var(--pearl) 0%, var(--cyan-glow) 25%, var(--gold) 50%, var(--cyan-glow) 75%, var(--pearl) 100%);

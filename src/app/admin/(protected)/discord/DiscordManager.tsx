@@ -13,7 +13,7 @@ export default function DiscordManager({ initial }: { initial: DiscordConfig }) 
       renderForm={(data, update) => (
         <>
           <TextField label="Discord invite URL" value={data.inviteUrl} onChange={(v) => update({ inviteUrl: v })} />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <TextField label="Online now" type="number" value={data.presenceCount} onChange={(v) => update({ presenceCount: Number(v) })} />
             <TextField label="Member count" type="number" value={data.memberCount} onChange={(v) => update({ memberCount: Number(v) })} />
             <TextField label="Boost level" type="number" value={data.boostLevel} onChange={(v) => update({ boostLevel: Number(v) })} />
@@ -26,7 +26,7 @@ export default function DiscordManager({ initial }: { initial: DiscordConfig }) 
             createEmpty={() => ({ id: crypto.randomUUID(), tag: 'Announcement', text: '', time: 'just now' })}
             renderRow={(h, updateRow) => (
               <>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <TextField label="Tag" value={h.tag} onChange={(v) => updateRow({ tag: v })} />
                   <TextField label="Time" value={h.time} onChange={(v) => updateRow({ time: v })} />
                 </div>
@@ -41,7 +41,7 @@ export default function DiscordManager({ initial }: { initial: DiscordConfig }) 
             onChange={(members) => update({ members })}
             createEmpty={() => ({ id: crypto.randomUUID(), username: '', status: 'online' as const, avatarUrl: null })}
             renderRow={(m, updateRow) => (
-              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '0.5rem' }}>
+              <div className="grid grid-cols-1 sm:grid-cols-[2fr_1fr] gap-2">
                 <TextField label="Username" value={m.username} onChange={(v) => updateRow({ username: v })} />
                 <SelectField
                   label="Status"
