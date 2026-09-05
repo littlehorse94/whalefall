@@ -9,6 +9,7 @@ import type { PhotoContestConfig } from '@/lib/content-types';
 
 interface PhotoContestProps {
   config: PhotoContestConfig;
+  votedPhotoId: string | null; // photo this visitor already voted for, read server-side from the vote cookie
 }
 
 function SubmitPhotoForm() {
@@ -110,9 +111,10 @@ function SubmitPhotoForm() {
   );
 }
 
-export default function PhotoContest({ config }: PhotoContestProps) {
+export default function PhotoContest({ config, votedPhotoId: initialVotedPhotoId }: PhotoContestProps) {
   const [photos, setPhotos] = useState(config.photos);
-  const [votedPhotoId, setVotedPhotoId] = useState<string | null>(null);
+  const [votedPhotoId, setVotedPhotoId] = useState<string | null>(initialVotedPhotoId);
+  const [voteError, setVoteError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const votingOpen = isVotingOpen(config);
   const submissionsOpen = isSubmissionsOpen(config);
@@ -125,6 +127,7 @@ export default function PhotoContest({ config }: PhotoContestProps) {
   const handleVote = (id: string) => {
     if (!votingOpen || voteLocked || pending) return;
     const previousVotedId = votedPhotoId;
+    setVoteError(null);
     setPhotos(prev => prev.map(p => (p.id === id ? { ...p, votes: p.votes + 1 } : p)));
     setVotedPhotoId(id);
     startTransition(async () => {
@@ -133,6 +136,7 @@ export default function PhotoContest({ config }: PhotoContestProps) {
         // Revert optimistic update if the server rejected the vote (e.g. already voted this month).
         setPhotos(prev => prev.map(p => (p.id === id ? { ...p, votes: Math.max(0, p.votes - 1) } : p)));
         setVotedPhotoId(previousVotedId);
+        setVoteError(result.error);
       }
     });
   };
@@ -164,10 +168,17 @@ export default function PhotoContest({ config }: PhotoContestProps) {
         <p className="mt-3 text-[rgba(232,244,248,0.5)] max-w-xl mx-auto">
           {!votingOpen
             ? 'Voting is currently closed — check back when the next round opens.'
-            : config.oneVotePerVoter
-              ? 'Pick your one favourite screenshot of the month — one vote per visitor.'
-              : 'Vote for your favourite screenshots of the month.'}
+            : voteLocked
+              ? "You've already cast your vote for this contest — thanks for taking part!"
+              : config.oneVotePerVoter
+                ? 'Pick your one favourite screenshot of the month — one vote per visitor.'
+                : 'Vote for your favourite screenshots of the month.'}
         </p>
+        {voteError && (
+          <p className="mt-2 text-sm" style={{ color: '#e84d4d', fontFamily: 'Cinzel, serif' }}>
+            {voteError}
+          </p>
+        )}
         <div className="mt-4 mx-auto w-24 h-px bg-gradient-to-r from-transparent via-[#c9a84c] to-transparent" />
       </motion.div>
 

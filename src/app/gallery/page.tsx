@@ -6,6 +6,7 @@ import GallerySection from '@/components/GallerySection';
 import PhotoContest from '@/components/PhotoContest';
 import Footer from '@/components/Footer';
 import { getSection } from '@/lib/blob-store';
+import { getVotedPhotoId } from '@/lib/public-actions';
 import { GALLERY_SEED, MEDIA_SEED, SITE_SETTINGS_SEED, getPhotoContestConfig } from '@/lib/seed-data';
 
 export const dynamic = 'force-dynamic';
@@ -17,11 +18,12 @@ export const metadata: Metadata = {
 };
 
 export default async function GalleryPage() {
-  const [events, media, contest, settings] = await Promise.all([
+  const [events, media, contest, settings, votedPhotoId] = await Promise.all([
     getSection('gallery', GALLERY_SEED),
     getSection('media', MEDIA_SEED),
     getPhotoContestConfig(),
     getSection('site-settings', SITE_SETTINGS_SEED),
+    getVotedPhotoId(),
   ]);
 
   return (
@@ -32,7 +34,7 @@ export default async function GalleryPage() {
       <div style={{ position: 'relative', zIndex: 2 }}>
         <div style={{ paddingTop: '7rem' }}>
           <GallerySection events={events} />
-          <PhotoContest config={contest} />
+          <PhotoContest config={contest} votedPhotoId={votedPhotoId} />
         </div>
         <Footer settings={settings} />
       </div>

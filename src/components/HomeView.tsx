@@ -26,6 +26,7 @@ interface HomeViewProps {
   contest: PhotoContestConfig;
   media: MediaSettings;
   settings: SiteSettings;
+  votedPhotoId: string | null;
 }
 
 function DiscordIcon() {
@@ -44,7 +45,7 @@ function ChevronDown() {
   );
 }
 
-export default function HomeView({ hero, stats, milestones, discord, contest, media, settings }: HomeViewProps) {
+export default function HomeView({ hero, stats, milestones, discord, contest, media, settings, votedPhotoId }: HomeViewProps) {
   const heroRef        = useRef<HTMLElement>(null);
   const fixedCardsRef  = useRef<HTMLDivElement>(null);
   const cardsGridRef   = useRef<HTMLDivElement>(null);
@@ -265,7 +266,7 @@ export default function HomeView({ hero, stats, milestones, discord, contest, me
           <Divider color="#c9a84c" />
           <DiscordWidget config={discord} />
           <Divider />
-          <PhotoContest config={contest} />
+          <PhotoContest config={contest} votedPhotoId={votedPhotoId} />
           <Divider />
           <WhaleSanctuary />
 

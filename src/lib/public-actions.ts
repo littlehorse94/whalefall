@@ -11,6 +11,16 @@ import type { ContestPhoto, GuestbookEntry } from './content-types';
 const GUESTBOOK_KEY = 'guestbook';
 const CONTEST_KEY = 'photo-contest';
 
+function contestVoteCookieName(): string {
+  return `wf_voted_${new Date().toISOString().slice(0, 7)}`;
+}
+
+/** The photo this visitor already voted for this month, if any — read server-side so a page reload shows their vote as already cast instead of looking untouched. */
+export async function getVotedPhotoId(): Promise<string | null> {
+  const cookieStore = await cookies();
+  return cookieStore.get(contestVoteCookieName())?.value ?? null;
+}
+
 export async function submitGuestbookEntry(formData: FormData): Promise<{ error: string } | void> {
   const name = String(formData.get('name') ?? '').trim().slice(0, 60);
   const message = String(formData.get('message') ?? '').trim().slice(0, 600);
@@ -40,8 +50,7 @@ export async function voteForPhoto(photoId: string): Promise<{ error: string } |
   }
 
   const cookieStore = await cookies();
-  const monthKey = new Date().toISOString().slice(0, 7);
-  const cookieName = `wf_voted_${monthKey}`;
+  const cookieName = contestVoteCookieName();
 
   // One vote total for the whole contest, not one vote per photo — a
   // visitor who already voted (for any photo) is done for the month.
