@@ -54,12 +54,22 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
   );
 }
 
+// The 八音 button is never meant to be caught — these tune how paranoid it is.
+const DODGE_TRIGGER_RADIUS = 100; // start fleeing once the pointer gets this close (px)
+const DODGE_JUMP = 150; // roughly how far it bolts per flee (px)
+const DODGE_THROTTLE_MS = 150; // don't recompute on every single mousemove pixel
+
 export default function BirthdayPage() {
   const [soundOn, setSoundOn] = useState(false);
   const [reasonIndex, setReasonIndex] = useState(2);
   const [surpriseOpen, setSurpriseOpen] = useState(false);
-  const [musicBoxOpen, setMusicBoxOpen] = useState(false);
   const storyTrackRef = useRef<HTMLDivElement>(null);
+
+  const surpriseCardRef = useRef<HTMLDivElement>(null);
+  const musicBtnRef = useRef<HTMLButtonElement>(null);
+  const [dodge, setDodge] = useState({ x: 0, y: 0 });
+  const [dodgeCount, setDodgeCount] = useState(0);
+  const lastDodgeAtRef = useRef(0);
 
   // Swap the guild site's dark-theme scrollbar for a pink one while this
   // page is mounted, then hand it back on the way out.
@@ -74,6 +84,59 @@ export default function BirthdayPage() {
     // Cards are ~78vw on mobile (the only width this button is shown at),
     // so scroll by roughly one card's width instead of a fixed pixel amount.
     track.scrollBy({ left: dir * track.clientWidth * 0.8, behavior: 'smooth' });
+  };
+
+  // Bolts the 八音 button away from (pointerX, pointerY) if it's gotten too
+  // close, landing somewhere still inside the surprise card. Reads/writes
+  // `dodge` via the refs' live DOM rects rather than any stored "home"
+  // position, so it composes cleanly however many times it's already fled.
+  const fleeFrom = (pointerX: number, pointerY: number) => {
+    const btn = musicBtnRef.current;
+    const card = surpriseCardRef.current;
+    if (!btn || !card) return;
+
+    const now = Date.now();
+    if (now - lastDodgeAtRef.current < DODGE_THROTTLE_MS) return;
+
+    const btnRect = btn.getBoundingClientRect();
+    const centerX = btnRect.left + btnRect.width / 2;
+    const centerY = btnRect.top + btnRect.height / 2;
+    if (Math.hypot(centerX - pointerX, centerY - pointerY) > DODGE_TRIGGER_RADIUS) return;
+
+    lastDodgeAtRef.current = now;
+
+    // Flee roughly away from the pointer, with a little randomness so it
+    // doesn't just ping-pong back and forth along one line.
+    const away = Math.atan2(centerY - pointerY, centerX - pointerX);
+    const angle = away + (Math.random() - 0.5) * 1.2;
+
+    // The button's un-transformed position, so the next offset can be
+    // clamped against the card's actual bounds regardless of the current one.
+    const cardRect = card.getBoundingClientRect();
+    const naturalLeft = btnRect.left - dodge.x;
+    const naturalTop = btnRect.top - dodge.y;
+    const margin = 16;
+    const minX = cardRect.left + margin - naturalLeft;
+    const maxX = cardRect.right - margin - btnRect.width - naturalLeft;
+    const minY = cardRect.top + margin - naturalTop;
+    const maxY = cardRect.bottom - margin - btnRect.height - naturalTop;
+
+    const rawX = dodge.x + Math.cos(angle) * DODGE_JUMP;
+    const rawY = dodge.y + Math.sin(angle) * DODGE_JUMP;
+
+    setDodge({
+      x: minX <= maxX ? Math.min(Math.max(rawX, minX), maxX) : dodge.x,
+      y: minY <= maxY ? Math.min(Math.max(rawY, minY), maxY) : dodge.y,
+    });
+    setDodgeCount((c) => c + 1);
+  };
+
+  // Clicking/tapping it directly always counts as "too close" — it bolts
+  // instead of doing anything else. It is never meant to be caught.
+  const handleAttempt = () => {
+    const r = musicBtnRef.current?.getBoundingClientRect();
+    if (r) fleeFrom(r.left + r.width / 2, r.top + r.height / 2);
+    else setDodgeCount((c) => c + 1);
   };
 
   return (
@@ -326,6 +389,10 @@ export default function BirthdayPage() {
       {/* ── Special Surprise ── */}
       <section id="surprise" className="relative z-10 px-6 pb-14">
         <div
+          ref={surpriseCardRef}
+          onMouseMove={(e) => fleeFrom(e.clientX, e.clientY)}
+          onTouchStart={(e) => { const t = e.touches[0]; if (t) fleeFrom(t.clientX, t.clientY); }}
+          onTouchMove={(e) => { const t = e.touches[0]; if (t) fleeFrom(t.clientX, t.clientY); }}
           className="relative max-w-4xl mx-auto rounded-3xl px-6 sm:px-10 py-10 flex flex-col sm:flex-row items-center justify-between gap-6 overflow-hidden"
           style={{ background: 'linear-gradient(135deg, #fdeef2, #fbd9de)' }}
         >
@@ -354,19 +421,6 @@ export default function BirthdayPage() {
                 </motion.p>
               )}
             </AnimatePresence>
-            <AnimatePresence>
-              {musicBoxOpen && (
-                <motion.p
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="mt-3 italic"
-                  style={{ maxWidth: 380, fontSize: '1rem' }}
-                >
-                  🎵 [The <Zh>八音</Zh> melody plays here once the audio file is hooked up.] 🎵
-                </motion.p>
-              )}
-            </AnimatePresence>
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-5">
               {!surpriseOpen && (
                 <button
@@ -378,15 +432,43 @@ export default function BirthdayPage() {
                   Open Your Surprise 🎁
                 </button>
               )}
-              <button
-                type="button"
-                onClick={() => setMusicBoxOpen((v) => !v)}
-                className="px-7 py-3.5 rounded-full text-base font-bold"
-                style={{ background: '#fff', color: roseAccent, border: `1px solid ${roseAccent}`, cursor: 'pointer' }}
+              {/* Never catchable, on purpose — see fleeFrom/handleAttempt.
+                  Outer element carries the flee offset (a spring, so each
+                  dash looks alive); inner button layers a constant idle
+                  float/wobble on top so it never sits fully still, even
+                  before anyone's cursor comes near it. */}
+              <motion.div
+                animate={{ x: dodge.x, y: dodge.y }}
+                transition={{ type: 'spring', stiffness: 260, damping: 18 }}
+                style={{ display: 'inline-block' }}
               >
-                Click for <Zh>八音</Zh> 🎵
-              </button>
+                <motion.button
+                  ref={musicBtnRef}
+                  type="button"
+                  onClick={handleAttempt}
+                  animate={{ y: [0, -5, 0], rotate: [0, -3, 3, 0] }}
+                  transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
+                  className="px-7 py-3.5 rounded-full text-base font-bold"
+                  style={{ background: '#fff', color: roseAccent, border: `1px solid ${roseAccent}`, cursor: 'pointer' }}
+                >
+                  Click for <Zh>八音</Zh> 🎵
+                </motion.button>
+              </motion.div>
             </div>
+            <AnimatePresence>
+              {dodgeCount > 0 && (
+                <motion.p
+                  key={dodgeCount < 3 ? 'a' : dodgeCount < 6 ? 'b' : 'c'}
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mt-3 italic"
+                  style={{ fontSize: '0.95rem', opacity: 0.7 }}
+                >
+                  {dodgeCount < 3 ? 'Nice try! 😄' : dodgeCount < 6 ? "You'll never catch it… 😆" : 'Still no. 😭'}
+                </motion.p>
+              )}
+            </AnimatePresence>
           </div>
           <motion.div
             animate={surpriseOpen ? { scale: [1, 1.2, 1] } : { scale: [1, 1.05, 1] }}
