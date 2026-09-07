@@ -107,33 +107,41 @@ export default function BirthdayPage() {
     return () => document.body.classList.remove('birthday-theme');
   }, []);
 
-  // This page's own background track. Browsers block autoplay-with-sound
-  // until the visitor interacts, so try immediately and fall back to the
-  // bottom-right toggle (or any click/tap) if that's blocked.
+  // This page's own background track. Browsers only block *starting*
+  // playback-with-sound without a gesture — muted autoplay is always
+  // allowed, and unmuting an already-playing element isn't gated the
+  // same way. So it starts muted immediately (reliable) and unmutes
+  // itself the instant there's any interaction at all, rather than
+  // waiting on a fresh play() call that could itself get blocked.
   useEffect(() => {
     const audio = new Audio(BIRTHDAY_AUDIO_URL);
     audio.loop = true;
     audio.volume = 0.6;
+    audio.muted = true;
     audioRef.current = audio;
 
     // Skip the track's first 20s on load — currentTime only reliably
     // sticks once the browser knows the seekable range.
     audio.addEventListener('loadedmetadata', () => { audio.currentTime = 20; }, { once: true });
 
-    const unlockPlay = () => {
-      audio.play().then(() => setSoundOn(true)).catch(() => {});
+    audio.play().catch(() => {});
+
+    const revealSound = () => {
+      audio.muted = false;
+      if (audio.paused) audio.play().catch(() => {});
+      setSoundOn(true);
     };
 
-    audio.play().then(() => setSoundOn(true)).catch(() => {
-      document.addEventListener('click', unlockPlay, { once: true });
-      document.addEventListener('touchstart', unlockPlay, { once: true });
-    });
+    document.addEventListener('click', revealSound, { once: true });
+    document.addEventListener('touchstart', revealSound, { once: true });
+    document.addEventListener('keydown', revealSound, { once: true });
 
     return () => {
       audio.pause();
       audio.src = '';
-      document.removeEventListener('click', unlockPlay);
-      document.removeEventListener('touchstart', unlockPlay);
+      document.removeEventListener('click', revealSound);
+      document.removeEventListener('touchstart', revealSound);
+      document.removeEventListener('keydown', revealSound);
     };
   }, []);
 
@@ -247,14 +255,19 @@ export default function BirthdayPage() {
     else setDodgeCount((c) => c + 1);
   };
 
+  // Mutes rather than pauses — keeps the element already-playing so
+  // turning it back on is instant and never at risk of a fresh play()
+  // call getting blocked.
   const toggleSound = () => {
     const audio = audioRef.current;
     if (!audio) return;
     if (soundOn) {
-      audio.pause();
+      audio.muted = true;
       setSoundOn(false);
     } else {
-      audio.play().then(() => setSoundOn(true)).catch(() => {});
+      audio.muted = false;
+      if (audio.paused) audio.play().catch(() => {});
+      setSoundOn(true);
     }
   };
 
