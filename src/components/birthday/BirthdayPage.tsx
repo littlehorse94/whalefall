@@ -1,19 +1,18 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import FallingPetals from './FallingPetals';
-import PhotoPlaceholder from './PhotoPlaceholder';
 import { Blob, Blossom, RingShape, DiamondShape, Sparkle } from './Decor';
 
-// ── Placeholder content — swap these for the real names, photos, and words. ──
-const PARTNER_NAME = 'My 小星星';
+const PHOTO_DIR = '/gallery/Xiaoxingxing';
 
 const STORY = [
-  { title: 'The First Hello', desc: 'The day our journey began' },
-  { title: 'Our First Date', desc: 'Nervous, excited, and unforgettable' },
-  { title: 'Adventures Together', desc: 'Exploring, laughing, and making memories' },
-  { title: 'You & Me', desc: 'Today, tomorrow, and always' },
+  { title: 'The First Hello', photo: `${PHOTO_DIR}/2.webp` },
+  { title: 'Our First Date', photo: `${PHOTO_DIR}/3.webp` },
+  { title: 'Adventures Together', photo: `${PHOTO_DIR}/4.webp` },
+  { title: 'You & Me', photo: `${PHOTO_DIR}/5.webp` },
 ];
 
 const REASONS = [
@@ -21,14 +20,6 @@ const REASONS = [
   { icon: '♥', text: 'You are incredibly kind-hearted' },
   { icon: '♥', text: 'You are my safe place', big: true },
   { icon: '★', text: 'You believe in me always' },
-  { icon: '☀', text: 'You make every day better' },
-];
-
-const NAV_ITEMS = [
-  { icon: '♥', label: 'Our Story', sub: 'Memories that mean everything', href: '#story' },
-  { icon: '🎁', label: 'Reasons Why', sub: 'Little reasons I love you', href: '#reasons' },
-  { icon: '🖼', label: 'Photo Gallery', sub: 'Our beautiful moments', href: '#story' },
-  { icon: '✉', label: 'Special Message', sub: 'A message from my heart to yours', href: '#surprise' },
 ];
 
 const roseText = '#8a3b57';
@@ -36,6 +27,20 @@ const roseAccent = '#d94f7c';
 
 function scrollToId(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+}
+
+// Every Chinese word on this page renders in Long Cang (already loaded
+// site-wide via globals.css) instead of the Latin display fonts.
+function Zh({ children }: { children: React.ReactNode }) {
+  return <span style={{ fontFamily: "'Long Cang', cursive" }}>{children}</span>;
+}
+
+function PartnerName() {
+  return (
+    <>
+      My <Zh>小星星</Zh>
+    </>
+  );
 }
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
@@ -53,6 +58,7 @@ export default function BirthdayPage() {
   const [soundOn, setSoundOn] = useState(false);
   const [reasonIndex, setReasonIndex] = useState(2);
   const [surpriseOpen, setSurpriseOpen] = useState(false);
+  const [musicBoxOpen, setMusicBoxOpen] = useState(false);
   const storyTrackRef = useRef<HTMLDivElement>(null);
 
   // Swap the guild site's dark-theme scrollbar for a pink one while this
@@ -83,10 +89,14 @@ export default function BirthdayPage() {
       <Blob size={300} color="#e7c6e8" style={{ top: '115%', right: -160 }} />
       <Blob size={260} color="#fcd2a8" style={{ top: '175%', left: -150 }} />
 
+      {/* Falling petals — fixed to the viewport so they drift over every
+          section as the page scrolls, not just the hero. */}
+      <FallingPetals />
+
       {/* ── Top bar ── */}
       <div className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-5 sm:px-8 py-4">
         <span style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '0.95rem', color: roseText }}>
-          For {PARTNER_NAME} ♥
+          For <PartnerName /> ♥
         </span>
         <button
           type="button"
@@ -99,9 +109,7 @@ export default function BirthdayPage() {
       </div>
 
       {/* ── Hero ── */}
-      <section className="relative flex flex-col-reverse lg:flex-row items-center gap-10 lg:gap-16 px-6 sm:px-10 lg:px-20 pt-28 pb-20 max-w-6xl mx-auto min-h-screen">
-        <FallingPetals />
-
+      <section className="relative flex flex-col-reverse lg:flex-row items-center gap-10 lg:gap-16 px-6 sm:px-10 lg:px-20 pt-24 pb-12">
         {/* Static flower cluster + geometric accents, echoing the reference's corner blossoms */}
         <Blossom size={54} rotate={12} style={{ bottom: '8%', right: '4%' }} />
         <Blossom size={34} rotate={-18} opacity={0.45} style={{ bottom: '16%', right: '12%' }} />
@@ -113,7 +121,7 @@ export default function BirthdayPage() {
         <Sparkle size={20} style={{ top: '12%', right: '8%' }} />
         <Sparkle size={14} opacity={0.4} style={{ bottom: '30%', left: '30%' }} />
 
-        <div className="relative z-10 flex-1 text-center lg:text-left">
+        <div className="relative z-10 flex-1 text-center lg:text-left max-w-6xl mx-auto lg:mx-0">
           <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1.3rem' }}>
             Happy
           </p>
@@ -129,10 +137,10 @@ export default function BirthdayPage() {
             Birthday
           </h1>
           <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1.6rem' }}>
-            {PARTNER_NAME} <span style={{ fontSize: '1rem' }}>♡</span>
+            <PartnerName /> <span style={{ fontSize: '1rem' }}>♡</span>
           </p>
           <p className="mt-5 max-w-md mx-auto lg:mx-0" style={{ opacity: 0.8, lineHeight: 1.7 }}>
-            从师徒到侠缘，我们真的经历了很多很多
+            <Zh>从师徒到侠缘，我们真的经历了很多很多</Zh>
           </p>
           <button
             type="button"
@@ -178,7 +186,9 @@ export default function BirthdayPage() {
                 width: 70, height: 22, background: 'rgba(255,255,255,0.65)', boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
               }}
             />
-            <PhotoPlaceholder label="Your photo here" className="w-full" style={{ aspectRatio: '4/5' } as React.CSSProperties} />
+            <div className="relative w-full" style={{ aspectRatio: '4/5' }}>
+              <Image src={`${PHOTO_DIR}/1.webp`} alt="Us" fill className="object-cover" sizes="320px" priority />
+            </div>
             <p className="text-center mt-3" style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '0.95rem' }}>
               You mean the world to me ♥
             </p>
@@ -199,41 +209,14 @@ export default function BirthdayPage() {
         </div>
       </section>
 
-      {/* ── Icon nav row ── */}
-      <div className="relative z-10 max-w-5xl mx-auto -mt-6 sm:-mt-10 px-6">
-        <div
-          className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-4 rounded-3xl px-6 py-8"
-          style={{ background: 'rgba(255,255,255,0.55)', backdropFilter: 'blur(10px)', boxShadow: '0 15px 40px rgba(138,59,87,0.12)' }}
-        >
-          {NAV_ITEMS.map((item) => (
-            <button
-              key={item.label}
-              type="button"
-              onClick={() => scrollToId(item.href.slice(1))}
-              className="flex flex-col items-center text-center gap-2"
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: roseText }}
-            >
-              <span
-                className="flex items-center justify-center rounded-full"
-                style={{ width: 44, height: 44, background: '#fdeef2', color: roseAccent, fontSize: '1.2rem' }}
-              >
-                {item.icon}
-              </span>
-              <span className="text-sm font-semibold">{item.label}</span>
-              <span className="text-xs" style={{ opacity: 0.6 }}>{item.sub}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* ── Our Story ── */}
-      <section id="story" className="relative z-10 max-w-5xl mx-auto px-6 pt-24 pb-16">
+      {/* ── Our Story — photos only ── */}
+      <section id="story" className="relative z-10 max-w-5xl mx-auto px-6 pt-12 pb-12">
         <Blossom size={38} rotate={-15} opacity={0.4} style={{ top: '0%', left: '2%' }} />
         <RingShape size={40} opacity={0.3} style={{ bottom: '5%', right: '4%' }} />
         <SectionHeading>Our Story ♡</SectionHeading>
         <p className="text-center mt-2" style={{ opacity: 0.7 }}>Every moment with you is my favorite.</p>
 
-        <div className="relative mt-12 flex items-center gap-3">
+        <div className="relative mt-10 flex items-center gap-3">
           <button
             type="button"
             onClick={() => scrollStory(-1)}
@@ -245,32 +228,29 @@ export default function BirthdayPage() {
           </button>
 
           <div ref={storyTrackRef} className="flex-1 overflow-x-auto" style={{ scrollSnapType: 'x mandatory' }}>
-            <div className="relative flex gap-10 sm:gap-16 py-6 px-2" style={{ minWidth: 'max-content' }}>
-              <div className="absolute left-0 right-0" style={{ top: '58%', height: 2, background: 'rgba(217,79,124,0.25)' }} />
+            <div className="flex gap-10 sm:gap-16 py-6 px-2" style={{ minWidth: 'max-content' }}>
               {STORY.map((s, i) => (
-                <div key={s.title} className="flex flex-col items-center" style={{ width: 170, scrollSnapAlign: 'center' }}>
-                  <motion.div
-                    initial={{ opacity: 0, y: 20, rotate: i % 2 === 0 ? -4 : 4 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: i * 0.1 }}
-                    style={{ position: 'relative', background: '#fff', padding: '0.6rem 0.6rem 1.4rem', boxShadow: '0 15px 30px rgba(138,59,87,0.18)' }}
-                  >
-                    <div
-                      style={{
-                        position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%) rotate(-3deg)',
-                        width: 46, height: 16, background: 'rgba(255,255,255,0.7)', boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
-                      }}
-                    />
-                    <PhotoPlaceholder style={{ width: 150, aspectRatio: '4/3' } as React.CSSProperties} />
-                  </motion.div>
-                  <span
-                    className="mt-4 rounded-full"
-                    style={{ width: 12, height: 12, background: roseAccent, boxShadow: '0 0 0 4px rgba(217,79,124,0.15)' }}
+                <motion.div
+                  key={s.title}
+                  initial={{ opacity: 0, y: 20, rotate: i % 2 === 0 ? -4 : 4 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                  style={{
+                    position: 'relative', background: '#fff', padding: '0.6rem 0.6rem 1.4rem',
+                    boxShadow: '0 15px 30px rgba(138,59,87,0.18)', width: 170, scrollSnapAlign: 'center',
+                  }}
+                >
+                  <div
+                    style={{
+                      position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%) rotate(-3deg)',
+                      width: 46, height: 16, background: 'rgba(255,255,255,0.7)', boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+                    }}
                   />
-                  <p className="mt-3 text-sm font-semibold text-center">{s.title}</p>
-                  <p className="text-xs text-center mt-1" style={{ opacity: 0.65 }}>{s.desc}</p>
-                </div>
+                  <div className="relative" style={{ width: 150, aspectRatio: '4/3' }}>
+                    <Image src={s.photo} alt={s.title} fill className="object-cover" sizes="150px" />
+                  </div>
+                </motion.div>
               ))}
             </div>
           </div>
@@ -288,17 +268,17 @@ export default function BirthdayPage() {
       </section>
 
       {/* ── Reasons Why I Love You ── */}
-      <section id="reasons" className="relative z-10 px-6 pb-16">
+      <section id="reasons" className="relative z-10 px-6 pb-10">
         <div className="relative max-w-4xl mx-auto rounded-3xl px-6 sm:px-10 py-12 overflow-hidden" style={{ background: 'rgba(255,255,255,0.5)' }}>
           <Blossom size={46} rotate={20} opacity={0.35} style={{ top: '-6%', right: '-2%' }} />
           <DiamondShape size={16} style={{ bottom: '8%', left: '4%' }} />
-          <SectionHeading>记得我们的清醒四部曲吗 ♡</SectionHeading>
+          <SectionHeading><Zh>记得我们的清醒四部曲吗</Zh> ♡</SectionHeading>
           <p className="text-center mt-2" style={{ opacity: 0.7 }}>Just a few of the countless reasons…</p>
           <p
             className="text-center mt-4 max-w-lg mx-auto"
             style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', lineHeight: 1.8 }}
           >
-            但是以后，我不想再有任何清醒四部曲，想忘了时间，忘了季节更替，沉沦于跟你一起的花海！
+            <Zh>但是以后，我不想再有任何清醒四部曲，想忘了时间，忘了季节更替，沉沦于跟你一起的花海！</Zh>
           </p>
 
           <div className="mt-10 flex items-stretch justify-center gap-3 sm:gap-4 flex-wrap">
@@ -343,7 +323,7 @@ export default function BirthdayPage() {
       </section>
 
       {/* ── Special Surprise ── */}
-      <section id="surprise" className="relative z-10 px-6 pb-20">
+      <section id="surprise" className="relative z-10 px-6 pb-14">
         <div
           className="relative max-w-4xl mx-auto rounded-3xl px-6 sm:px-10 py-10 flex flex-col sm:flex-row items-center justify-between gap-6 overflow-hidden"
           style={{ background: 'linear-gradient(135deg, #fdeef2, #fbd9de)' }}
@@ -372,16 +352,39 @@ export default function BirthdayPage() {
                 </motion.p>
               )}
             </AnimatePresence>
-            {!surpriseOpen && (
+            <AnimatePresence>
+              {musicBoxOpen && (
+                <motion.p
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mt-3 text-sm italic"
+                  style={{ maxWidth: 380 }}
+                >
+                  🎵 [The <Zh>八音</Zh> melody plays here once the audio file is hooked up.] 🎵
+                </motion.p>
+              )}
+            </AnimatePresence>
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-5">
+              {!surpriseOpen && (
+                <button
+                  type="button"
+                  onClick={() => setSurpriseOpen(true)}
+                  className="px-6 py-3 rounded-full text-sm font-medium"
+                  style={{ background: roseAccent, color: '#fff', border: 'none', cursor: 'pointer', boxShadow: '0 10px 25px rgba(217,79,124,0.35)' }}
+                >
+                  Open Your Surprise 🎁
+                </button>
+              )}
               <button
                 type="button"
-                onClick={() => setSurpriseOpen(true)}
-                className="mt-5 px-6 py-3 rounded-full text-sm font-medium"
-                style={{ background: roseAccent, color: '#fff', border: 'none', cursor: 'pointer', boxShadow: '0 10px 25px rgba(217,79,124,0.35)' }}
+                onClick={() => setMusicBoxOpen((v) => !v)}
+                className="px-6 py-3 rounded-full text-sm font-medium"
+                style={{ background: '#fff', color: roseAccent, border: `1px solid ${roseAccent}`, cursor: 'pointer' }}
               >
-                Open Your Surprise 🎁
+                Click for <Zh>八音</Zh> 🎵
               </button>
-            )}
+            </div>
           </div>
           <motion.div
             animate={surpriseOpen ? { scale: [1, 1.2, 1] } : { scale: [1, 1.05, 1] }}
@@ -398,10 +401,10 @@ export default function BirthdayPage() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="relative z-10 text-center px-6 pb-14">
+      <footer className="relative z-10 text-center px-6 pb-10">
         <Blossom size={28} rotate={0} opacity={0.5} style={{ position: 'static', display: 'inline-block', marginBottom: '0.5rem' }} />
         <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1.1rem' }}>
-          ♡ Happy Birthday, {PARTNER_NAME} ♡
+          ♡ Happy Birthday, <PartnerName /> ♡
         </p>
         <p className="mt-1 text-sm" style={{ opacity: 0.65 }}>I love you more than words can say.</p>
       </footer>

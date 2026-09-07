@@ -58,7 +58,7 @@ export default function FallingPetals({ count = 18 }: { count?: number }) {
   }, [count]);
 
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 1 }}>
+    <div className="fixed inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 1 }}>
       {petals.map((p, i) => (
         <Petal key={i} p={p} />
       ))}
