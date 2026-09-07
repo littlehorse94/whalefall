@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import FallingPetals from './FallingPetals';
+import WishesRain from './WishesRain';
 import { Blob, Blossom, RingShape, DiamondShape, Sparkle } from './Decor';
 import CardFanCarousel from '@/components/ui/card-fan-carousel';
 
@@ -287,6 +288,10 @@ export default function BirthdayPage() {
           section as the page scrolls, not just the hero. */}
       <FallingPetals />
 
+      {/* Rains every wish from Wishes.md down the screen once the surprise
+          is opened — a single pass, not looped. */}
+      {surpriseOpen && <WishesRain />}
+
       {/* ── Top bar ── */}
       <div className="fixed top-0 left-0 right-0 z-40 flex items-center px-5 sm:px-8 py-4">
         <span style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1.1rem', color: roseText }}>
@@ -504,8 +509,7 @@ export default function BirthdayPage() {
                   className="mt-3 italic"
                   style={{ maxWidth: 380, fontSize: '1rem' }}
                 >
-                  “[Write your special birthday message here — a memory, a promise, or
-                  everything you love about them.]”
+                  Everyone who loves you had something to say — here it comes. ♡
                 </motion.p>
               )}
             </AnimatePresence>
