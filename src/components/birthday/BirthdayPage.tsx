@@ -47,7 +47,7 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
     <h2
       className="text-4xl sm:text-5xl text-center"
-      style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', color: roseText }}
+      style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontWeight: 800, color: roseText }}
     >
       {children}
     </h2>
@@ -85,14 +85,9 @@ export default function BirthdayPage() {
         background: 'linear-gradient(180deg, #fbe7dd 0%, #fbd9de 22%, #fdeef2 55%, #fdf5f7 100%)',
         color: roseText,
         fontFamily: "'Poppins', 'Inter', sans-serif",
+        fontWeight: 600,
       }}
     >
-      {/* ── Ambient background blobs (behind everything) ── */}
-      <Blob size={380} color="#fcd2a8" style={{ top: -140, right: -160 }} />
-      <Blob size={340} color="#f6a8c2" style={{ top: '55%', left: -200 }} />
-      <Blob size={300} color="#e7c6e8" style={{ top: '115%', right: -160 }} />
-      <Blob size={260} color="#fcd2a8" style={{ top: '175%', left: -150 }} />
-
       {/* Falling petals — fixed to the viewport so they drift over every
           section as the page scrolls, not just the hero. */}
       <FallingPetals />
@@ -114,6 +109,12 @@ export default function BirthdayPage() {
 
       {/* ── Hero ── */}
       <section className="relative flex flex-col-reverse lg:flex-row items-center gap-10 lg:gap-16 max-w-5xl mx-auto px-6 sm:px-10 lg:px-12 pt-24 pb-12">
+        {/* Ambient color blob — a fixed pixel offset, safe regardless of
+            this section's height (percentage offsets on earlier drafts of
+            these blobs were placed on the whole unbounded page instead of
+            a section, which stretched the scrollable page by thousands of
+            pixels — see the other three blobs below for the same fix). */}
+        <Blob size={380} color="#fcd2a8" style={{ top: -140, right: -160 }} />
         {/* Static flower cluster + geometric accents, echoing the reference's corner blossoms */}
         <Blossom size={54} rotate={12} style={{ bottom: '8%', right: '4%' }} />
         <Blossom size={34} rotate={-18} opacity={0.45} style={{ bottom: '16%', right: '12%' }} />
@@ -126,7 +127,7 @@ export default function BirthdayPage() {
         <Sparkle size={14} opacity={0.4} style={{ bottom: '30%', left: '30%' }} />
 
         <div className="relative z-10 flex-1 text-center lg:text-left">
-          <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1.6rem' }}>
+          <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontWeight: 700, fontSize: '1.6rem' }}>
             Happy
           </p>
           <h1
@@ -135,12 +136,13 @@ export default function BirthdayPage() {
               fontSize: 'clamp(3.5rem, 9vw, 6rem)',
               lineHeight: 1,
               color: roseAccent,
+              fontWeight: 800,
               margin: '0.1em 0',
             }}
           >
             Birthday
           </h1>
-          <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1.9rem' }}>
+          <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontWeight: 700, fontSize: '1.9rem' }}>
             <PartnerName /> <span style={{ fontSize: '1.2rem' }}>♡</span>
           </p>
           <p className="mt-5 max-w-md mx-auto lg:mx-0" style={{ opacity: 0.8, fontSize: '1.1rem', lineHeight: 1.8 }}>
@@ -149,7 +151,7 @@ export default function BirthdayPage() {
           <button
             type="button"
             onClick={() => scrollToId('story')}
-            className="mt-7 px-8 py-3.5 rounded-full text-base font-medium"
+            className="mt-7 px-8 py-3.5 rounded-full text-base font-bold"
             style={{ background: roseAccent, color: '#fff', border: 'none', cursor: 'pointer', boxShadow: '0 10px 25px rgba(217,79,124,0.35)' }}
           >
             Start Our Journey ♡
@@ -190,7 +192,7 @@ export default function BirthdayPage() {
                 width: 70, height: 22, background: 'rgba(255,255,255,0.65)', boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
               }}
             />
-            <div className="relative w-full" style={{ aspectRatio: '4/5' }}>
+            <div className="relative w-full" style={{ aspectRatio: '1/1' }}>
               <Image src={`${PHOTO_DIR}/1.webp`} alt="Us" fill className="object-cover" sizes="320px" priority />
             </div>
             <p className="text-center mt-3" style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1.05rem' }}>
@@ -202,6 +204,7 @@ export default function BirthdayPage() {
 
       {/* ── Our Story — photos only ── */}
       <section id="story" className="relative z-10 max-w-6xl mx-auto px-6 pt-12 pb-12">
+        <Blob size={280} color="#f6a8c2" style={{ top: '10%', left: -180 }} />
         <Blossom size={38} rotate={-15} opacity={0.4} style={{ top: '0%', left: '2%' }} />
         <RingShape size={40} opacity={0.3} style={{ bottom: '5%', right: '4%' }} />
         <SectionHeading>Our Story ♡</SectionHeading>
@@ -222,7 +225,7 @@ export default function BirthdayPage() {
               (so no scrollbar appears there); on mobile the cards are
               deliberately wider than the viewport so the strip scrolls. */}
           <div ref={storyTrackRef} className="flex-1 overflow-x-auto sm:overflow-visible" style={{ scrollSnapType: 'x mandatory' }}>
-            <div className="flex gap-4 sm:gap-6 pt-6 pb-10 sm:py-6 px-2">
+            <div className="flex gap-6 sm:gap-10 pt-6 pb-10 sm:py-6 px-2">
               {/* Static, not scroll-triggered — these photos are the whole
                   point of the section, so they must always render, not
                   risk getting stuck mid-fade if the animation frame loop
@@ -244,7 +247,7 @@ export default function BirthdayPage() {
                       width: 46, height: 16, background: 'rgba(255,255,255,0.7)', boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
                     }}
                   />
-                  <div className="relative w-full" style={{ aspectRatio: '4/3' }}>
+                  <div className="relative w-full" style={{ aspectRatio: '1/1' }}>
                     <Image src={s.photo} alt={s.title} fill className="object-cover" sizes="(max-width: 640px) 78vw, 22vw" />
                   </div>
                 </div>
@@ -267,6 +270,7 @@ export default function BirthdayPage() {
       {/* ── Reasons Why I Love You ── */}
       <section id="reasons" className="relative z-10 px-6 pb-10">
         <div className="relative max-w-4xl mx-auto rounded-3xl px-6 sm:px-10 py-12 overflow-hidden" style={{ background: 'rgba(255,255,255,0.5)' }}>
+          <Blob size={260} color="#e7c6e8" style={{ bottom: '-15%', left: '-10%' }} />
           <Blossom size={46} rotate={20} opacity={0.35} style={{ top: '-6%', right: '-2%' }} />
           <DiamondShape size={16} style={{ bottom: '8%', left: '4%' }} />
           <SectionHeading><Zh>记得我们的清醒四部曲吗</Zh> ♡</SectionHeading>
@@ -296,7 +300,7 @@ export default function BirthdayPage() {
                   }}
                 >
                   <span style={{ fontSize: active ? '2.1rem' : '1.5rem', color: roseAccent }}>{r.icon}</span>
-                  <span className="font-medium" style={{ fontSize: '1.05rem', lineHeight: 1.4 }}><Zh>{r.text}</Zh></span>
+                  <span className="font-bold" style={{ fontSize: '1.05rem', lineHeight: 1.4 }}><Zh>{r.text}</Zh></span>
                 </button>
               );
             })}
@@ -325,11 +329,12 @@ export default function BirthdayPage() {
           className="relative max-w-4xl mx-auto rounded-3xl px-6 sm:px-10 py-10 flex flex-col sm:flex-row items-center justify-between gap-6 overflow-hidden"
           style={{ background: 'linear-gradient(135deg, #fdeef2, #fbd9de)' }}
         >
+          <Blob size={220} color="#fcd2a8" style={{ bottom: '-20%', right: '-8%' }} />
           <Sparkle size={20} style={{ top: '10%', left: '6%' }} />
           <Sparkle size={14} opacity={0.4} style={{ bottom: '14%', right: '38%' }} />
           <RingShape size={30} opacity={0.3} style={{ top: '12%', right: '10%' }} />
           <div className="text-center sm:text-left">
-            <h3 style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1.9rem' }}>
+            <h3 style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontWeight: 800, fontSize: '1.9rem' }}>
               A Special Surprise Awaits You ♡
             </h3>
             <p className="mt-1" style={{ opacity: 0.75, fontSize: '1.05rem' }}>
@@ -367,7 +372,7 @@ export default function BirthdayPage() {
                 <button
                   type="button"
                   onClick={() => setSurpriseOpen(true)}
-                  className="px-7 py-3.5 rounded-full text-base font-medium"
+                  className="px-7 py-3.5 rounded-full text-base font-bold"
                   style={{ background: roseAccent, color: '#fff', border: 'none', cursor: 'pointer', boxShadow: '0 10px 25px rgba(217,79,124,0.35)' }}
                 >
                   Open Your Surprise 🎁
@@ -376,7 +381,7 @@ export default function BirthdayPage() {
               <button
                 type="button"
                 onClick={() => setMusicBoxOpen((v) => !v)}
-                className="px-7 py-3.5 rounded-full text-base font-medium"
+                className="px-7 py-3.5 rounded-full text-base font-bold"
                 style={{ background: '#fff', color: roseAccent, border: `1px solid ${roseAccent}`, cursor: 'pointer' }}
               >
                 Click for <Zh>八音</Zh> 🎵
@@ -400,7 +405,7 @@ export default function BirthdayPage() {
       {/* ── Footer ── */}
       <footer className="relative z-10 text-center px-6 pb-10">
         <Blossom size={28} rotate={0} opacity={0.5} style={{ position: 'static', display: 'inline-block', marginBottom: '0.5rem' }} />
-        <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1.4rem' }}>
+        <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontWeight: 800, fontSize: '1.4rem' }}>
           ♡ Happy Birthday, <PartnerName /> ♡
         </p>
         <p className="mt-1" style={{ opacity: 0.65, fontSize: '1rem' }}>I love you more than words can say.</p>
