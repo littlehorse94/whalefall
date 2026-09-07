@@ -82,6 +82,10 @@ export default function BirthdayPage() {
   // button roams the whole visible screen, not just the card.
   const [mode, setMode] = useState<'home' | 'fled'>('home');
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+  // Sits still until the very first direct hover/touch on the button
+  // itself — only then does it start reacting to the cursor globally, so
+  // it isn't already darting around before anyone's even found it.
+  const [activated, setActivated] = useState(false);
   const [dodgeCount, setDodgeCount] = useState(0);
   const lastDodgeAtRef = useRef(0);
   const returnHomeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -160,8 +164,10 @@ export default function BirthdayPage() {
   }, [returnHome]);
 
   // Tracked globally (not just over the surprise card) so it starts fleeing
-  // the instant the cursor gets close, wherever on the page that happens.
+  // the instant the cursor gets close, wherever on the page that happens —
+  // but only once activated (see the button's onMouseEnter/onTouchStart).
   useEffect(() => {
+    if (!activated) return;
     const onMove = (e: MouseEvent) => fleeFrom(e.clientX, e.clientY);
     const onTouch = (e: TouchEvent) => {
       const t = e.touches[0];
@@ -175,7 +181,7 @@ export default function BirthdayPage() {
       window.removeEventListener('touchstart', onTouch);
       window.removeEventListener('touchmove', onTouch);
     };
-  }, [fleeFrom]);
+  }, [activated, fleeFrom]);
 
   // Seed its starting position from the placeholder once mounted, and
   // re-anchor on resize (viewport rotation, devtools toggling, etc.) —
@@ -306,15 +312,17 @@ export default function BirthdayPage() {
         </div>
 
         <div className="relative z-10 flex-1 flex justify-center">
-          {/* Static, not animated — this card is visible immediately on
-              load (above the fold), so a mount-triggered fade only adds
-              risk (a rAF hiccup right after mount can leave it stuck
-              mid-transition) for no visible benefit. */}
-          <div
+          {/* Not animated on mount/load (a rAF hiccup right after mount can
+              leave a mount-triggered animation stuck mid-transition) —
+              only whileHover, which is a direct response to a pointer
+              event and carries no such risk. */}
+          <motion.div
+            whileHover={{ scale: 1.04, rotate: -1, boxShadow: '0 32px 60px rgba(138,59,87,0.35)' }}
+            transition={{ duration: 0.35, ease: 'easeOut' }}
             style={{
               position: 'relative', background: '#fff', padding: '0.9rem 0.9rem 2.2rem',
               borderRadius: '4px', boxShadow: '0 25px 50px rgba(138,59,87,0.25)',
-              width: 'min(80vw, 320px)', transform: 'rotate(-3deg)',
+              width: 'min(80vw, 320px)', rotate: -3,
             }}
           >
             <div
@@ -329,7 +337,7 @@ export default function BirthdayPage() {
             <p className="text-center mt-3" style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1.05rem' }}>
               You mean the world to me ♥
             </p>
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -514,7 +522,7 @@ export default function BirthdayPage() {
                 className="inline-block px-7 py-3.5 rounded-full text-base font-bold"
                 style={{ visibility: 'hidden', border: '1px solid transparent' }}
               >
-                Click for 八音 🎵
+                Click for free 八音 🎵
               </span>
               {/* Portal'd to <body> — rendering it here would make its
                   position:absolute/fixed resolve against this card's own
@@ -525,6 +533,12 @@ export default function BirthdayPage() {
                   ref={musicBtnRef}
                   type="button"
                   onClick={handleAttempt}
+                  onMouseEnter={(e) => { setActivated(true); fleeFrom(e.clientX, e.clientY); }}
+                  onTouchStart={(e) => {
+                    setActivated(true);
+                    const t = e.touches[0];
+                    if (t) fleeFrom(t.clientX, t.clientY);
+                  }}
                   initial={false}
                   animate={{ left: pos.x, top: pos.y, y: [0, -5, 0], rotate: [0, -3, 3, 0] }}
                   transition={{
@@ -540,7 +554,7 @@ export default function BirthdayPage() {
                     border: `1px solid ${roseAccent}`, cursor: 'pointer',
                   }}
                 >
-                  Click for <Zh>八音</Zh> 🎵
+                  Click for free <Zh>八音</Zh> 🎵
                 </motion.button>,
                 document.body,
               )}
