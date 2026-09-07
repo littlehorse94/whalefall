@@ -528,8 +528,8 @@ export default function BirthdayPage() {
                   initial={false}
                   animate={{ left: pos.x, top: pos.y, y: [0, -5, 0], rotate: [0, -3, 3, 0] }}
                   transition={{
-                    left: { type: 'spring', stiffness: 320, damping: 10 },
-                    top: { type: 'spring', stiffness: 320, damping: 10 },
+                    left: { type: 'tween', ease: 'easeOut', duration: 0.5 },
+                    top: { type: 'tween', ease: 'easeOut', duration: 0.5 },
                     y: { duration: 2.6, repeat: Infinity, ease: 'easeInOut' },
                     rotate: { duration: 2.6, repeat: Infinity, ease: 'easeInOut' },
                   }}
