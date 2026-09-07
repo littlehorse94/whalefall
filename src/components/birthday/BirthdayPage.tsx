@@ -78,6 +78,9 @@ export default function BirthdayPage() {
   const [soundOn, setSoundOn] = useState(false);
   const [reasonIndex, setReasonIndex] = useState(2);
   const [surpriseOpen, setSurpriseOpen] = useState(false);
+  // Bumped by the "Reset" button to restart the wishes rain's 10-loop
+  // sequence from scratch, with freshly randomized positions/timing.
+  const [wishesResetSignal, setWishesResetSignal] = useState(0);
 
   // A hidden same-size spacer left in the button's normal spot in the
   // surprise card — reserves its layout space and, since it never itself
@@ -290,7 +293,7 @@ export default function BirthdayPage() {
 
       {/* Rains every wish from Wishes.md down the screen once the surprise
           is opened — a single pass, not looped. */}
-      {surpriseOpen && <WishesRain />}
+      {surpriseOpen && <WishesRain resetSignal={wishesResetSignal} />}
 
       {/* ── Top bar ── */}
       <div className="fixed top-0 left-0 right-0 z-40 flex items-center px-5 sm:px-8 py-4">
@@ -522,6 +525,16 @@ export default function BirthdayPage() {
                   style={{ background: roseAccent, color: '#fff', border: 'none', cursor: 'pointer', boxShadow: '0 10px 25px rgba(217,79,124,0.35)' }}
                 >
                   Open Your Surprise 🎁
+                </button>
+              )}
+              {surpriseOpen && (
+                <button
+                  type="button"
+                  onClick={() => setWishesResetSignal((n) => n + 1)}
+                  className="px-7 py-3.5 rounded-full text-base font-bold"
+                  style={{ background: '#fff', color: roseAccent, border: `1px solid ${roseAccent}`, cursor: 'pointer' }}
+                >
+                  Reset ↻
                 </button>
               )}
               {/* Never catchable, on purpose — see fleeFrom/handleAttempt.
