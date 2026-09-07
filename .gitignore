@@ -148,3 +148,4 @@ public/src/*.mp3
 public/hero.mp4
 # Upload script (contains token)
 scripts/upload-videos.mjs
+scripts/upload-birthday-audio.mjs

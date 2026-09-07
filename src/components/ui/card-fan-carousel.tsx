@@ -56,14 +56,17 @@ function getHeightMultiplier(width: number) {
 
 function getSlotConfig(totalCards: number, slot: number) {
   if (totalCards >= MAX_VISIBLE) return FAN_POSITIONS[slot];
-  const center = totalCards >> 1;
-  const distance = totalCards > 1 ? (slot - center) / center : 0;
+  // The true midpoint, not the integer-rounded one — for an even count
+  // (e.g. 4 cards) `totalCards >> 1` sits one slot off-center, which
+  // skews the whole fan lopsided instead of spreading it symmetrically.
+  const center = (totalCards - 1) / 2;
+  const distance = center > 0 ? (slot - center) / center : 0;
   const absDistance = Math.abs(distance);
   return {
-    rot: distance * 21,
-    scale: 1.0 - 0.2244 * absDistance * absDistance,
-    x: distance * 30,
-    y: absDistance * absDistance * 7.3,
+    rot: distance * 12,
+    scale: 1.0 - 0.1 * absDistance * absDistance,
+    x: distance * 15,
+    y: absDistance * absDistance * 3.5,
     zIndex: 10 - Math.abs(slot - center),
   };
 }
@@ -73,7 +76,7 @@ const ARROW_CLASSES =
 
 // Every card is a fixed-size square (1:1) at each breakpoint — the fan
 // spread/scale math above is independent of the card's own pixel size.
-const CARD_SIZE_CLASSES = 'w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:w-48 lg:h-48';
+const CARD_SIZE_CLASSES = 'w-32 h-32 sm:w-40 sm:h-40 md:w-52 md:h-52 lg:w-60 lg:h-60';
 
 export default function CardFanCarousel({ cards, onCardClick }: CardFanCarouselProps) {
   const containerRef = useRef<HTMLDivElement>(null);

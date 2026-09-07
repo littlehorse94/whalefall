@@ -65,8 +65,14 @@ const DODGE_THROTTLE_MS = 80; // don't recompute on every single mousemove pixel
 const DODGE_RETURN_DELAY_MS = 1500; // drift back home after this long without interaction
 const DODGE_EDGE_MARGIN = 16; // never let it dodge fully off-screen
 
+// This page's own background track — separate from the guild's ambient
+// audio (which AudioToggle already hides on /birthday).
+const BIRTHDAY_AUDIO_URL = '/src/Tide%20of%20Jade%20Echoes.mp3';
+
 export default function BirthdayPage() {
   const [soundOn, setSoundOn] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const userMutedRef = useRef(false);
   const [reasonIndex, setReasonIndex] = useState(2);
   const [surpriseOpen, setSurpriseOpen] = useState(false);
 
@@ -97,6 +103,33 @@ export default function BirthdayPage() {
   useEffect(() => {
     document.body.classList.add('birthday-theme');
     return () => document.body.classList.remove('birthday-theme');
+  }, []);
+
+  // This page's own background track. Browsers block autoplay-with-sound
+  // until the visitor interacts, so try immediately and fall back to
+  // starting on their first click/tap if that's blocked.
+  useEffect(() => {
+    const audio = new Audio(BIRTHDAY_AUDIO_URL);
+    audio.loop = true;
+    audio.volume = 0.6;
+    audioRef.current = audio;
+
+    const unlockPlay = () => {
+      if (userMutedRef.current) return;
+      audio.play().then(() => setSoundOn(true)).catch(() => {});
+    };
+
+    audio.play().then(() => setSoundOn(true)).catch(() => {
+      document.addEventListener('click', unlockPlay, { once: true });
+      document.addEventListener('touchstart', unlockPlay, { once: true });
+    });
+
+    return () => {
+      audio.pause();
+      audio.src = '';
+      document.removeEventListener('click', unlockPlay);
+      document.removeEventListener('touchstart', unlockPlay);
+    };
   }, []);
 
   useEffect(() => () => {
@@ -175,14 +208,18 @@ export default function BirthdayPage() {
     };
   }, [activated, fleeFrom]);
 
-  // Seed its starting position from the placeholder once mounted, and
-  // re-anchor on resize (viewport rotation, devtools toggling, etc.) —
-  // only while at rest, so it doesn't interrupt an active flee. Web fonts
-  // (the Chinese text is Long Cang) can still be loading at mount, and
-  // swapping in shifts the layout, so re-measure once they're ready too.
+  // Seed its starting position from the placeholder once mounted. Waits
+  // for web fonts (the Chinese text is Long Cang) first — measuring
+  // before they swap in and re-measuring afterward would mean two
+  // different positions, and since the button is already mounted by
+  // then, `initial={false}` can't suppress an animated glide between
+  // them. Waiting means it only ever appears already in its right spot.
   useEffect(() => {
-    returnHome();
-    document.fonts?.ready.then(returnHome);
+    if (document.fonts?.ready) {
+      document.fonts.ready.then(returnHome);
+    } else {
+      returnHome();
+    }
   }, [returnHome]);
 
   // While at rest, keep it visually anchored to the surprise card as the
@@ -203,6 +240,19 @@ export default function BirthdayPage() {
     const r = musicBtnRef.current?.getBoundingClientRect();
     if (r) fleeFrom(r.left + r.width / 2, r.top + r.height / 2);
     else setDodgeCount((c) => c + 1);
+  };
+
+  const toggleSound = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (soundOn) {
+      audio.pause();
+      setSoundOn(false);
+      userMutedRef.current = true;
+    } else {
+      audio.play().then(() => setSoundOn(true)).catch(() => {});
+      userMutedRef.current = false;
+    }
   };
 
   return (
@@ -228,7 +278,7 @@ export default function BirthdayPage() {
         </span>
         <button
           type="button"
-          onClick={() => setSoundOn((v) => !v)}
+          onClick={toggleSound}
           className="text-sm sm:text-base"
           style={{ color: roseText, opacity: 0.75, background: 'none', border: 'none', cursor: 'pointer' }}
         >
