@@ -35,6 +35,11 @@ body {
 ::-webkit-scrollbar-track { background: var(--deep); }
 ::-webkit-scrollbar-thumb { background: var(--cyan-glow); border-radius: 3px; }
 
+/* The birthday page is its own light, pink theme — the guild's dark
+   track + cyan thumb read as a jarring, out-of-place second bar there. */
+body.birthday-theme::-webkit-scrollbar-track { background: #fdeef2; }
+body.birthday-theme::-webkit-scrollbar-thumb { background: #d94f7c; }
+
 .glow-cyan {
   text-shadow: 0 0 10px rgba(77,217,232,0.8), 0 0 30px rgba(77,217,232,0.4), 0 0 60px rgba(77,217,232,0.2);
 }

@@ -1,13 +1,13 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import FallingPetals from './FallingPetals';
 import PhotoPlaceholder from './PhotoPlaceholder';
 import { Blob, Blossom, RingShape, DiamondShape, Sparkle } from './Decor';
 
 // ── Placeholder content — swap these for the real names, photos, and words. ──
-const PARTNER_NAME = 'My Love';
+const PARTNER_NAME = 'My 小星星';
 
 const STORY = [
   { title: 'The First Hello', desc: 'The day our journey began' },
@@ -54,6 +54,13 @@ export default function BirthdayPage() {
   const [reasonIndex, setReasonIndex] = useState(2);
   const [surpriseOpen, setSurpriseOpen] = useState(false);
   const storyTrackRef = useRef<HTMLDivElement>(null);
+
+  // Swap the guild site's dark-theme scrollbar for a pink one while this
+  // page is mounted, then hand it back on the way out.
+  useEffect(() => {
+    document.body.classList.add('birthday-theme');
+    return () => document.body.classList.remove('birthday-theme');
+  }, []);
 
   const scrollStory = (dir: 1 | -1) => {
     storyTrackRef.current?.scrollBy({ left: dir * 260, behavior: 'smooth' });
@@ -125,7 +132,7 @@ export default function BirthdayPage() {
             {PARTNER_NAME} <span style={{ fontSize: '1rem' }}>♡</span>
           </p>
           <p className="mt-5 max-w-md mx-auto lg:mx-0" style={{ opacity: 0.8, lineHeight: 1.7 }}>
-            A special day for the most amazing person in my life. Thank you for being you.
+            从师徒到侠缘，我们真的经历了很多很多
           </p>
           <button
             type="button"
@@ -285,8 +292,14 @@ export default function BirthdayPage() {
         <div className="relative max-w-4xl mx-auto rounded-3xl px-6 sm:px-10 py-12 overflow-hidden" style={{ background: 'rgba(255,255,255,0.5)' }}>
           <Blossom size={46} rotate={20} opacity={0.35} style={{ top: '-6%', right: '-2%' }} />
           <DiamondShape size={16} style={{ bottom: '8%', left: '4%' }} />
-          <SectionHeading>Reasons Why I Love You ♡</SectionHeading>
+          <SectionHeading>记得我们的清醒四部曲吗 ♡</SectionHeading>
           <p className="text-center mt-2" style={{ opacity: 0.7 }}>Just a few of the countless reasons…</p>
+          <p
+            className="text-center mt-4 max-w-lg mx-auto"
+            style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', lineHeight: 1.8 }}
+          >
+            但是以后，我不想再有任何清醒四部曲，想忘了时间，忘了季节更替，沉沦于跟你一起的花海！
+          </p>
 
           <div className="mt-10 flex items-stretch justify-center gap-3 sm:gap-4 flex-wrap">
             {REASONS.map((r, i) => {
