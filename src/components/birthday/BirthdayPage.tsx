@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import FallingPetals from './FallingPetals';
@@ -55,10 +56,13 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
 }
 
 // The 八音 button is never meant to be caught — these tune how paranoid it is.
-const DODGE_TRIGGER_RADIUS = 100; // start fleeing once the pointer gets this close (px)
-const DODGE_JUMP = 280; // roughly how far it bolts per flee (px)
-const DODGE_THROTTLE_MS = 150; // don't recompute on every single mousemove pixel
+// It roams the whole viewport (not just the surprise card) so it always has
+// somewhere to run — a small box meant it could eventually get cornered.
+const DODGE_TRIGGER_RADIUS = 160; // start fleeing once the pointer gets this close (px)
+const DODGE_JUMP = 300; // roughly how far it bolts per flee (px)
+const DODGE_THROTTLE_MS = 80; // don't recompute on every single mousemove pixel
 const DODGE_RETURN_DELAY_MS = 1500; // drift back home after this long without interaction
+const DODGE_EDGE_MARGIN = 16; // never let it dodge fully off-screen
 
 export default function BirthdayPage() {
   const [soundOn, setSoundOn] = useState(false);
@@ -66,9 +70,18 @@ export default function BirthdayPage() {
   const [surpriseOpen, setSurpriseOpen] = useState(false);
   const storyTrackRef = useRef<HTMLDivElement>(null);
 
-  const surpriseCardRef = useRef<HTMLDivElement>(null);
+  // A hidden same-size spacer left in the button's normal spot in the
+  // surprise card — reserves its layout space and, since it never itself
+  // moves, doubles as the "home" position the real (fixed, viewport-roaming)
+  // button drifts back to once left alone.
+  const placeholderRef = useRef<HTMLSpanElement>(null);
   const musicBtnRef = useRef<HTMLButtonElement>(null);
-  const [dodge, setDodge] = useState({ x: 0, y: 0 });
+  // 'home': resting in the surprise card — pos is in document coordinates,
+  // so it scrolls with the page exactly like an ordinary inline element.
+  // 'fled': actively evading — pos is in viewport coordinates and the
+  // button roams the whole visible screen, not just the card.
+  const [mode, setMode] = useState<'home' | 'fled'>('home');
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
   const [dodgeCount, setDodgeCount] = useState(0);
   const lastDodgeAtRef = useRef(0);
   const returnHomeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -94,14 +107,26 @@ export default function BirthdayPage() {
     track.scrollBy({ left: dir * track.clientWidth * 0.8, behavior: 'smooth' });
   };
 
+  // Drifts the button back to the placeholder's current spot (re-measured
+  // live, in viewport coordinates — the button is always position:fixed,
+  // never absolute, so a mid-flight mode switch can never make its spring
+  // animation misread stale coordinates in the wrong frame of reference).
+  const returnHome = useCallback(() => {
+    const home = placeholderRef.current;
+    if (!home) return;
+    const r = home.getBoundingClientRect();
+    setPos({ x: r.left, y: r.top });
+    setMode('home');
+  }, []);
+
   // Bolts the 八音 button away from (pointerX, pointerY) if it's gotten too
-  // close, landing somewhere still inside the surprise card. Reads/writes
-  // `dodge` via the refs' live DOM rects rather than any stored "home"
-  // position, so it composes cleanly however many times it's already fled.
-  const fleeFrom = (pointerX: number, pointerY: number) => {
+  // close, landing anywhere in the viewport (with a small edge margin) —
+  // not boxed into the surprise card, so it always has room to run.
+  // Reads the button's live rect rather than any stored position, so it
+  // composes cleanly however many times it's already fled.
+  const fleeFrom = useCallback((pointerX: number, pointerY: number) => {
     const btn = musicBtnRef.current;
-    const card = surpriseCardRef.current;
-    if (!btn || !card) return;
+    if (!btn) return;
 
     const now = Date.now();
     if (now - lastDodgeAtRef.current < DODGE_THROTTLE_MS) return;
@@ -116,44 +141,69 @@ export default function BirthdayPage() {
     // Flee roughly away from the pointer, with a little randomness so it
     // doesn't just ping-pong back and forth along one line.
     const away = Math.atan2(centerY - pointerY, centerX - pointerX);
-    const angle = away + (Math.random() - 0.5) * 1.2;
+    const angle = away + (Math.random() - 0.5) * 1.0;
 
-    // The button's un-transformed position, so the next offset can be
-    // clamped against the card's actual bounds regardless of the current one.
-    const cardRect = card.getBoundingClientRect();
-    const naturalLeft = btnRect.left - dodge.x;
-    const naturalTop = btnRect.top - dodge.y;
-    const margin = 16;
-    const minX = cardRect.left + margin - naturalLeft;
-    const maxX = cardRect.right - margin - btnRect.width - naturalLeft;
-    const minY = cardRect.top + margin - naturalTop;
-    const maxY = cardRect.bottom - margin - btnRect.height - naturalTop;
+    const maxX = Math.max(DODGE_EDGE_MARGIN, window.innerWidth - DODGE_EDGE_MARGIN - btnRect.width);
+    const maxY = Math.max(DODGE_EDGE_MARGIN, window.innerHeight - DODGE_EDGE_MARGIN - btnRect.height);
+    const rawX = btnRect.left + Math.cos(angle) * DODGE_JUMP;
+    const rawY = btnRect.top + Math.sin(angle) * DODGE_JUMP;
 
-    const rawX = dodge.x + Math.cos(angle) * DODGE_JUMP;
-    const rawY = dodge.y + Math.sin(angle) * DODGE_JUMP;
-
-    setDodge({
-      x: minX <= maxX ? Math.min(Math.max(rawX, minX), maxX) : dodge.x,
-      y: minY <= maxY ? Math.min(Math.max(rawY, minY), maxY) : dodge.y,
+    setPos({
+      x: Math.min(Math.max(rawX, DODGE_EDGE_MARGIN), maxX),
+      y: Math.min(Math.max(rawY, DODGE_EDGE_MARGIN), maxY),
     });
+    setMode('fled');
     setDodgeCount((c) => c + 1);
-  };
 
-  // Any pointer activity over the card resets the "come home" clock, so it
-  // only drifts back to its starting spot once you've actually left it alone.
-  const handlePointerActivity = (pointerX: number, pointerY: number) => {
     if (returnHomeTimerRef.current) clearTimeout(returnHomeTimerRef.current);
-    returnHomeTimerRef.current = setTimeout(() => {
-      setDodge({ x: 0, y: 0 });
-    }, DODGE_RETURN_DELAY_MS);
-    fleeFrom(pointerX, pointerY);
-  };
+    returnHomeTimerRef.current = setTimeout(returnHome, DODGE_RETURN_DELAY_MS);
+  }, [returnHome]);
+
+  // Tracked globally (not just over the surprise card) so it starts fleeing
+  // the instant the cursor gets close, wherever on the page that happens.
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => fleeFrom(e.clientX, e.clientY);
+    const onTouch = (e: TouchEvent) => {
+      const t = e.touches[0];
+      if (t) fleeFrom(t.clientX, t.clientY);
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('touchstart', onTouch, { passive: true });
+    window.addEventListener('touchmove', onTouch, { passive: true });
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('touchstart', onTouch);
+      window.removeEventListener('touchmove', onTouch);
+    };
+  }, [fleeFrom]);
+
+  // Seed its starting position from the placeholder once mounted, and
+  // re-anchor on resize (viewport rotation, devtools toggling, etc.) —
+  // only while at rest, so it doesn't interrupt an active flee. Web fonts
+  // (the Chinese text is Long Cang) can still be loading at mount, and
+  // swapping in shifts the layout, so re-measure once they're ready too.
+  useEffect(() => {
+    returnHome();
+    document.fonts?.ready.then(returnHome);
+  }, [returnHome]);
+
+  // While at rest, keep it visually anchored to the surprise card as the
+  // page scrolls or resizes.
+  useEffect(() => {
+    if (mode !== 'home') return;
+    window.addEventListener('scroll', returnHome, { passive: true });
+    window.addEventListener('resize', returnHome);
+    return () => {
+      window.removeEventListener('scroll', returnHome);
+      window.removeEventListener('resize', returnHome);
+    };
+  }, [mode, returnHome]);
 
   // Clicking/tapping it directly always counts as "too close" — it bolts
   // instead of doing anything else. It is never meant to be caught.
   const handleAttempt = () => {
     const r = musicBtnRef.current?.getBoundingClientRect();
-    if (r) handlePointerActivity(r.left + r.width / 2, r.top + r.height / 2);
+    if (r) fleeFrom(r.left + r.width / 2, r.top + r.height / 2);
     else setDodgeCount((c) => c + 1);
   };
 
@@ -414,10 +464,6 @@ export default function BirthdayPage() {
       {/* ── Special Surprise ── */}
       <section id="surprise" className="relative z-10 px-6 pb-14">
         <div
-          ref={surpriseCardRef}
-          onMouseMove={(e) => handlePointerActivity(e.clientX, e.clientY)}
-          onTouchStart={(e) => { const t = e.touches[0]; if (t) handlePointerActivity(t.clientX, t.clientY); }}
-          onTouchMove={(e) => { const t = e.touches[0]; if (t) handlePointerActivity(t.clientX, t.clientY); }}
           className="relative max-w-4xl mx-auto rounded-3xl px-6 sm:px-10 py-10 flex flex-col sm:flex-row items-center justify-between gap-6 overflow-hidden"
           style={{ background: 'linear-gradient(135deg, #fdeef2, #fbd9de)' }}
         >
@@ -458,27 +504,46 @@ export default function BirthdayPage() {
                 </button>
               )}
               {/* Never catchable, on purpose — see fleeFrom/handleAttempt.
-                  Outer element carries the flee offset (a spring, so each
-                  dash looks alive); inner button layers a constant idle
-                  float/wobble on top so it never sits fully still, even
-                  before anyone's cursor comes near it. */}
-              <motion.div
-                animate={{ x: dodge.x, y: dodge.y }}
-                transition={{ type: 'spring', stiffness: 300, damping: 11 }}
-                style={{ display: 'inline-block' }}
+                  This invisible spacer reserves the button's normal spot in
+                  the layout and doubles as its "home" position; the real
+                  button below is fixed to the viewport so it can roam the
+                  whole page, not just this card, once something gets close. */}
+              <span
+                ref={placeholderRef}
+                aria-hidden
+                className="inline-block px-7 py-3.5 rounded-full text-base font-bold"
+                style={{ visibility: 'hidden', border: '1px solid transparent' }}
               >
+                Click for 八音 🎵
+              </span>
+              {/* Portal'd to <body> — rendering it here would make its
+                  position:absolute/fixed resolve against this card's own
+                  box (it's a positioning container too), not the document
+                  or viewport, breaking exactly the roaming this is for. */}
+              {pos && typeof document !== 'undefined' && createPortal(
                 <motion.button
                   ref={musicBtnRef}
                   type="button"
                   onClick={handleAttempt}
-                  animate={{ y: [0, -5, 0], rotate: [0, -3, 3, 0] }}
-                  transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
+                  initial={false}
+                  animate={{ left: pos.x, top: pos.y, y: [0, -5, 0], rotate: [0, -3, 3, 0] }}
+                  transition={{
+                    left: { type: 'spring', stiffness: 320, damping: 10 },
+                    top: { type: 'spring', stiffness: 320, damping: 10 },
+                    y: { duration: 2.6, repeat: Infinity, ease: 'easeInOut' },
+                    rotate: { duration: 2.6, repeat: Infinity, ease: 'easeInOut' },
+                  }}
                   className="px-7 py-3.5 rounded-full text-base font-bold"
-                  style={{ background: '#fff', color: roseAccent, border: `1px solid ${roseAccent}`, cursor: 'pointer' }}
+                  style={{
+                    position: 'fixed', zIndex: 60,
+                    background: '#fff', color: roseAccent,
+                    border: `1px solid ${roseAccent}`, cursor: 'pointer',
+                  }}
                 >
                   Click for <Zh>八音</Zh> 🎵
-                </motion.button>
-              </motion.div>
+                </motion.button>,
+                document.body,
+              )}
             </div>
             <AnimatePresence>
               {dodgeCount > 0 && (
