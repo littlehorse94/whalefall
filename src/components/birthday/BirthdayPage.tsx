@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import FallingPetals from './FallingPetals';
 import PhotoPlaceholder from './PhotoPlaceholder';
+import { Blob, Blossom, RingShape, DiamondShape, Sparkle } from './Decor';
 
 // ── Placeholder content — swap these for the real names, photos, and words. ──
 const PARTNER_NAME = 'My Love';
@@ -69,6 +70,12 @@ export default function BirthdayPage() {
         fontFamily: "'Poppins', 'Inter', sans-serif",
       }}
     >
+      {/* ── Ambient background blobs (behind everything) ── */}
+      <Blob size={380} color="#fcd2a8" style={{ top: -140, right: -160 }} />
+      <Blob size={340} color="#f6a8c2" style={{ top: '55%', left: -200 }} />
+      <Blob size={300} color="#e7c6e8" style={{ top: '115%', right: -160 }} />
+      <Blob size={260} color="#fcd2a8" style={{ top: '175%', left: -150 }} />
+
       {/* ── Top bar ── */}
       <div className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-5 sm:px-8 py-4">
         <span style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '0.95rem', color: roseText }}>
@@ -87,6 +94,17 @@ export default function BirthdayPage() {
       {/* ── Hero ── */}
       <section className="relative flex flex-col-reverse lg:flex-row items-center gap-10 lg:gap-16 px-6 sm:px-10 lg:px-20 pt-28 pb-20 max-w-6xl mx-auto min-h-screen">
         <FallingPetals />
+
+        {/* Static flower cluster + geometric accents, echoing the reference's corner blossoms */}
+        <Blossom size={54} rotate={12} style={{ bottom: '8%', right: '4%' }} />
+        <Blossom size={34} rotate={-18} opacity={0.45} style={{ bottom: '16%', right: '12%' }} />
+        <Blossom size={26} rotate={40} opacity={0.4} style={{ bottom: '4%', right: '18%' }} />
+        <Blossom size={30} rotate={-8} opacity={0.35} style={{ top: '14%', left: '4%' }} />
+        <RingShape size={54} style={{ top: '30%', left: '10%' }} />
+        <RingShape size={26} opacity={0.35} style={{ bottom: '22%', left: '20%' }} />
+        <DiamondShape size={14} style={{ top: '20%', right: '30%' }} />
+        <Sparkle size={20} style={{ top: '12%', right: '8%' }} />
+        <Sparkle size={14} opacity={0.4} style={{ bottom: '30%', left: '30%' }} />
 
         <div className="relative z-10 flex-1 text-center lg:text-left">
           <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1.3rem' }}>
@@ -136,14 +154,15 @@ export default function BirthdayPage() {
         </div>
 
         <div className="relative z-10 flex-1 flex justify-center">
-          <motion.div
-            initial={{ rotate: -3, opacity: 0, y: 20 }}
-            animate={{ rotate: -3, opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+          {/* Static, not animated — this card is visible immediately on
+              load (above the fold), so a mount-triggered fade only adds
+              risk (a rAF hiccup right after mount can leave it stuck
+              mid-transition) for no visible benefit. */}
+          <div
             style={{
               position: 'relative', background: '#fff', padding: '0.9rem 0.9rem 2.2rem',
               borderRadius: '4px', boxShadow: '0 25px 50px rgba(138,59,87,0.25)',
-              width: 'min(80vw, 320px)',
+              width: 'min(80vw, 320px)', transform: 'rotate(-3deg)',
             }}
           >
             <div
@@ -169,7 +188,7 @@ export default function BirthdayPage() {
             >
               Click<br />Anywhere<br />♥
             </motion.div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -202,6 +221,8 @@ export default function BirthdayPage() {
 
       {/* ── Our Story ── */}
       <section id="story" className="relative z-10 max-w-5xl mx-auto px-6 pt-24 pb-16">
+        <Blossom size={38} rotate={-15} opacity={0.4} style={{ top: '0%', left: '2%' }} />
+        <RingShape size={40} opacity={0.3} style={{ bottom: '5%', right: '4%' }} />
         <SectionHeading>Our Story ♡</SectionHeading>
         <p className="text-center mt-2" style={{ opacity: 0.7 }}>Every moment with you is my favorite.</p>
 
@@ -261,7 +282,9 @@ export default function BirthdayPage() {
 
       {/* ── Reasons Why I Love You ── */}
       <section id="reasons" className="relative z-10 px-6 pb-16">
-        <div className="max-w-4xl mx-auto rounded-3xl px-6 sm:px-10 py-12" style={{ background: 'rgba(255,255,255,0.5)' }}>
+        <div className="relative max-w-4xl mx-auto rounded-3xl px-6 sm:px-10 py-12 overflow-hidden" style={{ background: 'rgba(255,255,255,0.5)' }}>
+          <Blossom size={46} rotate={20} opacity={0.35} style={{ top: '-6%', right: '-2%' }} />
+          <DiamondShape size={16} style={{ bottom: '8%', left: '4%' }} />
           <SectionHeading>Reasons Why I Love You ♡</SectionHeading>
           <p className="text-center mt-2" style={{ opacity: 0.7 }}>Just a few of the countless reasons…</p>
 
@@ -309,9 +332,12 @@ export default function BirthdayPage() {
       {/* ── Special Surprise ── */}
       <section id="surprise" className="relative z-10 px-6 pb-20">
         <div
-          className="max-w-4xl mx-auto rounded-3xl px-6 sm:px-10 py-10 flex flex-col sm:flex-row items-center justify-between gap-6"
+          className="relative max-w-4xl mx-auto rounded-3xl px-6 sm:px-10 py-10 flex flex-col sm:flex-row items-center justify-between gap-6 overflow-hidden"
           style={{ background: 'linear-gradient(135deg, #fdeef2, #fbd9de)' }}
         >
+          <Sparkle size={20} style={{ top: '10%', left: '6%' }} />
+          <Sparkle size={14} opacity={0.4} style={{ bottom: '14%', right: '38%' }} />
+          <RingShape size={30} opacity={0.3} style={{ top: '12%', right: '10%' }} />
           <div className="text-center sm:text-left">
             <h3 style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1.6rem' }}>
               A Special Surprise Awaits You ♡
@@ -360,6 +386,7 @@ export default function BirthdayPage() {
 
       {/* ── Footer ── */}
       <footer className="relative z-10 text-center px-6 pb-14">
+        <Blossom size={28} rotate={0} opacity={0.5} style={{ position: 'static', display: 'inline-block', marginBottom: '0.5rem' }} />
         <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1.1rem' }}>
           ♡ Happy Birthday, {PARTNER_NAME} ♡
         </p>
