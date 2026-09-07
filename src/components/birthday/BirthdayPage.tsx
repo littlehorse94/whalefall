@@ -16,10 +16,10 @@ const STORY = [
 ];
 
 const REASONS = [
-  { icon: '🙂', text: 'You make me laugh like no one else' },
-  { icon: '♥', text: 'You are incredibly kind-hearted' },
-  { icon: '♥', text: 'You are my safe place', big: true },
-  { icon: '★', text: 'You believe in me always' },
+  { icon: '🙂', text: '为了任务' },
+  { icon: '♥', text: '为了衣服' },
+  { icon: '♥', text: '年龄差', big: true },
+  { icon: '★', text: '师徒' },
 ];
 
 const roseText = '#8a3b57';
@@ -46,7 +46,7 @@ function PartnerName() {
 function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
     <h2
-      className="text-3xl sm:text-4xl text-center"
+      className="text-4xl sm:text-5xl text-center"
       style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', color: roseText }}
     >
       {children}
@@ -69,7 +69,11 @@ export default function BirthdayPage() {
   }, []);
 
   const scrollStory = (dir: 1 | -1) => {
-    storyTrackRef.current?.scrollBy({ left: dir * 260, behavior: 'smooth' });
+    const track = storyTrackRef.current;
+    if (!track) return;
+    // Cards are ~78vw on mobile (the only width this button is shown at),
+    // so scroll by roughly one card's width instead of a fixed pixel amount.
+    track.scrollBy({ left: dir * track.clientWidth * 0.8, behavior: 'smooth' });
   };
 
   return (
@@ -95,13 +99,13 @@ export default function BirthdayPage() {
 
       {/* ── Top bar ── */}
       <div className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-5 sm:px-8 py-4">
-        <span style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '0.95rem', color: roseText }}>
+        <span style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1.1rem', color: roseText }}>
           For <PartnerName /> ♥
         </span>
         <button
           type="button"
           onClick={() => setSoundOn((v) => !v)}
-          className="text-xs sm:text-sm"
+          className="text-sm sm:text-base"
           style={{ color: roseText, opacity: 0.75, background: 'none', border: 'none', cursor: 'pointer' }}
         >
           {soundOn ? 'Sound on ♫' : 'Turn on sound ♫'}
@@ -109,7 +113,7 @@ export default function BirthdayPage() {
       </div>
 
       {/* ── Hero ── */}
-      <section className="relative flex flex-col-reverse lg:flex-row items-center gap-10 lg:gap-16 px-6 sm:px-10 lg:px-20 pt-24 pb-12">
+      <section className="relative flex flex-col-reverse lg:flex-row items-center gap-10 lg:gap-16 max-w-5xl mx-auto px-6 sm:px-10 lg:px-12 pt-24 pb-12">
         {/* Static flower cluster + geometric accents, echoing the reference's corner blossoms */}
         <Blossom size={54} rotate={12} style={{ bottom: '8%', right: '4%' }} />
         <Blossom size={34} rotate={-18} opacity={0.45} style={{ bottom: '16%', right: '12%' }} />
@@ -121,8 +125,8 @@ export default function BirthdayPage() {
         <Sparkle size={20} style={{ top: '12%', right: '8%' }} />
         <Sparkle size={14} opacity={0.4} style={{ bottom: '30%', left: '30%' }} />
 
-        <div className="relative z-10 flex-1 text-center lg:text-left max-w-6xl mx-auto lg:mx-0">
-          <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1.3rem' }}>
+        <div className="relative z-10 flex-1 text-center lg:text-left">
+          <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1.6rem' }}>
             Happy
           </p>
           <h1
@@ -136,16 +140,16 @@ export default function BirthdayPage() {
           >
             Birthday
           </h1>
-          <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1.6rem' }}>
-            <PartnerName /> <span style={{ fontSize: '1rem' }}>♡</span>
+          <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1.9rem' }}>
+            <PartnerName /> <span style={{ fontSize: '1.2rem' }}>♡</span>
           </p>
-          <p className="mt-5 max-w-md mx-auto lg:mx-0" style={{ opacity: 0.8, lineHeight: 1.7 }}>
+          <p className="mt-5 max-w-md mx-auto lg:mx-0" style={{ opacity: 0.8, fontSize: '1.1rem', lineHeight: 1.8 }}>
             <Zh>从师徒到侠缘，我们真的经历了很多很多</Zh>
           </p>
           <button
             type="button"
             onClick={() => scrollToId('story')}
-            className="mt-7 px-7 py-3 rounded-full text-sm font-medium"
+            className="mt-7 px-8 py-3.5 rounded-full text-base font-medium"
             style={{ background: roseAccent, color: '#fff', border: 'none', cursor: 'pointer', boxShadow: '0 10px 25px rgba(217,79,124,0.35)' }}
           >
             Start Our Journey ♡
@@ -153,7 +157,7 @@ export default function BirthdayPage() {
           <button
             type="button"
             onClick={() => scrollToId('story')}
-            className="block mt-8 mx-auto lg:mx-0 text-xs"
+            className="block mt-8 mx-auto lg:mx-0 text-sm"
             style={{ background: 'none', border: 'none', color: roseText, opacity: 0.6, cursor: 'pointer' }}
           >
             Scroll down
@@ -189,56 +193,49 @@ export default function BirthdayPage() {
             <div className="relative w-full" style={{ aspectRatio: '4/5' }}>
               <Image src={`${PHOTO_DIR}/1.webp`} alt="Us" fill className="object-cover" sizes="320px" priority />
             </div>
-            <p className="text-center mt-3" style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '0.95rem' }}>
+            <p className="text-center mt-3" style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1.05rem' }}>
               You mean the world to me ♥
             </p>
-            <motion.div
-              animate={{ y: [0, -6, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="hidden sm:flex"
-              style={{
-                position: 'absolute', top: '55%', right: -30, width: 84, height: 84, borderRadius: '50%',
-                background: roseAccent, color: '#fff', alignItems: 'center', justifyContent: 'center',
-                textAlign: 'center', fontSize: '0.7rem', fontWeight: 600, lineHeight: 1.3,
-                boxShadow: '0 10px 25px rgba(217,79,124,0.4)',
-              }}
-            >
-              Click<br />Anywhere<br />♥
-            </motion.div>
           </div>
         </div>
       </section>
 
       {/* ── Our Story — photos only ── */}
-      <section id="story" className="relative z-10 max-w-5xl mx-auto px-6 pt-12 pb-12">
+      <section id="story" className="relative z-10 max-w-6xl mx-auto px-6 pt-12 pb-12">
         <Blossom size={38} rotate={-15} opacity={0.4} style={{ top: '0%', left: '2%' }} />
         <RingShape size={40} opacity={0.3} style={{ bottom: '5%', right: '4%' }} />
         <SectionHeading>Our Story ♡</SectionHeading>
-        <p className="text-center mt-2" style={{ opacity: 0.7 }}>Every moment with you is my favorite.</p>
+        <p className="text-center mt-2" style={{ opacity: 0.7, fontSize: '1.1rem' }}>Every moment with you is my favorite.</p>
 
         <div className="relative mt-10 flex items-center gap-3">
           <button
             type="button"
             onClick={() => scrollStory(-1)}
             aria-label="Previous"
-            className="hidden sm:flex flex-shrink-0 items-center justify-center rounded-full"
+            className="flex sm:hidden flex-shrink-0 items-center justify-center rounded-full"
             style={{ width: 40, height: 40, background: '#fff', color: roseAccent, border: 'none', cursor: 'pointer', boxShadow: '0 6px 16px rgba(138,59,87,0.15)' }}
           >
             ‹
           </button>
 
-          <div ref={storyTrackRef} className="flex-1 overflow-x-auto" style={{ scrollSnapType: 'x mandatory' }}>
-            <div className="flex gap-10 sm:gap-16 py-6 px-2" style={{ minWidth: 'max-content' }}>
+          {/* Big enough to fill the row on tablet/desktop with no overflow
+              (so no scrollbar appears there); on mobile the cards are
+              deliberately wider than the viewport so the strip scrolls. */}
+          <div ref={storyTrackRef} className="flex-1 overflow-x-auto sm:overflow-visible" style={{ scrollSnapType: 'x mandatory' }}>
+            <div className="flex gap-4 sm:gap-6 pt-6 pb-10 sm:py-6 px-2">
+              {/* Static, not scroll-triggered — these photos are the whole
+                  point of the section, so they must always render, not
+                  risk getting stuck mid-fade if the animation frame loop
+                  hiccups right as the section scrolls into view (the same
+                  failure mode fixed on the hero photo earlier). */}
               {STORY.map((s, i) => (
-                <motion.div
+                <div
                   key={s.title}
-                  initial={{ opacity: 0, y: 20, rotate: i % 2 === 0 ? -4 : 4 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                  className="flex-shrink-0 w-[78vw] sm:w-auto sm:flex-1 sm:flex-shrink"
                   style={{
                     position: 'relative', background: '#fff', padding: '0.6rem 0.6rem 1.4rem',
-                    boxShadow: '0 15px 30px rgba(138,59,87,0.18)', width: 170, scrollSnapAlign: 'center',
+                    boxShadow: '0 15px 30px rgba(138,59,87,0.18)', scrollSnapAlign: 'center',
+                    transform: `rotate(${i % 2 === 0 ? -4 : 4}deg)`,
                   }}
                 >
                   <div
@@ -247,10 +244,10 @@ export default function BirthdayPage() {
                       width: 46, height: 16, background: 'rgba(255,255,255,0.7)', boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
                     }}
                   />
-                  <div className="relative" style={{ width: 150, aspectRatio: '4/3' }}>
-                    <Image src={s.photo} alt={s.title} fill className="object-cover" sizes="150px" />
+                  <div className="relative w-full" style={{ aspectRatio: '4/3' }}>
+                    <Image src={s.photo} alt={s.title} fill className="object-cover" sizes="(max-width: 640px) 78vw, 22vw" />
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>
@@ -259,7 +256,7 @@ export default function BirthdayPage() {
             type="button"
             onClick={() => scrollStory(1)}
             aria-label="Next"
-            className="hidden sm:flex flex-shrink-0 items-center justify-center rounded-full"
+            className="flex sm:hidden flex-shrink-0 items-center justify-center rounded-full"
             style={{ width: 40, height: 40, background: roseAccent, color: '#fff', border: 'none', cursor: 'pointer', boxShadow: '0 6px 16px rgba(138,59,87,0.25)' }}
           >
             ›
@@ -273,10 +270,10 @@ export default function BirthdayPage() {
           <Blossom size={46} rotate={20} opacity={0.35} style={{ top: '-6%', right: '-2%' }} />
           <DiamondShape size={16} style={{ bottom: '8%', left: '4%' }} />
           <SectionHeading><Zh>记得我们的清醒四部曲吗</Zh> ♡</SectionHeading>
-          <p className="text-center mt-2" style={{ opacity: 0.7 }}>Just a few of the countless reasons…</p>
+          <p className="text-center mt-2" style={{ opacity: 0.7, fontSize: '1.1rem' }}>Just a few of the countless reasons…</p>
           <p
             className="text-center mt-4 max-w-lg mx-auto"
-            style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', lineHeight: 1.8 }}
+            style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1.2rem', lineHeight: 1.9 }}
           >
             <Zh>但是以后，我不想再有任何清醒四部曲，想忘了时间，忘了季节更替，沉沦于跟你一起的花海！</Zh>
           </p>
@@ -298,8 +295,8 @@ export default function BirthdayPage() {
                     border: 'none', cursor: 'pointer', color: roseText,
                   }}
                 >
-                  <span style={{ fontSize: active ? '1.8rem' : '1.3rem', color: roseAccent }}>{r.icon}</span>
-                  <span className="text-sm font-medium" style={{ lineHeight: 1.4 }}>{r.text}</span>
+                  <span style={{ fontSize: active ? '2.1rem' : '1.5rem', color: roseAccent }}>{r.icon}</span>
+                  <span className="font-medium" style={{ fontSize: '1.05rem', lineHeight: 1.4 }}><Zh>{r.text}</Zh></span>
                 </button>
               );
             })}
@@ -332,10 +329,10 @@ export default function BirthdayPage() {
           <Sparkle size={14} opacity={0.4} style={{ bottom: '14%', right: '38%' }} />
           <RingShape size={30} opacity={0.3} style={{ top: '12%', right: '10%' }} />
           <div className="text-center sm:text-left">
-            <h3 style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1.6rem' }}>
+            <h3 style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1.9rem' }}>
               A Special Surprise Awaits You ♡
             </h3>
-            <p className="mt-1" style={{ opacity: 0.75 }}>
+            <p className="mt-1" style={{ opacity: 0.75, fontSize: '1.05rem' }}>
               {surpriseOpen ? 'Happy birthday — this one is just for you.' : 'Click the button below to open your birthday surprise!'}
             </p>
             <AnimatePresence>
@@ -344,8 +341,8 @@ export default function BirthdayPage() {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="mt-3 text-sm italic"
-                  style={{ maxWidth: 380 }}
+                  className="mt-3 italic"
+                  style={{ maxWidth: 380, fontSize: '1rem' }}
                 >
                   “[Write your special birthday message here — a memory, a promise, or
                   everything you love about them.]”
@@ -358,8 +355,8 @@ export default function BirthdayPage() {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="mt-3 text-sm italic"
-                  style={{ maxWidth: 380 }}
+                  className="mt-3 italic"
+                  style={{ maxWidth: 380, fontSize: '1rem' }}
                 >
                   🎵 [The <Zh>八音</Zh> melody plays here once the audio file is hooked up.] 🎵
                 </motion.p>
@@ -370,7 +367,7 @@ export default function BirthdayPage() {
                 <button
                   type="button"
                   onClick={() => setSurpriseOpen(true)}
-                  className="px-6 py-3 rounded-full text-sm font-medium"
+                  className="px-7 py-3.5 rounded-full text-base font-medium"
                   style={{ background: roseAccent, color: '#fff', border: 'none', cursor: 'pointer', boxShadow: '0 10px 25px rgba(217,79,124,0.35)' }}
                 >
                   Open Your Surprise 🎁
@@ -379,7 +376,7 @@ export default function BirthdayPage() {
               <button
                 type="button"
                 onClick={() => setMusicBoxOpen((v) => !v)}
-                className="px-6 py-3 rounded-full text-sm font-medium"
+                className="px-7 py-3.5 rounded-full text-base font-medium"
                 style={{ background: '#fff', color: roseAccent, border: `1px solid ${roseAccent}`, cursor: 'pointer' }}
               >
                 Click for <Zh>八音</Zh> 🎵
@@ -403,10 +400,10 @@ export default function BirthdayPage() {
       {/* ── Footer ── */}
       <footer className="relative z-10 text-center px-6 pb-10">
         <Blossom size={28} rotate={0} opacity={0.5} style={{ position: 'static', display: 'inline-block', marginBottom: '0.5rem' }} />
-        <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1.1rem' }}>
+        <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1.4rem' }}>
           ♡ Happy Birthday, <PartnerName /> ♡
         </p>
-        <p className="mt-1 text-sm" style={{ opacity: 0.65 }}>I love you more than words can say.</p>
+        <p className="mt-1" style={{ opacity: 0.65, fontSize: '1rem' }}>I love you more than words can say.</p>
       </footer>
     </div>
   );
