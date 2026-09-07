@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import FallingPetals from './FallingPetals';
 import { Blob, Blossom, RingShape, DiamondShape, Sparkle } from './Decor';
+import CardFanCarousel from '@/components/ui/card-fan-carousel';
 
 const PHOTO_DIR = '/gallery/Xiaoxingxing';
 
@@ -68,7 +69,6 @@ export default function BirthdayPage() {
   const [soundOn, setSoundOn] = useState(false);
   const [reasonIndex, setReasonIndex] = useState(2);
   const [surpriseOpen, setSurpriseOpen] = useState(false);
-  const storyTrackRef = useRef<HTMLDivElement>(null);
 
   // A hidden same-size spacer left in the button's normal spot in the
   // surprise card — reserves its layout space and, since it never itself
@@ -102,14 +102,6 @@ export default function BirthdayPage() {
   useEffect(() => () => {
     if (returnHomeTimerRef.current) clearTimeout(returnHomeTimerRef.current);
   }, []);
-
-  const scrollStory = (dir: 1 | -1) => {
-    const track = storyTrackRef.current;
-    if (!track) return;
-    // Cards are ~78vw on mobile (the only width this button is shown at),
-    // so scroll by roughly one card's width instead of a fixed pixel amount.
-    track.scrollBy({ left: dir * track.clientWidth * 0.8, behavior: 'smooth' });
-  };
 
   // Drifts the button back to the placeholder's current spot (re-measured
   // live, in viewport coordinates — the button is always position:fixed,
@@ -349,67 +341,11 @@ export default function BirthdayPage() {
         <SectionHeading>Our Story ♡</SectionHeading>
         <p className="text-center mt-2" style={{ opacity: 0.7, fontSize: '1.1rem' }}>Every moment with you is my favorite.</p>
 
-        <div className="relative mt-10 flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => scrollStory(-1)}
-            aria-label="Previous"
-            className="flex sm:hidden flex-shrink-0 items-center justify-center rounded-full"
-            style={{ width: 40, height: 40, background: '#fff', color: roseAccent, border: 'none', cursor: 'pointer', boxShadow: '0 6px 16px rgba(138,59,87,0.15)' }}
-          >
-            ‹
-          </button>
-
-          {/* Big enough to fill the row on tablet/desktop with no overflow
-              (so no scrollbar appears there); on mobile the cards are
-              deliberately wider than the viewport so the strip scrolls. */}
-          <div ref={storyTrackRef} className="flex-1 overflow-x-auto sm:overflow-visible" style={{ scrollSnapType: 'x mandatory' }}>
-            <div className="flex gap-6 sm:gap-10 pt-6 pb-10 sm:py-6 px-2">
-              {/* Static, not scroll-triggered — these photos are the whole
-                  point of the section, so they must always render, not
-                  risk getting stuck mid-fade if the animation frame loop
-                  hiccups right as the section scrolls into view (the same
-                  failure mode fixed on the hero photo earlier). */}
-              {STORY.map((s, i) => (
-                <div
-                  key={s.title}
-                  className="flex-shrink-0 w-[78vw] sm:w-auto sm:flex-1 sm:flex-shrink"
-                  style={{
-                    position: 'relative', background: '#fff', padding: '0.6rem 0.6rem 1.4rem',
-                    boxShadow: '0 15px 30px rgba(138,59,87,0.18)', scrollSnapAlign: 'center',
-                    transform: `rotate(${i % 2 === 0 ? -4 : 4}deg)`,
-                  }}
-                >
-                  <div
-                    style={{
-                      position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%) rotate(-3deg)',
-                      width: 46, height: 16, background: 'rgba(255,255,255,0.7)', boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
-                    }}
-                  />
-                  <div
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => setLightboxPhoto(s.photo)}
-                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setLightboxPhoto(s.photo); }}
-                    className="relative w-full"
-                    style={{ aspectRatio: '1/1', cursor: 'zoom-in' }}
-                  >
-                    <Image src={s.photo} alt={s.title} fill className="object-cover" sizes="(max-width: 640px) 78vw, 22vw" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => scrollStory(1)}
-            aria-label="Next"
-            className="flex sm:hidden flex-shrink-0 items-center justify-center rounded-full"
-            style={{ width: 40, height: 40, background: roseAccent, color: '#fff', border: 'none', cursor: 'pointer', boxShadow: '0 6px 16px rgba(138,59,87,0.25)' }}
-          >
-            ›
-          </button>
+        <div className="mt-6">
+          <CardFanCarousel
+            cards={STORY.map((s) => ({ imgUrl: s.photo, alt: s.title }))}
+            onCardClick={(card) => setLightboxPhoto(card.imgUrl)}
+          />
         </div>
       </section>
 
@@ -540,12 +476,19 @@ export default function BirthdayPage() {
                     if (t) fleeFrom(t.clientX, t.clientY);
                   }}
                   initial={false}
-                  animate={{ left: pos.x, top: pos.y, y: [0, -5, 0], rotate: [0, -3, 3, 0] }}
+                  // Perfectly still — same as the "Open Your Surprise"
+                  // button next to it — until the first hover/touch. Only
+                  // once activated does it pick up the idle float/wobble.
+                  animate={
+                    activated
+                      ? { left: pos.x, top: pos.y, y: [0, -5, 0], rotate: [0, -3, 3, 0] }
+                      : { left: pos.x, top: pos.y, y: 0, rotate: 0 }
+                  }
                   transition={{
                     left: { type: 'tween', ease: 'easeOut', duration: 0.5 },
                     top: { type: 'tween', ease: 'easeOut', duration: 0.5 },
-                    y: { duration: 2.6, repeat: Infinity, ease: 'easeInOut' },
-                    rotate: { duration: 2.6, repeat: Infinity, ease: 'easeInOut' },
+                    y: activated ? { duration: 2.6, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.2 },
+                    rotate: activated ? { duration: 2.6, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.2 },
                   }}
                   className="px-7 py-3.5 rounded-full text-base font-bold"
                   style={{
