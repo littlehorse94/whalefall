@@ -1,0 +1,370 @@
+'use client';
+
+import { useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import FallingPetals from './FallingPetals';
+import PhotoPlaceholder from './PhotoPlaceholder';
+
+// ── Placeholder content — swap these for the real names, photos, and words. ──
+const PARTNER_NAME = 'My Love';
+
+const STORY = [
+  { title: 'The First Hello', desc: 'The day our journey began' },
+  { title: 'Our First Date', desc: 'Nervous, excited, and unforgettable' },
+  { title: 'Adventures Together', desc: 'Exploring, laughing, and making memories' },
+  { title: 'You & Me', desc: 'Today, tomorrow, and always' },
+];
+
+const REASONS = [
+  { icon: '🙂', text: 'You make me laugh like no one else' },
+  { icon: '♥', text: 'You are incredibly kind-hearted' },
+  { icon: '♥', text: 'You are my safe place', big: true },
+  { icon: '★', text: 'You believe in me always' },
+  { icon: '☀', text: 'You make every day better' },
+];
+
+const NAV_ITEMS = [
+  { icon: '♥', label: 'Our Story', sub: 'Memories that mean everything', href: '#story' },
+  { icon: '🎁', label: 'Reasons Why', sub: 'Little reasons I love you', href: '#reasons' },
+  { icon: '🖼', label: 'Photo Gallery', sub: 'Our beautiful moments', href: '#story' },
+  { icon: '✉', label: 'Special Message', sub: 'A message from my heart to yours', href: '#surprise' },
+];
+
+const roseText = '#8a3b57';
+const roseAccent = '#d94f7c';
+
+function scrollToId(id: string) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+}
+
+function SectionHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <h2
+      className="text-3xl sm:text-4xl text-center"
+      style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', color: roseText }}
+    >
+      {children}
+    </h2>
+  );
+}
+
+export default function BirthdayPage() {
+  const [soundOn, setSoundOn] = useState(false);
+  const [reasonIndex, setReasonIndex] = useState(2);
+  const [surpriseOpen, setSurpriseOpen] = useState(false);
+  const storyTrackRef = useRef<HTMLDivElement>(null);
+
+  const scrollStory = (dir: 1 | -1) => {
+    storyTrackRef.current?.scrollBy({ left: dir * 260, behavior: 'smooth' });
+  };
+
+  return (
+    <div
+      style={{
+        position: 'relative',
+        minHeight: '100vh',
+        overflowX: 'hidden',
+        background: 'linear-gradient(180deg, #fbe7dd 0%, #fbd9de 22%, #fdeef2 55%, #fdf5f7 100%)',
+        color: roseText,
+        fontFamily: "'Poppins', 'Inter', sans-serif",
+      }}
+    >
+      {/* ── Top bar ── */}
+      <div className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-5 sm:px-8 py-4">
+        <span style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '0.95rem', color: roseText }}>
+          For {PARTNER_NAME} ♥
+        </span>
+        <button
+          type="button"
+          onClick={() => setSoundOn((v) => !v)}
+          className="text-xs sm:text-sm"
+          style={{ color: roseText, opacity: 0.75, background: 'none', border: 'none', cursor: 'pointer' }}
+        >
+          {soundOn ? 'Sound on ♫' : 'Turn on sound ♫'}
+        </button>
+      </div>
+
+      {/* ── Hero ── */}
+      <section className="relative flex flex-col-reverse lg:flex-row items-center gap-10 lg:gap-16 px-6 sm:px-10 lg:px-20 pt-28 pb-20 max-w-6xl mx-auto min-h-screen">
+        <FallingPetals />
+
+        <div className="relative z-10 flex-1 text-center lg:text-left">
+          <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1.3rem' }}>
+            Happy
+          </p>
+          <h1
+            style={{
+              fontFamily: "'Great Vibes', cursive",
+              fontSize: 'clamp(3.5rem, 9vw, 6rem)',
+              lineHeight: 1,
+              color: roseAccent,
+              margin: '0.1em 0',
+            }}
+          >
+            Birthday
+          </h1>
+          <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1.6rem' }}>
+            {PARTNER_NAME} <span style={{ fontSize: '1rem' }}>♡</span>
+          </p>
+          <p className="mt-5 max-w-md mx-auto lg:mx-0" style={{ opacity: 0.8, lineHeight: 1.7 }}>
+            A special day for the most amazing person in my life. Thank you for being you.
+          </p>
+          <button
+            type="button"
+            onClick={() => scrollToId('story')}
+            className="mt-7 px-7 py-3 rounded-full text-sm font-medium"
+            style={{ background: roseAccent, color: '#fff', border: 'none', cursor: 'pointer', boxShadow: '0 10px 25px rgba(217,79,124,0.35)' }}
+          >
+            Start Our Journey ♡
+          </button>
+          <button
+            type="button"
+            onClick={() => scrollToId('story')}
+            className="block mt-8 mx-auto lg:mx-0 text-xs"
+            style={{ background: 'none', border: 'none', color: roseText, opacity: 0.6, cursor: 'pointer' }}
+          >
+            Scroll down
+            <motion.span
+              className="block mx-auto"
+              style={{ width: 14, marginTop: 2 }}
+              animate={{ y: [0, 4, 0] }}
+              transition={{ duration: 1.4, repeat: Infinity }}
+            >
+              ⌄
+            </motion.span>
+          </button>
+        </div>
+
+        <div className="relative z-10 flex-1 flex justify-center">
+          <motion.div
+            initial={{ rotate: -3, opacity: 0, y: 20 }}
+            animate={{ rotate: -3, opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            style={{
+              position: 'relative', background: '#fff', padding: '0.9rem 0.9rem 2.2rem',
+              borderRadius: '4px', boxShadow: '0 25px 50px rgba(138,59,87,0.25)',
+              width: 'min(80vw, 320px)',
+            }}
+          >
+            <div
+              style={{
+                position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%) rotate(-4deg)',
+                width: 70, height: 22, background: 'rgba(255,255,255,0.65)', boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+              }}
+            />
+            <PhotoPlaceholder label="Your photo here" className="w-full" style={{ aspectRatio: '4/5' } as React.CSSProperties} />
+            <p className="text-center mt-3" style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '0.95rem' }}>
+              You mean the world to me ♥
+            </p>
+            <motion.div
+              animate={{ y: [0, -6, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="hidden sm:flex"
+              style={{
+                position: 'absolute', top: '55%', right: -30, width: 84, height: 84, borderRadius: '50%',
+                background: roseAccent, color: '#fff', alignItems: 'center', justifyContent: 'center',
+                textAlign: 'center', fontSize: '0.7rem', fontWeight: 600, lineHeight: 1.3,
+                boxShadow: '0 10px 25px rgba(217,79,124,0.4)',
+              }}
+            >
+              Click<br />Anywhere<br />♥
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── Icon nav row ── */}
+      <div className="relative z-10 max-w-5xl mx-auto -mt-6 sm:-mt-10 px-6">
+        <div
+          className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-4 rounded-3xl px-6 py-8"
+          style={{ background: 'rgba(255,255,255,0.55)', backdropFilter: 'blur(10px)', boxShadow: '0 15px 40px rgba(138,59,87,0.12)' }}
+        >
+          {NAV_ITEMS.map((item) => (
+            <button
+              key={item.label}
+              type="button"
+              onClick={() => scrollToId(item.href.slice(1))}
+              className="flex flex-col items-center text-center gap-2"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: roseText }}
+            >
+              <span
+                className="flex items-center justify-center rounded-full"
+                style={{ width: 44, height: 44, background: '#fdeef2', color: roseAccent, fontSize: '1.2rem' }}
+              >
+                {item.icon}
+              </span>
+              <span className="text-sm font-semibold">{item.label}</span>
+              <span className="text-xs" style={{ opacity: 0.6 }}>{item.sub}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Our Story ── */}
+      <section id="story" className="relative z-10 max-w-5xl mx-auto px-6 pt-24 pb-16">
+        <SectionHeading>Our Story ♡</SectionHeading>
+        <p className="text-center mt-2" style={{ opacity: 0.7 }}>Every moment with you is my favorite.</p>
+
+        <div className="relative mt-12 flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => scrollStory(-1)}
+            aria-label="Previous"
+            className="hidden sm:flex flex-shrink-0 items-center justify-center rounded-full"
+            style={{ width: 40, height: 40, background: '#fff', color: roseAccent, border: 'none', cursor: 'pointer', boxShadow: '0 6px 16px rgba(138,59,87,0.15)' }}
+          >
+            ‹
+          </button>
+
+          <div ref={storyTrackRef} className="flex-1 overflow-x-auto" style={{ scrollSnapType: 'x mandatory' }}>
+            <div className="relative flex gap-10 sm:gap-16 py-6 px-2" style={{ minWidth: 'max-content' }}>
+              <div className="absolute left-0 right-0" style={{ top: '58%', height: 2, background: 'rgba(217,79,124,0.25)' }} />
+              {STORY.map((s, i) => (
+                <div key={s.title} className="flex flex-col items-center" style={{ width: 170, scrollSnapAlign: 'center' }}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20, rotate: i % 2 === 0 ? -4 : 4 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: i * 0.1 }}
+                    style={{ position: 'relative', background: '#fff', padding: '0.6rem 0.6rem 1.4rem', boxShadow: '0 15px 30px rgba(138,59,87,0.18)' }}
+                  >
+                    <div
+                      style={{
+                        position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%) rotate(-3deg)',
+                        width: 46, height: 16, background: 'rgba(255,255,255,0.7)', boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+                      }}
+                    />
+                    <PhotoPlaceholder style={{ width: 150, aspectRatio: '4/3' } as React.CSSProperties} />
+                  </motion.div>
+                  <span
+                    className="mt-4 rounded-full"
+                    style={{ width: 12, height: 12, background: roseAccent, boxShadow: '0 0 0 4px rgba(217,79,124,0.15)' }}
+                  />
+                  <p className="mt-3 text-sm font-semibold text-center">{s.title}</p>
+                  <p className="text-xs text-center mt-1" style={{ opacity: 0.65 }}>{s.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => scrollStory(1)}
+            aria-label="Next"
+            className="hidden sm:flex flex-shrink-0 items-center justify-center rounded-full"
+            style={{ width: 40, height: 40, background: roseAccent, color: '#fff', border: 'none', cursor: 'pointer', boxShadow: '0 6px 16px rgba(138,59,87,0.25)' }}
+          >
+            ›
+          </button>
+        </div>
+      </section>
+
+      {/* ── Reasons Why I Love You ── */}
+      <section id="reasons" className="relative z-10 px-6 pb-16">
+        <div className="max-w-4xl mx-auto rounded-3xl px-6 sm:px-10 py-12" style={{ background: 'rgba(255,255,255,0.5)' }}>
+          <SectionHeading>Reasons Why I Love You ♡</SectionHeading>
+          <p className="text-center mt-2" style={{ opacity: 0.7 }}>Just a few of the countless reasons…</p>
+
+          <div className="mt-10 flex items-stretch justify-center gap-3 sm:gap-4 flex-wrap">
+            {REASONS.map((r, i) => {
+              const active = i === reasonIndex;
+              return (
+                <button
+                  key={r.text}
+                  type="button"
+                  onClick={() => setReasonIndex(i)}
+                  className="flex flex-col items-center justify-center text-center gap-3 rounded-2xl transition-all"
+                  style={{
+                    width: active ? 168 : 128,
+                    padding: active ? '1.75rem 1.1rem' : '1.25rem 0.9rem',
+                    background: active ? '#fff' : '#fdeef2',
+                    boxShadow: active ? '0 20px 40px rgba(138,59,87,0.2)' : 'none',
+                    border: 'none', cursor: 'pointer', color: roseText,
+                  }}
+                >
+                  <span style={{ fontSize: active ? '1.8rem' : '1.3rem', color: roseAccent }}>{r.icon}</span>
+                  <span className="text-sm font-medium" style={{ lineHeight: 1.4 }}>{r.text}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex justify-center gap-2 mt-8">
+            {REASONS.map((r, i) => (
+              <button
+                key={r.text}
+                type="button"
+                onClick={() => setReasonIndex(i)}
+                aria-label={`Show reason ${i + 1}`}
+                style={{
+                  width: 8, height: 8, borderRadius: '50%', border: 'none', cursor: 'pointer',
+                  background: i === reasonIndex ? roseAccent : 'rgba(217,79,124,0.25)',
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Special Surprise ── */}
+      <section id="surprise" className="relative z-10 px-6 pb-20">
+        <div
+          className="max-w-4xl mx-auto rounded-3xl px-6 sm:px-10 py-10 flex flex-col sm:flex-row items-center justify-between gap-6"
+          style={{ background: 'linear-gradient(135deg, #fdeef2, #fbd9de)' }}
+        >
+          <div className="text-center sm:text-left">
+            <h3 style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1.6rem' }}>
+              A Special Surprise Awaits You ♡
+            </h3>
+            <p className="mt-1" style={{ opacity: 0.75 }}>
+              {surpriseOpen ? 'Happy birthday — this one is just for you.' : 'Click the button below to open your birthday surprise!'}
+            </p>
+            <AnimatePresence>
+              {surpriseOpen && (
+                <motion.p
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mt-3 text-sm italic"
+                  style={{ maxWidth: 380 }}
+                >
+                  “[Write your special birthday message here — a memory, a promise, or
+                  everything you love about them.]”
+                </motion.p>
+              )}
+            </AnimatePresence>
+            {!surpriseOpen && (
+              <button
+                type="button"
+                onClick={() => setSurpriseOpen(true)}
+                className="mt-5 px-6 py-3 rounded-full text-sm font-medium"
+                style={{ background: roseAccent, color: '#fff', border: 'none', cursor: 'pointer', boxShadow: '0 10px 25px rgba(217,79,124,0.35)' }}
+              >
+                Open Your Surprise 🎁
+              </button>
+            )}
+          </div>
+          <motion.div
+            animate={surpriseOpen ? { scale: [1, 1.2, 1] } : { scale: [1, 1.05, 1] }}
+            transition={{ duration: surpriseOpen ? 0.6 : 2, repeat: surpriseOpen ? 0 : Infinity }}
+            className="flex-shrink-0 flex items-center justify-center rounded-full"
+            style={{
+              width: 96, height: 96, fontSize: '2.4rem',
+              background: 'radial-gradient(circle, rgba(217,79,124,0.25), rgba(217,79,124,0.05))',
+            }}
+          >
+            {surpriseOpen ? '💝' : '🔒'}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── Footer ── */}
+      <footer className="relative z-10 text-center px-6 pb-14">
+        <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1.1rem' }}>
+          ♡ Happy Birthday, {PARTNER_NAME} ♡
+        </p>
+        <p className="mt-1 text-sm" style={{ opacity: 0.65 }}>I love you more than words can say.</p>
+      </footer>
+    </div>
+  );
+}

@@ -12,13 +12,15 @@ interface AudioToggleProps {
 
 export default function AudioToggle({ audioUrl, labelPlaying, labelPaused }: AudioToggleProps) {
   const pathname = usePathname();
-  const isAdmin = pathname.startsWith('/admin');
+  // The birthday page has its own sound toggle for its own track, and admin
+  // pages don't want ambient guild music playing while editing content.
+  const hideGlobalAudio = pathname.startsWith('/admin') || pathname.startsWith('/birthday');
   const audioRef     = useRef<HTMLAudioElement | null>(null);
   const userMutedRef = useRef(false);
   const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
-    if (isAdmin) return;
+    if (hideGlobalAudio) return;
     const audio = new Audio(audioUrl);
     audio.loop   = true;
     audio.volume = 0.8;
@@ -41,7 +43,7 @@ export default function AudioToggle({ audioUrl, labelPlaying, labelPaused }: Aud
       document.removeEventListener('click',      unlockPlay);
       document.removeEventListener('touchstart', unlockPlay);
     };
-  }, [audioUrl, isAdmin]);
+  }, [audioUrl, hideGlobalAudio]);
 
   const toggle = () => {
     const audio = audioRef.current;
@@ -56,7 +58,7 @@ export default function AudioToggle({ audioUrl, labelPlaying, labelPaused }: Aud
     }
   };
 
-  if (isAdmin) return null;
+  if (hideGlobalAudio) return null;
 
   return (
     <motion.button
