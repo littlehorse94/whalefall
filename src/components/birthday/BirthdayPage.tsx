@@ -56,7 +56,8 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
   );
 }
 
-// The 八音 button is never meant to be caught — these tune how paranoid it is.
+// The "song of the star" button is never meant to be caught — these tune
+// how paranoid it is.
 // It roams the whole viewport (not just the surprise card) so it always has
 // somewhere to run — a small box meant it could eventually get cornered.
 const DODGE_TRIGGER_RADIUS = 160; // start fleeing once the pointer gets this close (px)
@@ -70,9 +71,7 @@ const DODGE_EDGE_MARGIN = 16; // never let it dodge fully off-screen
 const BIRTHDAY_AUDIO_URL = '/src/Tide%20of%20Jade%20Echoes.mp3';
 
 export default function BirthdayPage() {
-  const [soundOn, setSoundOn] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const userMutedRef = useRef(false);
   const [reasonIndex, setReasonIndex] = useState(2);
   const [surpriseOpen, setSurpriseOpen] = useState(false);
 
@@ -105,9 +104,9 @@ export default function BirthdayPage() {
     return () => document.body.classList.remove('birthday-theme');
   }, []);
 
-  // This page's own background track. Browsers block autoplay-with-sound
-  // until the visitor interacts, so try immediately and fall back to
-  // starting on their first click/tap if that's blocked.
+  // This page's own background track — no manual toggle, it just plays.
+  // Browsers block autoplay-with-sound until the visitor interacts, so
+  // try immediately and fall back to starting on their first click/tap.
   useEffect(() => {
     const audio = new Audio(BIRTHDAY_AUDIO_URL);
     audio.loop = true;
@@ -115,11 +114,10 @@ export default function BirthdayPage() {
     audioRef.current = audio;
 
     const unlockPlay = () => {
-      if (userMutedRef.current) return;
-      audio.play().then(() => setSoundOn(true)).catch(() => {});
+      audio.play().catch(() => {});
     };
 
-    audio.play().then(() => setSoundOn(true)).catch(() => {
+    audio.play().catch(() => {
       document.addEventListener('click', unlockPlay, { once: true });
       document.addEventListener('touchstart', unlockPlay, { once: true });
     });
@@ -148,7 +146,7 @@ export default function BirthdayPage() {
     setMode('home');
   }, []);
 
-  // Bolts the 八音 button away from (pointerX, pointerY) if it's gotten too
+  // Bolts the "song of the star" button away from (pointerX, pointerY) if it's gotten too
   // close, landing anywhere in the viewport (with a small edge margin) —
   // not boxed into the surprise card, so it always has room to run.
   // Reads the button's live rect rather than any stored position, so it
@@ -242,19 +240,6 @@ export default function BirthdayPage() {
     else setDodgeCount((c) => c + 1);
   };
 
-  const toggleSound = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    if (soundOn) {
-      audio.pause();
-      setSoundOn(false);
-      userMutedRef.current = true;
-    } else {
-      audio.play().then(() => setSoundOn(true)).catch(() => {});
-      userMutedRef.current = false;
-    }
-  };
-
   return (
     <div
       style={{
@@ -272,18 +257,10 @@ export default function BirthdayPage() {
       <FallingPetals />
 
       {/* ── Top bar ── */}
-      <div className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-5 sm:px-8 py-4">
+      <div className="fixed top-0 left-0 right-0 z-40 flex items-center px-5 sm:px-8 py-4">
         <span style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: '1.1rem', color: roseText }}>
           For <PartnerName /> ♥
         </span>
-        <button
-          type="button"
-          onClick={toggleSound}
-          className="text-sm sm:text-base"
-          style={{ color: roseText, opacity: 0.75, background: 'none', border: 'none', cursor: 'pointer' }}
-        >
-          {soundOn ? 'Sound on ♫' : 'Turn on sound ♫'}
-        </button>
       </div>
 
       {/* ── Hero ── */}
@@ -508,7 +485,7 @@ export default function BirthdayPage() {
                 className="inline-block px-7 py-3.5 rounded-full text-base font-bold"
                 style={{ visibility: 'hidden', border: '1px solid transparent' }}
               >
-                Click for free 八音 🎵
+                song of the star ♥
               </span>
               {/* Portal'd to <body> — rendering it here would make its
                   position:absolute/fixed resolve against this card's own
@@ -547,7 +524,7 @@ export default function BirthdayPage() {
                     border: `1px solid ${roseAccent}`, cursor: 'pointer',
                   }}
                 >
-                  Click for free <Zh>八音</Zh> 🎵
+                  song of the star ♥
                 </motion.button>,
                 document.body,
               )}

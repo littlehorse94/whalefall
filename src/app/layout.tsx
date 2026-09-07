@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import "./globals.css";
 import AudioToggle from "@/components/AudioToggle";
 import { getSection } from "@/lib/blob-store";
 import { MEDIA_SEED } from "@/lib/seed-data";
+import { BIRTHDAY_HOST } from "@/lib/site-config";
 
 // Set NEXT_PUBLIC_SITE_URL in Vercel project settings once the production
 // domain is final — every absolute URL below (OG images, canonical links,
@@ -70,6 +72,12 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const media = await getSection('media', MEDIA_SEED);
+  // usePathname() reports the browser-visible URL, not the internal
+  // rewrite target — on the birthday subdomain that's still "/", so
+  // AudioToggle can't tell it apart from the guild homepage by path
+  // alone. The Host header doesn't have that ambiguity.
+  const host = (await headers()).get('host');
+  const isBirthdayHost = host === BIRTHDAY_HOST;
 
   return (
     <html lang="en" className="h-full">
@@ -83,7 +91,7 @@ export default async function RootLayout({
       </head>
       <body className="min-h-full bg-[#0a0e1a] text-[#e8f4f8] antialiased">
         {children}
-        <AudioToggle audioUrl={media.audioUrl} labelPlaying={media.audioLabelPlaying} labelPaused={media.audioLabelPaused} />
+        <AudioToggle audioUrl={media.audioUrl} labelPlaying={media.audioLabelPlaying} labelPaused={media.audioLabelPaused} forceHide={isBirthdayHost} />
       </body>
     </html>
   );

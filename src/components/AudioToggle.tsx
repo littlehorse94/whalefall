@@ -8,13 +8,18 @@ interface AudioToggleProps {
   audioUrl: string;
   labelPlaying: string;
   labelPaused: string;
+  // True when the request's Host header is the birthday subdomain — a
+  // server-computed check, since usePathname() reports "/" there too
+  // (rewrites are invisible to the client) and can't tell it apart from
+  // the guild homepage.
+  forceHide?: boolean;
 }
 
-export default function AudioToggle({ audioUrl, labelPlaying, labelPaused }: AudioToggleProps) {
+export default function AudioToggle({ audioUrl, labelPlaying, labelPaused, forceHide }: AudioToggleProps) {
   const pathname = usePathname();
-  // The birthday page has its own sound toggle for its own track, and admin
+  // The birthday page has its own sound for its own track, and admin
   // pages don't want ambient guild music playing while editing content.
-  const hideGlobalAudio = pathname.startsWith('/admin') || pathname.startsWith('/birthday');
+  const hideGlobalAudio = forceHide || pathname.startsWith('/admin') || pathname.startsWith('/birthday');
   const audioRef     = useRef<HTMLAudioElement | null>(null);
   const userMutedRef = useRef(false);
   const [playing, setPlaying] = useState(false);

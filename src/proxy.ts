@@ -1,10 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { verifySessionToken, COOKIE_NAME } from '@/lib/auth';
-
-// The birthday page's private subdomain — its root serves /birthday
-// directly instead of the guild homepage.
-const BIRTHDAY_HOST = 'xiaoxingxing.whalefall.club';
+import { BIRTHDAY_HOST } from '@/lib/site-config';
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
