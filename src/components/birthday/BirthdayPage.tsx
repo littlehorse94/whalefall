@@ -56,8 +56,9 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
 
 // The 八音 button is never meant to be caught — these tune how paranoid it is.
 const DODGE_TRIGGER_RADIUS = 100; // start fleeing once the pointer gets this close (px)
-const DODGE_JUMP = 150; // roughly how far it bolts per flee (px)
+const DODGE_JUMP = 280; // roughly how far it bolts per flee (px)
 const DODGE_THROTTLE_MS = 150; // don't recompute on every single mousemove pixel
+const DODGE_RETURN_DELAY_MS = 1500; // drift back home after this long without interaction
 
 export default function BirthdayPage() {
   const [soundOn, setSoundOn] = useState(false);
@@ -70,12 +71,19 @@ export default function BirthdayPage() {
   const [dodge, setDodge] = useState({ x: 0, y: 0 });
   const [dodgeCount, setDodgeCount] = useState(0);
   const lastDodgeAtRef = useRef(0);
+  const returnHomeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const [lightboxPhoto, setLightboxPhoto] = useState<string | null>(null);
 
   // Swap the guild site's dark-theme scrollbar for a pink one while this
   // page is mounted, then hand it back on the way out.
   useEffect(() => {
     document.body.classList.add('birthday-theme');
     return () => document.body.classList.remove('birthday-theme');
+  }, []);
+
+  useEffect(() => () => {
+    if (returnHomeTimerRef.current) clearTimeout(returnHomeTimerRef.current);
   }, []);
 
   const scrollStory = (dir: 1 | -1) => {
@@ -131,11 +139,21 @@ export default function BirthdayPage() {
     setDodgeCount((c) => c + 1);
   };
 
+  // Any pointer activity over the card resets the "come home" clock, so it
+  // only drifts back to its starting spot once you've actually left it alone.
+  const handlePointerActivity = (pointerX: number, pointerY: number) => {
+    if (returnHomeTimerRef.current) clearTimeout(returnHomeTimerRef.current);
+    returnHomeTimerRef.current = setTimeout(() => {
+      setDodge({ x: 0, y: 0 });
+    }, DODGE_RETURN_DELAY_MS);
+    fleeFrom(pointerX, pointerY);
+  };
+
   // Clicking/tapping it directly always counts as "too close" — it bolts
   // instead of doing anything else. It is never meant to be caught.
   const handleAttempt = () => {
     const r = musicBtnRef.current?.getBoundingClientRect();
-    if (r) fleeFrom(r.left + r.width / 2, r.top + r.height / 2);
+    if (r) handlePointerActivity(r.left + r.width / 2, r.top + r.height / 2);
     else setDodgeCount((c) => c + 1);
   };
 
@@ -310,7 +328,14 @@ export default function BirthdayPage() {
                       width: 46, height: 16, background: 'rgba(255,255,255,0.7)', boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
                     }}
                   />
-                  <div className="relative w-full" style={{ aspectRatio: '1/1' }}>
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setLightboxPhoto(s.photo)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setLightboxPhoto(s.photo); }}
+                    className="relative w-full"
+                    style={{ aspectRatio: '1/1', cursor: 'zoom-in' }}
+                  >
                     <Image src={s.photo} alt={s.title} fill className="object-cover" sizes="(max-width: 640px) 78vw, 22vw" />
                   </div>
                 </div>
@@ -390,9 +415,9 @@ export default function BirthdayPage() {
       <section id="surprise" className="relative z-10 px-6 pb-14">
         <div
           ref={surpriseCardRef}
-          onMouseMove={(e) => fleeFrom(e.clientX, e.clientY)}
-          onTouchStart={(e) => { const t = e.touches[0]; if (t) fleeFrom(t.clientX, t.clientY); }}
-          onTouchMove={(e) => { const t = e.touches[0]; if (t) fleeFrom(t.clientX, t.clientY); }}
+          onMouseMove={(e) => handlePointerActivity(e.clientX, e.clientY)}
+          onTouchStart={(e) => { const t = e.touches[0]; if (t) handlePointerActivity(t.clientX, t.clientY); }}
+          onTouchMove={(e) => { const t = e.touches[0]; if (t) handlePointerActivity(t.clientX, t.clientY); }}
           className="relative max-w-4xl mx-auto rounded-3xl px-6 sm:px-10 py-10 flex flex-col sm:flex-row items-center justify-between gap-6 overflow-hidden"
           style={{ background: 'linear-gradient(135deg, #fdeef2, #fbd9de)' }}
         >
@@ -439,7 +464,7 @@ export default function BirthdayPage() {
                   before anyone's cursor comes near it. */}
               <motion.div
                 animate={{ x: dodge.x, y: dodge.y }}
-                transition={{ type: 'spring', stiffness: 260, damping: 18 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 11 }}
                 style={{ display: 'inline-block' }}
               >
                 <motion.button
@@ -492,6 +517,50 @@ export default function BirthdayPage() {
         </p>
         <p className="mt-1" style={{ opacity: 0.65, fontSize: '1rem' }}>I love you more than words can say.</p>
       </footer>
+
+      {/* Story-photo lightbox — click any Our Story photo to pop it out;
+          click the dark backdrop (not the photo itself) to dismiss. */}
+      <AnimatePresence>
+        {lightboxPhoto && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setLightboxPhoto(null)}
+            className="fixed inset-0 z-50 flex items-center justify-center px-6"
+            style={{ background: 'rgba(20,10,15,0.8)', cursor: 'zoom-out' }}
+          >
+            <motion.div
+              initial={{ scale: 0.85, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.85, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 26 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative"
+              style={{
+                width: 'min(85vw, 620px)', aspectRatio: '1/1', background: '#fff',
+                padding: '0.9rem', borderRadius: '4px', boxShadow: '0 30px 70px rgba(0,0,0,0.4)',
+              }}
+            >
+              <div className="relative w-full h-full">
+                <Image src={lightboxPhoto} alt="" fill className="object-cover" sizes="85vw" />
+              </div>
+              <button
+                type="button"
+                onClick={() => setLightboxPhoto(null)}
+                aria-label="Close"
+                className="absolute flex items-center justify-center rounded-full"
+                style={{
+                  top: -16, right: -16, width: 36, height: 36, background: '#fff', color: roseText,
+                  border: 'none', cursor: 'pointer', boxShadow: '0 6px 16px rgba(0,0,0,0.25)', fontSize: '1.1rem',
+                }}
+              >
+                ×
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
