@@ -74,6 +74,7 @@ const BIRTHDAY_AUDIO_URL = 'https://fxkwv9qn6m8lrc7q.public.blob.vercel-storage.
 
 export default function BirthdayPage() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [soundOn, setSoundOn] = useState(false);
   const [reasonIndex, setReasonIndex] = useState(2);
   const [surpriseOpen, setSurpriseOpen] = useState(false);
 
@@ -106,9 +107,9 @@ export default function BirthdayPage() {
     return () => document.body.classList.remove('birthday-theme');
   }, []);
 
-  // This page's own background track — no manual toggle, it just plays.
-  // Browsers block autoplay-with-sound until the visitor interacts, so
-  // try immediately and fall back to starting on their first click/tap.
+  // This page's own background track. Browsers block autoplay-with-sound
+  // until the visitor interacts, so try immediately and fall back to the
+  // bottom-right toggle (or any click/tap) if that's blocked.
   useEffect(() => {
     const audio = new Audio(BIRTHDAY_AUDIO_URL);
     audio.loop = true;
@@ -116,10 +117,10 @@ export default function BirthdayPage() {
     audioRef.current = audio;
 
     const unlockPlay = () => {
-      audio.play().catch(() => {});
+      audio.play().then(() => setSoundOn(true)).catch(() => {});
     };
 
-    audio.play().catch(() => {
+    audio.play().then(() => setSoundOn(true)).catch(() => {
       document.addEventListener('click', unlockPlay, { once: true });
       document.addEventListener('touchstart', unlockPlay, { once: true });
     });
@@ -242,6 +243,17 @@ export default function BirthdayPage() {
     else setDodgeCount((c) => c + 1);
   };
 
+  const toggleSound = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (soundOn) {
+      audio.pause();
+      setSoundOn(false);
+    } else {
+      audio.play().then(() => setSoundOn(true)).catch(() => {});
+    }
+  };
+
   return (
     <div
       style={{
@@ -264,6 +276,21 @@ export default function BirthdayPage() {
           For <PartnerName /> ♥
         </span>
       </div>
+
+      {/* ── Sound toggle — also doubles as the explicit gesture that
+          unlocks autoplay in browsers that block it without one. ── */}
+      <button
+        type="button"
+        onClick={toggleSound}
+        className="fixed bottom-6 right-6 z-40 text-sm sm:text-base rounded-full px-4 py-2.5"
+        style={{
+          color: roseText, background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(8px)',
+          border: `1px solid ${soundOn ? roseAccent : 'rgba(138,59,87,0.2)'}`,
+          boxShadow: '0 6px 16px rgba(138,59,87,0.15)', cursor: 'pointer',
+        }}
+      >
+        {soundOn ? 'Sound on ♫' : 'Turn on sound ♫'}
+      </button>
 
       {/* ── Hero ── */}
       <section className="relative flex flex-col-reverse lg:flex-row items-center gap-10 lg:gap-16 max-w-5xl mx-auto px-6 sm:px-10 lg:px-12 pt-24 pb-12">
