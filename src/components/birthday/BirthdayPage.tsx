@@ -116,6 +116,10 @@ export default function BirthdayPage() {
     audio.volume = 0.6;
     audioRef.current = audio;
 
+    // Skip the track's first 20s on load — currentTime only reliably
+    // sticks once the browser knows the seekable range.
+    audio.addEventListener('loadedmetadata', () => { audio.currentTime = 20; }, { once: true });
+
     const unlockPlay = () => {
       audio.play().then(() => setSoundOn(true)).catch(() => {});
     };
@@ -289,7 +293,7 @@ export default function BirthdayPage() {
           boxShadow: '0 6px 16px rgba(138,59,87,0.15)', cursor: 'pointer',
         }}
       >
-        {soundOn ? 'Sound on ♫' : 'Turn on sound ♫'}
+        Song of little star ♫
       </button>
 
       {/* ── Hero ── */}
