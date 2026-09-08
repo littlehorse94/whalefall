@@ -29,10 +29,11 @@ const FAN_POSITIONS = [
 ];
 
 function getResponsiveMultiplier(width: number) {
-  if (width < 480) return 0.28;
-  if (width < 640) return 0.38;
-  if (width < 768) return 0.5;
-  if (width < 1024) return 0.75;
+  if (width < 400) return 0.15;
+  if (width < 480) return 0.2;
+  if (width < 640) return 0.28;
+  if (width < 768) return 0.32;
+  if (width < 1024) return 0.4;
   return 1.0;
 }
 
@@ -65,7 +66,7 @@ function getSlotConfig(totalCards: number, slot: number) {
   return {
     rot: distance * 12,
     scale: 1.0 - 0.1 * absDistance * absDistance,
-    x: distance * 15,
+    x: distance * 7,
     y: absDistance * absDistance * 3.5,
     zIndex: 10 - Math.abs(slot - center),
   };
@@ -76,7 +77,7 @@ const ARROW_CLASSES =
 
 // Every card is a fixed-size square (1:1) at each breakpoint — the fan
 // spread/scale math above is independent of the card's own pixel size.
-const CARD_SIZE_CLASSES = 'w-32 h-32 sm:w-40 sm:h-40 md:w-52 md:h-52 lg:w-60 lg:h-60';
+const CARD_SIZE_CLASSES = 'w-20 h-20 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-56 lg:h-56';
 
 export default function CardFanCarousel({ cards, onCardClick }: CardFanCarouselProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -135,6 +136,15 @@ export default function CardFanCarousel({ cards, onCardClick }: CardFanCarouselP
       }
     };
 
+    // A rAF/paint hiccup right around mount can leave a GSAP tween
+    // permanently stuck at its `gsap.set` starting values (half-scale,
+    // still off its final spot) instead of ever reaching `onComplete` —
+    // the same failure mode fixed elsewhere on this page for
+    // Framer Motion. This safety net force-sets every card to its final
+    // resting values shortly after the longest tween could possibly
+    // still be running, so a stuck card always recovers.
+    const finalTargets: { el: HTMLElement; target: gsap.TweenVars }[] = [];
+
     cardElements.forEach((card, cardIndex) => {
       const slot = visibleMap.get(cardIndex);
       const wasVisible = previouslyVisible.has(cardIndex);
@@ -149,6 +159,7 @@ export default function CardFanCarousel({ cards, onCardClick }: CardFanCarouselP
           opacity: 1,
           zIndex,
         };
+        finalTargets.push({ el: card, target });
 
         if (isFirstMount) {
           gsap.set(card, { x: 0, y: `${12 * hMult}rem`, rotation: 0, scale: 0.5, opacity: 0 });
@@ -167,6 +178,12 @@ export default function CardFanCarousel({ cards, onCardClick }: CardFanCarouselP
         gsap.set(card, { opacity: 0, scale: 0.3, x: 0, y: 0, zIndex: 0 });
       }
     });
+
+    const stuckAnimationFallback = setTimeout(() => {
+      finalTargets.forEach(({ el, target }) => gsap.set(el, target));
+      isAnimating.current = false;
+      if (isFirstMount) hasEntered.current = true;
+    }, 2500);
 
     prevVisible.current = new Set(visibleMap.keys());
 
@@ -253,6 +270,7 @@ export default function CardFanCarousel({ cards, onCardClick }: CardFanCarouselP
       container.removeEventListener('mouseleave', onMouseLeave);
       window.removeEventListener('resize', onResize);
       if (leaveTimer) clearTimeout(leaveTimer);
+      clearTimeout(stuckAnimationFallback);
     };
   }, [centerIndex, totalCards, getVisibleMap, needsPagination]);
 
@@ -265,7 +283,11 @@ export default function CardFanCarousel({ cards, onCardClick }: CardFanCarouselP
   );
 
   return (
-    <section className="flex flex-col items-center w-full py-4 lg:py-8 px-4 md:px-8 relative z-20">
+    // Bottom padding is deliberately generous — the fan's vertical droop
+    // and rotation are applied via CSS transform, which doesn't affect
+    // this section's own layout height, so without it the next section
+    // can render right on top of the lowest-hanging cards.
+    <section className="flex flex-col items-center w-full pt-4 pb-32 sm:pb-28 lg:pt-8 lg:pb-24 px-4 md:px-8 relative z-20">
       <div className="flex items-center justify-center w-full max-w-[90rem]">
         <div ref={containerRef} className="fan-layout flex relative justify-center items-center w-full max-w-[80rem]">
           {cards.map((card, index) => {

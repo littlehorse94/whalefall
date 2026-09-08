@@ -303,18 +303,24 @@ export default function BirthdayPage() {
       </div>
 
       {/* ── Sound toggle — also doubles as the explicit gesture that
-          unlocks autoplay in browsers that block it without one. ── */}
+          unlocks autoplay in browsers that block it without one. Most
+          sections end with a centered CTA near the bottom of the
+          viewport, so on mobile this shrinks to a small icon-only
+          circle instead of the full pill — far less likely to sit on
+          top of a button someone's trying to tap. ── */}
       <button
         type="button"
         onClick={toggleSound}
-        className="fixed bottom-6 right-6 z-40 text-sm sm:text-base rounded-full px-4 py-2.5"
+        aria-label={soundOn ? 'Song of little star — playing' : 'Song of little star — turn on'}
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 flex items-center justify-center rounded-full w-11 h-11 sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 text-sm sm:text-base"
         style={{
           color: roseText, background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(8px)',
           border: `1px solid ${soundOn ? roseAccent : 'rgba(138,59,87,0.2)'}`,
           boxShadow: '0 6px 16px rgba(138,59,87,0.15)', cursor: 'pointer',
         }}
       >
-        Song of little star ♫
+        <span className="sm:hidden" aria-hidden>♫</span>
+        <span className="hidden sm:inline">Song of little star ♫</span>
       </button>
 
       {/* ── Hero ── */}
