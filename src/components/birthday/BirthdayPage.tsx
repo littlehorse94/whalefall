@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import FallingPetals from './FallingPetals';
 import WishesRain from './WishesRain';
 import { Blob, Blossom, RingShape, DiamondShape, Sparkle } from './Decor';
-import CardFanCarousel from '@/components/ui/card-fan-carousel';
+import { InteractivePhotoStack } from '@/components/ui/photo-stack';
 
 const PHOTO_DIR = '/gallery/Xiaoxingxing';
 
@@ -32,10 +32,11 @@ function scrollToId(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
 }
 
-// Every Chinese word on this page renders in Long Cang (already loaded
-// site-wide via globals.css) instead of the Latin display fonts.
+// Every Chinese word on this page renders in ZCOOL XiaoWei (loaded via
+// this page's own <link>, see app/birthday/page.tsx) instead of the
+// Latin display fonts.
 function Zh({ children }: { children: React.ReactNode }) {
-  return <span style={{ fontFamily: "'Long Cang', cursive" }}>{children}</span>;
+  return <span style={{ fontFamily: "'ZCOOL XiaoWei', serif" }}>{children}</span>;
 }
 
 function PartnerName() {
@@ -57,8 +58,7 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
   );
 }
 
-// The "song of the star" button is never meant to be caught — these tune
-// how paranoid it is.
+// The 八音 button is never meant to be caught — these tune how paranoid it is.
 // It roams the whole viewport (not just the surprise card) so it always has
 // somewhere to run — a small box meant it could eventually get cornered.
 const DODGE_TRIGGER_RADIUS = 160; // start fleeing once the pointer gets this close (px)
@@ -165,7 +165,7 @@ export default function BirthdayPage() {
     setMode('home');
   }, []);
 
-  // Bolts the "song of the star" button away from (pointerX, pointerY) if it's gotten too
+  // Bolts the 八音 button away from (pointerX, pointerY) if it's gotten too
   // close, landing anywhere in the viewport (with a small edge margin) —
   // not boxed into the surprise card, so it always has room to run.
   // Reads the button's live rect rather than any stored position, so it
@@ -226,7 +226,7 @@ export default function BirthdayPage() {
   }, [activated, fleeFrom]);
 
   // Seed its starting position from the placeholder once mounted. Waits
-  // for web fonts (the Chinese text is Long Cang) first — measuring
+  // for web fonts (the Chinese text is ZCOOL XiaoWei) first — measuring
   // before they swap in and re-measuring afterward would mean two
   // different positions, and since the button is already mounted by
   // then, `initial={false}` can't suppress an animated glide between
@@ -429,9 +429,9 @@ export default function BirthdayPage() {
         <p className="text-center mt-2" style={{ opacity: 0.7, fontSize: '1.1rem' }}>Every moment with you is my favorite.</p>
 
         <div className="mt-6">
-          <CardFanCarousel
-            cards={STORY.map((s) => ({ imgUrl: s.photo, alt: s.title }))}
-            onCardClick={(card) => setLightboxPhoto(card.imgUrl)}
+          <InteractivePhotoStack
+            items={STORY.map((s) => ({ src: s.photo, name: s.title }))}
+            title="Click each photo to bring it forward ♡"
           />
         </div>
       </section>
@@ -554,7 +554,7 @@ export default function BirthdayPage() {
                 className="inline-block px-7 py-3.5 rounded-full text-base font-bold"
                 style={{ visibility: 'hidden', border: '1px solid transparent' }}
               >
-                song of the star ♥
+                Click for free 八音 🎵
               </span>
               {/* Portal'd to <body> — rendering it here would make its
                   position:absolute/fixed resolve against this card's own
@@ -593,7 +593,7 @@ export default function BirthdayPage() {
                     border: `1px solid ${roseAccent}`, cursor: 'pointer',
                   }}
                 >
-                  song of the star ♥
+                  Click for free <Zh>八音</Zh> 🎵
                 </motion.button>,
                 document.body,
               )}
