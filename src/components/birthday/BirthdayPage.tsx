@@ -71,7 +71,7 @@ const DODGE_EDGE_MARGIN = 16; // never let it dodge fully off-screen
 // audio (which AudioToggle already hides on /birthday). Served from Blob
 // storage rather than /public — large media there is gitignored and
 // CDN-served (see .gitignore), same as the guild's own video/audio assets.
-const BIRTHDAY_AUDIO_URL = 'https://fxkwv9qn6m8lrc7q.public.blob.vercel-storage.com/Tide%20of%20Jade%20Echoes.mp3';
+const BIRTHDAY_AUDIO_URL = 'https://fo6cod68kzdpipju.public.blob.vercel-storage.com/Tide%20of%20Jade%20Echoes.mp3';
 
 export default function BirthdayPage() {
   const audioRef = useRef<HTMLAudioElement | null>(null);

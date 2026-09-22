@@ -30,11 +30,11 @@ export const HERO_SEED: HeroContent = {
 
 export const MEDIA_SEED: MediaSettings = {
   heroVideoUrls: [
-    'https://24crvoriam0dl2l7.public.blob.vercel-storage.com/wf-hero-pre.mp4',
-    'https://24crvoriam0dl2l7.public.blob.vercel-storage.com/wf-hero-video.mp4',
+    'https://fo6cod68kzdpipju.public.blob.vercel-storage.com/wf-hero-pre.mp4',
+    'https://fo6cod68kzdpipju.public.blob.vercel-storage.com/wf-hero-video.mp4',
   ],
-  pageVideoUrl: 'https://24crvoriam0dl2l7.public.blob.vercel-storage.com/wf-page-video.mp4',
-  audioUrl: 'https://24crvoriam0dl2l7.public.blob.vercel-storage.com/Celestial-Whale-Tide.mp3',
+  pageVideoUrl: 'https://fo6cod68kzdpipju.public.blob.vercel-storage.com/wf-page-video.mp4',
+  audioUrl: 'https://fo6cod68kzdpipju.public.blob.vercel-storage.com/Celestial-Whale-Tide.mp3',
   audioLabelPlaying: 'Ocean Song ♪',
   audioLabelPaused: 'Song of the Deep',
 };
